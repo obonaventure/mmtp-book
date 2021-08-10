@@ -1,0 +1,19 @@
+Titles
+
+First level of title
+********************
+
+
+Second level of title
+=====================
+
+
+Third level of title
+--------------------
+
+
+Fourth level of title
+^^^^^^^^^^^^^^^^^^^^^
+
+We use US English spelling
+
