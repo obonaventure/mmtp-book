@@ -39,11 +39,14 @@ release = '2021'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinxcontrib.tikz',
+     'sphinxcontrib.bibtex',
     'sphinx.ext.todo',
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
-    'sphinxcontrib.spelling',
-    'sphinxcontrib.bibtex',
+    'sphinxcontrib.spelling'
+    
+   
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -82,8 +85,29 @@ spelling_word_list_filename=['wordlist.dict']
 
 # bibtex
 
-bibtex_bibfiles = ['bib/rfc.bib']
+bibtex_bibfiles = ['bib/rfc.bib',
+                   'mptcp-bib/bibs/2007.bib',
+                   'mptcp-bib/bibs/2008.bib',
+                   'mptcp-bib/bibs/2009.bib',
+                   'mptcp-bib/bibs/2010.bib',
+                   'mptcp-bib/bibs/2011.bib',
+                   'mptcp-bib/bibs/2012.bib',
+                   'mptcp-bib/bibs/2013.bib',
+                   'mptcp-bib/bibs/2014.bib',
+                   'mptcp-bib/bibs/2015.bib',
+                   'mptcp-bib/bibs/2016.bib',
+                   'mptcp-bib/bibs/2017.bib',
+                   'mptcp-bib/bibs/2018.bib',
+                   'mptcp-bib/bibs/2019.bib',
+                   'mptcp-bib/bibs/2020.bib',
+                   'mptcp-bib/bibs/2021.bib',
+                   'mptcp-bib/bibs/2022.bib',
+                       ]
 
+bibtex_default_style = 'unsrt'
+
+
+numfig=True
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -148,6 +172,36 @@ latex_documents = [
      'Olivier Bonaventure and Quentin De Coninck', 'manual'),
 ]
 
+latex_elements = {
+'preamble': '''
+\\usepackage{tikz}
+\\usepackage{pgfplots}
+%\pgfplotsset{compat=1.16}
+\\usetikzlibrary{arrows.meta,positioning, matrix,backgrounds,shapes,shadows,calc,automata,math}
+'''
+}
+
+# Documents to append as an appendix to all manuals.
+#latex_appendices = []
+
+# If false, no module index is generated.
+#latex_use_modindex = True
+
+tikz_libraries="positioning,matrix,arrows,shapes,automata,math"
+
+tikz_proc_suite='ImageMagick'
+
+tikz_latex_preamble='''
+%preamble
+\\usepackage{tikz}
+\\usepackage{pgfplots}
+\\usepackage{pgfkeys}
+\\usepackage[normalem]{ulem}
+%\pgfplotsset{compat=1.16}
+\\tikzset{router/.style = {rectangle, draw, text centered, minimum height=2em
+}, }
+\\tikzset{host/.style = {circle, draw, text centered, minimum height=2em}, }
+'''
 
 # -- Options for manual page output ------------------------------------------
 

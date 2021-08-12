@@ -14,8 +14,9 @@ Welcome to Multipath TCP : a more resilient transport's documentation!
    usecases
    principles
    details
+   implementations
    comparison
-   
+   biblio
 
 Indices and tables
 ==================
