@@ -40,7 +40,7 @@ release = '2021'
 # ones.
 extensions = [
     'sphinxcontrib.tikz',
-     'sphinxcontrib.bibtex',
+    'sphinxcontrib.bibtex',
     'sphinx.ext.todo',
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
@@ -71,7 +71,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path .
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store','._*rst']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -86,6 +86,7 @@ spelling_word_list_filename=['wordlist.dict']
 # bibtex
 
 bibtex_bibfiles = ['bib/rfc.bib',
+                   'bib/papers.bib',
                    'mptcp-bib/bibs/2007.bib',
                    'mptcp-bib/bibs/2008.bib',
                    'mptcp-bib/bibs/2009.bib',

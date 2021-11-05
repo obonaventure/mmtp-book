@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Multipath TCP : a more resilient transport's documentation!
-======================================================================
+Welcome to Modern Multipath Transport Protocols
+===============================================
 
 .. toctree::
    :maxdepth: 2
@@ -12,8 +12,11 @@ Welcome to Multipath TCP : a more resilient transport's documentation!
 
    intro
    usecases
+   singlepath
    principles
-   details
+   mptcp
+   mpquic
+   sctp
    implementations
    comparison
    biblio

@@ -1,10 +1,41 @@
 Use cases
 *********
 
+.. todo:: start with use cases for the transport layer
 
+The transport layer is an important layer in the TCP/IP protocol stack since this is the first layer that controls the exchange of information between the communicating hosts. It enhances the service provided by the network layer in several ways. First, the transport layer allows to multiplex data exchanged by different applications running on a given pair of communicating hosts. Second, the transport layer improves the reliability of the network layer. A wide range of reliablity mechanisms have been proposed and implemented in transport protocols. These include, e.g. the utilization of checksums or CRCs to detect transmission errors, various techniques to recover from packet losses or congestion control mechanism that enable the transport protocol to detect the rate at which a flow can be transmitted without causing congestion. 
+
+.. _fig-layers:
+.. tikz:: The TCP/IP protocol stack
+   :libs: fit, positioning
+	  
+   % inspired by https://newbedev.com/tikz-draw-simplified-ble-stack 	  
+   \begin{tikzpicture}[
+   node distance = 2mm and 0mm,
+   box/.style = {draw, text width=#1, inner sep=2mm, align=center},
+   box/.default = 98mm,
+   FIT/.style = {draw, semithick, dotted, fit=#1,
+                 inner xsep=4mm, inner ysep=2mm},  % here you can adjust inner distance of node
+                                                   % this adjust you need to consider at defining the width of the top nodes
+		 label distance = 2mm,
+		 font = \sffamily
+                 ]
+   \node (phy) [box]                   {Physical Layer};
+   \node (dl) [box, above = of phy]   {Data Link Layer};
+   \node (net) [box, above = of dl]   {Network Layer};
+   \node (transport) [box, above = of net]   {Transport Layer};
+   \node (net) [box, above = of transport]   {Application Layer};
+   \end{tikzpicture}
+
+Transport protocols provide different types of services to the applications. The simplest one is the datagram service provided by UDP :cite:t:`rfc768` that uses source and destination ports to provide multiplexing and uses a checksum to detect transmission errors.
+The real-time transport protocol (RTP) :cite:t:`rfc3550` provides services intended for real-time applications such as interactive audio and video. These services include type identification, sequence numbering, timestamping and monitoring using the companion RTCP protocol.
+The Datagram Congestion Control Protocol (DCCP) :cite:t:`rfc4340` mainly adds congestion control capabilities for UDP or RTP sessions. 
+The Transmission Control Protocol (TCP) :cite:t:`rfc793` enables the applications to create connections that support a bidirectionnal and reliable bytestream. TCP also includes flow-control and congestion control to adapt the transmission rate to current capabilities of the network and the communicating hosts. Nowadays, applications often use Transport Layer Security (TLS) :cite:t:`rfc8446` above TCP to secure the exchange of data. The Stream Control Transmission Protocol (SCTP) :cite:t:`rfc4960` brought the support for multiple streams and failover capabilities. QUIC :cite:t:`rfc9000` the most recent transport protocol standardized within the IETF provides reliably delivery, includes TLS, supports multiple streams and connection migration.
+
+ 
 .. todo:: Explain the main use cases for Multipath TCP and why it brings benefits
 
-Before looking at how Multipath TCP :cite:p:`rc6824` works in details, it is interesting to first analyze the different use cases where Multipath TCP is used. Some of these use cases have motivated the design of Multipath TCP. Others appeared after the design was complete. Other uses cases will likely appear in the coming years.
+Before looking at how Multipath TCP :cite:t:`rfc6824` works in details, it is interesting to first analyze the different use cases where Multipath TCP is used. Some of these use cases have motivated the design of Multipath TCP. Others appeared after the design was complete. Other uses cases will likely appear in the coming years.
 
 
 As explained in the previous section, with Multipath TCP, hosts can exchanged data over different paths. At a high level, a Multipath TCP implementation lies between an application that uses the socket layer to exchange data over a connection. With TCP, a client establishes a connection with a server. It then uses it to send and receive data reliably thanks to the retransmission, flow and congestion control mechanisms that are included inside TCP. This TCP connection is identified by using four fields that are present in each packet exchanged over the connection:
@@ -124,3 +155,4 @@ Each server is attached to a single ToR switch with a single network interface. 
 Although this approach has been widely cited in the scientific literature, it does not seem to have been adopted by datacenter operators. This lack of deployment was probably caused by two main factors. First, the Multipath TCP implementation in the Linux kernel was only distributed as an unofficial patch for many years. Datacenter operators were reluctant to deploy an unofficial patch on their production server. A second factor is that Multipath TCP increases datacenter utilization by using buffers on the servers and on the network switches. With Multipath TCP, servers need to reorder the packets received over different paths. Some datacenter operators have considered that this additional delay could be an issue for request response applications that require shorter response times. Recent work on datacenters have focussed more on reducing delays than improving network utilization.
 
           
+
