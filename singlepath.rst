@@ -52,6 +52,7 @@ TCP was designed to be extensible. The TCP header contains a TCP Header Length (
    \draw[blue,thick, ->] (\c1,\y-2.1) -- (\s1,\y-3) node [midway, align=left, fill=white] {ACK\small{[seq=x+1,ack=y+1]}};
 
 A TCP connection is identified by using four fields that are included inside each TCP packet:
+
  - the client IP address
  - the server IP address
  - the client-selected port

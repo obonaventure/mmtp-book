@@ -11,14 +11,8 @@ The transport layer is an important layer in the TCP/IP protocol stack since thi
 	  
    % inspired by https://newbedev.com/tikz-draw-simplified-ble-stack 	  
    \begin{tikzpicture}[
-   node distance = 2mm and 0mm,
-   box/.style = {draw, text width=#1, inner sep=2mm, align=center},
-   box/.default = 98mm,
-   FIT/.style = {draw, semithick, dotted, fit=#1,
-                 inner xsep=4mm, inner ysep=2mm},  % here you can adjust inner distance of node
-                                                   % this adjust you need to consider at defining the width of the top nodes
-		 label distance = 2mm,
-		 font = \sffamily
+   node distance = 0mm and 0mm,
+   box/.style = {draw, text width=80mm, inner sep=2mm, align=center}
                  ]
    \node (phy) [box]                   {Physical Layer};
    \node (dl) [box, above = of phy]   {Data Link Layer};
@@ -35,10 +29,11 @@ The Transmission Control Protocol (TCP) :cite:t:`rfc793` enables the application
  
 .. todo:: Explain the main use cases for Multipath TCP and why it brings benefits
 
+
 Before looking at how Multipath TCP :cite:t:`rfc6824` works in details, it is interesting to first analyze the different use cases where Multipath TCP is used. Some of these use cases have motivated the design of Multipath TCP. Others appeared after the design was complete. Other uses cases will likely appear in the coming years.
 
-
 As explained in the previous section, with Multipath TCP, hosts can exchanged data over different paths. At a high level, a Multipath TCP implementation lies between an application that uses the socket layer to exchange data over a connection. With TCP, a client establishes a connection with a server. It then uses it to send and receive data reliably thanks to the retransmission, flow and congestion control mechanisms that are included inside TCP. This TCP connection is identified by using four fields that are present in each packet exchanged over the connection:
+
  - client IP address
  - server IP address
  - client TCP port

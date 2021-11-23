@@ -1,3 +1,167 @@
+@inproceedings{piraux2018observing,
+  title={Observing the evolution of QUIC implementations},
+  author={Piraux, Maxime and De Coninck, Quentin and Bonaventure, Olivier},
+  booktitle={Proceedings of the Workshop on the Evolution, Performance, and Interoperability of QUIC},
+  pages={8--14},
+  year={2018}
+}
+
+@inproceedings{marx2020debugging,
+  title={Debugging QUIC and HTTP/3 with qlog and qvis},
+  author={Marx, Robin and Piraux, Maxime and Quax, Peter and Lamotte, Wim},
+  booktitle={Proceedings of the Applied Networking Research Workshop},
+  pages={58--66},
+  year={2020}
+}
+
+
+@inproceedings{de2017multipath,
+  title={Multipath quic: Design and evaluation},
+  author={De Coninck, Quentin and Bonaventure, Olivier},
+  booktitle={Proceedings of the 13th international conference on emerging networking experiments and technologies},
+  pages={160--166},
+  year={2017}
+}
+
+@inproceedings{viernickel2018multipath,
+  title={Multipath QUIC: A deployable multipath transport protocol},
+  author={Viernickel, Tobias and Froemmgen, Alexander and Rizk, Amr and Koldehofe, Boris and Steinmetz, Ralf},
+  booktitle={2018 IEEE International Conference on Communications (ICC)},
+  pages={1--7},
+  year={2018},
+  organization={IEEE}
+}
+
+@article{de2021multiflow,
+  title={Multiflow QUIC: A Generic Multipath Transport Protocol},
+  author={De Coninck, Quentin and Bonaventure, Olivier},
+  journal={IEEE Communications Magazine},
+  volume={59},
+  number={5},
+  pages={108--113},
+  year={2021},
+  publisher={IEEE}
+}
+
+@techreport{draft-lmbdhk-quic-multipath,
+	number =	{draft-lmbdhk-quic-multipath-00},
+	type =		{Internet-Draft},
+	institution =	{Internet Engineering Task Force},
+	publisher =	{Internet Engineering Task Force},
+	note =		{Work in Progress},
+	url =		{https://datatracker.ietf.org/doc/html/draft-lmbdhk-quic-multipath-00},
+        author =	{Yanmei Liu and Yunfei Ma and Quentin De Coninck and Olivier Bonaventure and Christian Huitema and Mirja Kühlewind},
+	title =		{{Multipath Extension for QUIC}},
+	pagetotal =	26,
+	year =		2021,
+	month =		oct,
+	day =		25,
+	abstract =	{This document specifies a multipath extension for the QUIC protocol to enable the simultaneous usage of multiple paths for a single connection. Discussion Venues This note is to be removed before publishing as an RFC. Discussion of this document takes place on the QUIC Working Group mailing list (quic@ietf.org), which is archived at https://mailarchive.ietf.org/arch/browse/quic/. Source for this draft and an issue tracker can be found at https://github.com/mirjak/draft-lmbdhk-quic-multipath.},
+}
+
+
+@techreport{draft-deconinck-quic-multipath,
+	number =	{draft-deconinck-quic-multipath-07},
+	type =		{Internet-Draft},
+	institution =	{Internet Engineering Task Force},
+	publisher =	{Internet Engineering Task Force},
+	note =		{Work in Progress},
+	url =		{https://datatracker.ietf.org/doc/html/draft-deconinck-quic-multipath-07},
+        author =	{Quentin De Coninck and Olivier Bonaventure},
+	title =		{{Multipath Extensions for QUIC (MP-QUIC)}},
+	pagetotal =	36,
+	year =		2021,
+	month =		may,
+	day =		3,
+	abstract =	{This document specifies extensions to the QUIC protocol to enable the simultaneous usage of multiple paths for a single connection. These extensions are compliant with the single-path QUIC design and preserve QUIC privacy features. Discussion about this draft is encouraged either on the QUIC IETF mailing list quic@ietf.org or on the GitHub repository which contains the draft: https://github.com/qdeconinck/draft-deconinck-multipath- quic.},
+}
+
+@techreport{draft-huitema-quic-mpath-option,
+	number =	{draft-huitema-quic-mpath-option-01},
+	type =		{Internet-Draft},
+	institution =	{Internet Engineering Task Force},
+	publisher =	{Internet Engineering Task Force},
+	note =		{Work in Progress},
+	url =		{https://datatracker.ietf.org/doc/html/draft-huitema-quic-mpath-option-01},
+        author =	{Christian Huitema},
+	title =		{{QUIC Multipath Negotiation Option}},
+	pagetotal =	12,
+	year =		2021,
+	month =		sep,
+	day =		12,
+	abstract =	{The initial version of QUIC provides support for path migration. We propose a simple mechanism to support not just migration, but also simultaneous usage of multiple paths. In its simplest form, this mechanisms simply requires that multipath senders keep track of which packet is sent on what path, and use that information to manage congestion control and loss recovery. With that, clients can send data on any validated path, and server on any validated path on which the client recently sent non-probing packets. A more sophisticated mechanism can be negotiated to explicitly manage paths and packet scheduling.},
+}
+
+
+@techreport{draft-liu-multipath-quic,
+	number =	{draft-liu-multipath-quic-04},
+	type =		{Internet-Draft},
+	institution =	{Internet Engineering Task Force},
+	publisher =	{Internet Engineering Task Force},
+	note =		{Work in Progress},
+	url =		{https://datatracker.ietf.org/doc/html/draft-liu-multipath-quic-04},
+        author =	{Yanmei Liu and Yunfei Ma and Christian Huitema and Qing An and Zhenyu Li},
+	title =		{{Multipath Extension for QUIC}},
+	pagetotal =	22,
+	year =		2021,
+	month =		sep,
+	day =		5,
+	abstract =	{This document specifies multipath extension for the QUIC protocol to enable the simultaneous usage of multiple paths for a single connection. The extension is compliant with the single-path QUIC design. The design principle is to support multipath by adding limited extension to {[}QUIC-TRANSPORT{]}.},
+}
+
+
+
+@techreport{draft-deconinck-multipath-quic-00,
+	number =	{draft-deconinck-multipath-quic-00},
+	type =		{Internet-Draft},
+	institution =	{Internet Engineering Task Force},
+	publisher =	{Internet Engineering Task Force},
+	note =		{Work in Progress},
+	url =		{https://datatracker.ietf.org/doc/html/draft-deconinck-multipath-quic-00},
+        author =	{Quentin De Coninck and Olivier Bonaventure},
+	title =		{{Multipath Extension for QUIC}},
+	pagetotal =	20,
+	year =		2017,
+	month =		oct,
+	day =		30,
+	abstract =	{Multipath TCP has shown how a reliable transport protocol can efficiently use multiple paths for a given connection. We leverage the experience gained with Multipath TCP to propose simple extensions that enable QUIC to efficiently use multiple paths during the lifetime of a QUIC connection.},
+}
+
+
+
+@incollection{de2019pluginizing,
+  title={Pluginizing quic},
+  author={De Coninck, Quentin and Michel, Fran{\c{c}}ois and Piraux, Maxime and Rochet, Florentin and Given-Wilson, Thomas and Legay, Axel and Pereira, Olivier and Bonaventure, Olivier},
+  booktitle={Proceedings of the ACM Special Interest Group on Data Communication},
+  pages={59--74},
+  year={2019}
+}
+
+@inproceedings{zheng2021xlink,
+  title={XLINK: QoE-driven multi-path QUIC transport in large-scale video services},
+  author={Zheng, Zhilong and Ma, Yunfei and Liu, Yanmei and Yang, Furong and Li, Zhenyu and Zhang, Yuanbo and Zhang, Jiuhai and Shi, Wei and Chen, Wentao and Li, Ding and others},
+  booktitle={Proceedings of the 2021 ACM SIGCOMM 2021 Conference},
+  pages={418--432},
+  year={2021}
+}
+
+@techreport{draft-ietf-quic-ack-frequency,
+	number =	{draft-ietf-quic-ack-frequency-01},
+	type =		{Internet-Draft},
+	institution =	{Internet Engineering Task Force},
+	publisher =	{Internet Engineering Task Force},
+	note =		{Work in Progress},
+	url =		{https://datatracker.ietf.org/doc/html/draft-ietf-quic-ack-frequency-01},
+        author =	{Jana Iyengar and Ian Swett},
+	title =		{{QUIC Acknowledgement Frequency}},
+	pagetotal =	12,
+	year =		2021,
+	month =		oct,
+	day =		25,
+	abstract =	{This document describes a QUIC extension for an endpoint to control its peer's delaying of acknowledgements. Note to Readers Discussion of this draft takes place on the QUIC working group mailing list (quic@ietf.org), which is archived at https://mailarchive.ietf.org/arch/search/?email\_list=quic. Source code and issues list for this draft can be found at https://github.com/quicwg/ack-frequency. Working Group information can be found at https://github.com/quicwg.},
+}
+
+
 @techreport{draft-ietf-quic-datagram,
 	number =	{draft-ietf-quic-datagram-06},
 	type =		{Internet-Draft},
@@ -12,4 +176,15 @@
 	month =		oct,
 	day =		5,
 	abstract =	{This document defines an extension to the QUIC transport protocol to add support for sending and receiving unreliable datagrams over a QUIC connection. Discussion of this work is encouraged to happen on the QUIC IETF mailing list quic@ietf.org (mailto:quic@ietf.org) or on the GitHub repository which contains the draft: https://github.com/quicwg/ datagram (https://github.com/quicwg/datagram).},
+}
+
+
+@Unpublished{tls13-0rtt,
+  author = 	 {MacCarthaigh, C.},
+  title = 	 {Security Review of {TLS1.3 0-RTT}},
+  note = 	 {https://github.com/tlswg/tls13-spec/issues/1001},
+  OPTkey = 	 {March},
+  OPTmonth = 	 {2017},
+  OPTyear = 	 {},
+  OPTannote = 	 {},
 }

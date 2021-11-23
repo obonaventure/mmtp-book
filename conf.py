@@ -19,7 +19,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Multipath TCP : a more resilient transport'
+project = 'Modern Multipath Transport Protocols'
 copyright = '2021, Olivier Bonaventure and Quentin De Coninck'
 author = 'Olivier Bonaventure and Quentin De Coninck'
 
@@ -86,6 +86,7 @@ spelling_word_list_filename=['wordlist.dict']
 # bibtex
 
 bibtex_bibfiles = ['bib/rfc.bib',
+                   'bib/quic.bib',
                    'bib/papers.bib',
                    'mptcp-bib/bibs/2007.bib',
                    'mptcp-bib/bibs/2008.bib',
@@ -142,7 +143,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'MultipathTCPamoreresilienttransportdoc'
+htmlhelp_basename = 'MMTP'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -169,7 +170,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'MultipathTCPamoreresilienttransport.tex', 'Multipath TCP : a more resilient transport Documentation',
+    (master_doc, 'MMTP', 'Modern Multipath Transport Protocols', 
      'Olivier Bonaventure and Quentin De Coninck', 'manual'),
 ]
 
@@ -209,7 +210,7 @@ tikz_latex_preamble='''
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'multipathtcpamoreresilienttransport', 'Multipath TCP : a more resilient transport Documentation',
+    (master_doc, 'mmtcp', 'Modern Multipath Transport Protocols',
      [author], 1)
 ]
 

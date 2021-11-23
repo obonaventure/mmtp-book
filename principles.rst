@@ -2,23 +2,6 @@ Principles of multipath transport
 *********************************
 
 
-Before looking at the main principles behind Multipath TCP, it is important to understand TCP in details.
-
-.. tikz::
-   :libs: positioning, matrix, arrows, math
-
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5;}
-   \colorlet{lightgray}{black!20}
-   \tikzstyle{arrow} = [thick,->,>=stealth]
-   \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [blue, fill=white] at (1,10) {Client};
-   \node [blue, fill=white] at (\s1-1,10) {Server};
-   \draw[very thick,->] (\c1,9.5) -- (\c1,0.5);
-   \draw[very thick,->] (\s1,9.5) -- (\s1,0.5);
-
-   \draw[black,thick, ->] (\c1,9.5) -- (\s1,9) node [midway, fill=white] {SYN};
-   \draw[black,thick, ->] (\s1,9) -- (\c1,8.5) node [midway, fill=white] {SYN+ACK};
-   \draw[black,thick, ->] (\c1,8.5) -- (\s1,8) node [midway, fill=white] {ACK};
 
    
 
@@ -51,14 +34,8 @@ IP networks contain a variety of devices. Besides the endhosts, networking stude
    % inspired by https://newbedev.com/tikz-draw-simplified-ble-stack 	  
    \begin{tikzpicture}[
    node distance = 1mm and 0mm,
-   box/.style = {draw, text width=#1, inner sep=2mm, align=center},
-   box/.default = 38mm,
-   FIT/.style = {draw, semithick, dotted, fit=#1,
-                 inner xsep=4mm, inner ysep=2mm},  % here you can adjust inner distance of node
-                                                   % this adjust you need to consider at defining the width of the top nodes
-		 label distance = 2mm,
-		 font = \sffamily
-                 ]
+   box/.style = {draw, text width=40mm, inner sep=2mm, align=center}
+   ]
 		 
    \node (phy1) [box]                   {Phys.};
    \node (dl1) [box, above = of phy1]   {Data Link};
@@ -86,8 +63,6 @@ IP networks contain a variety of devices. Besides the endhosts, networking stude
 
 
    
-   
-Networking textbooks
 
 :cite:t:`sherry2012making` show that deployed networks contain a variety of devices besides the traditional layer-2 switches and the layer-3 routers :cite:`sherry2012making`. These middleboxes include firewalls, Network Address Translators, transparent proxies, VPN gateways, network caches, ... Each of these middleboxes processes the packets at different layers. From a reference model viewpoint, they can be depicted as shown in :numref:`fig-middlebox`.
 
@@ -99,14 +74,8 @@ Networking textbooks
    % inspired by https://newbedev.com/tikz-draw-simplified-ble-stack 	  
    \begin{tikzpicture}[
    node distance = 1mm and 0mm,
-   box/.style = {draw, text width=#1, inner sep=2mm, align=center},
-   box/.default = 38mm,
-   FIT/.style = {draw, semithick, dotted, fit=#1,
-                 inner xsep=4mm, inner ysep=2mm},  % here you can adjust inner distance of node
-                                                   % this adjust you need to consider at defining the width of the top nodes
-		 label distance = 2mm,
-		 font = \sffamily
-                 ]
+   box/.style = {draw, text width=40mm, inner sep=2mm, align=center}
+   ]
 		 
    \node (phy1) [box]                   {Phys.};
    \node (dl1) [box, above = of phy1]   {Data Link};
@@ -148,23 +117,27 @@ Network Address Translators (NAT) :cite:`rfc3022` are widely used in home and en
 
 Measurement studies performed in 2010 :cite:`hatonen2010experimental` showed that some deployed NATs do not support all standardized transport protocols and their recent extensions. Unfortunately, recent measurements :cite:`barik2020usability` confirm that today's NATs still limit the deployment of new transport protocols and the extensibility of widely deployed protocols. Many of these problems were anticipated by the IETF :cite:`rfc3027`.
 
+Another important class of middleboxes are the load-balancers. Several types of load-balancers exist. For this section, we focus on a simple load-balancer that is placed in front of a group of servers as illustrated in :numref:`fig-load-balancer`. The simplest design is a load-balancer that receives all packets from clients and servers. When a connection attempt arrives, the load-balancer selects one server (e.g. the less loaded one) and then forwards the packet and all the other packets of the connection to this specific server. If all packets exchanged by the client and the servers pass through the load-balancer, it could become a bottleneck. Some designs allow the servers to send back their replies directly to the client without passing through the load-balancers. With other designs, it becomes possible for the load-balancer to only see the first packets of each connection. With such designs, most of the packets exchanged by the clients and the servers bypass the load-balancer. We will discuss how multipath protocols enable some of these designs later in this document.
+
+
+.. _fig-load-balancer:
+.. tikz:: Load-balancers
+
+   todo	  
+
+Surprisingly, the high-speed network adapters used mainly on servers, but also on some laptops, can also interfere with the transport protocols. Network adapters are more efficient when sending large than small packets. The main reason is that there is a fixed cost for the operating system to prepare the transmission of a packet. This cost is rouglhy independent of the size of the packet that needs to be transferred. On the other hand, given network constraints with IPv4 :cite:`kent1995fragmentation` and IPv6 :cite:`rfc8900`, hosts only send network packets that fit in Ethernet's MTU size, i.e. 1500 bytes. To efficiently support such small packet size, high performance network adapters implement Segmentation Offload and Receive Offload. There are variants of these techniques that are specific to protocols such as TCP and UDP. TCP Segmentation Offload :cite:`freimuth2005server` is widely used and can be described as follows. To encourage the TCP stack to use large packets, the network adapter exposes a large MTU, e.g. 16 KBytes. When the TCP stack passes a 16 KBytes packet containing a TCP segment, the adapter automatically segments it in packets that are not longer than 1500 bytes. To perform this segmentation, the adapter creates the IP and TCP headers that are required for each 1500 Bytes packet with the correct sequence numbers. It copies other fields such as the receive window and also the TCP options :cite:`honda2011still`. The adapter also computes the checksums required by each packet. The receiver side performs the opposite and gathers several 1500 bytes packets in a larger one that is passed to the TCP stack. Without these optimizations, servers would not be able to reach throughputs of multiple tens or Gbps that are achievable today.
+
+.. todo:: figure example TSO ?
+
 Our last middlebox is the transparent proxy. Transparent proxies are deployed in enterprise or mobile networks for security or performance reasons. Some enterprise networks use transparent proxies on their firewalls to observe all the data exchanged over transport connections and detect any attack or leak of information. Some mobile network providers have deployed transparent proxies to improve the performance of transport protocols in the wireless network compared to the classical client stacks :cite:`zullo2019hic`. 
 
 .. _fig-transparent-proxy:
-.. tikz:: Transparent proxies in the reference model
-   :libs: fit, positioning
-	  
-   % inspired by https://newbedev.com/tikz-draw-simplified-ble-stack 	  
-   \begin{tikzpicture}[
+.. tikz:: Transparent proxies in the reference mode
+
+   \begin{tikzpicture}[	  
    node distance = 1mm and 0mm,
-   box/.style = {draw, text width=#1, inner sep=2mm, align=center},
-   box/.default = 38mm,
-   FIT/.style = {draw, semithick, dotted, fit=#1,
-                 inner xsep=4mm, inner ysep=2mm},  % here you can adjust inner distance of node
-                                                   % this adjust you need to consider at defining the width of the top nodes
-		 label distance = 2mm,
-		 font = \sffamily
-                 ]
+   box/.style = {draw, text width=40mm, inner sep=2mm, align=center}
+   ]
 		 
    \node (phy1) [box]                   {Phys.};
    \node (dl1) [box, above = of phy1]   {Data Link};
@@ -214,10 +187,10 @@ Transport protocols exchange control information and data produced by the applic
 
 The specifications for these protocols usually represents the different types of packets that they exchange using ASCII art. For example the format of the TCP header is usually described as shown in :numref:`fig-tcp-header`.
 
-.. _fig-tcp-header::
-.. tikz:: Graphical representation of the TCP header
-
-   \begin{verbatim}	  
+.. _fig-tcp-header:
+.. code-block:: console
+   :caption: Graphical representation of the TCP header
+	     
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -233,15 +206,15 @@ The specifications for these protocols usually represents the different types of
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |           Checksum            |         Urgent Pointer        |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   \end{verbatim}
+
 
 
 This representation works well for protocols like TCP or UDP, but becomes cumbersome for security protocols such as TLS. More recent protocols such as QUIC have opted for a textual representation of the format of a packet.   
 
-.. _fig-tcp-header-text::
-.. tikz:: Textual representation of the TCP header 
+.. _fig-tcp-header-text:
+.. code-block:: console
+   :caption: Textual representation of the TCP header 
 
-   \begin{verbatim}	  
    TCP Header {
      Source Port (16),
      Destination Port (16),
@@ -259,7 +232,7 @@ This representation works well for protocols like TCP or UDP, but becomes cumber
      Checksum (16),
      Urgent Pointer (16)
    }
-   \end{verbatim}
+
 
 .. rubric:: Footnotes
 

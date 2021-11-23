@@ -13,6 +13,7 @@ Welcome to Modern Multipath Transport Protocols
    intro
    usecases
    singlepath
+   quic
    principles
    mptcp
    mpquic

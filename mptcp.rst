@@ -93,7 +93,7 @@ The server uses the random nonce sent by the client and its own random nonce to 
    
 
 .. _fig-mptcp-join:
-.. tikz::
+.. tikz:: MPTCP Join
    :libs: positioning, matrix, arrows, math
 
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
