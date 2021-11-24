@@ -9,7 +9,7 @@ jobs:
     - name: Install Latexmk
       run: sudo apt-get install latexmk
     - name: Install netpbm
-      run: sudo apt-get netpbm poppler-utils
+      run: sudo apt-get  install netpbm poppler-utils
     - name: Install enchant
       run: sudo apt-get install python3-enchant
     - name: Sphinx contrib
