@@ -1,3 +1,4 @@
+#!/usr/bin/bash
 # install the python dependencies to build the book
 # install latex and related tools
 sudo apt-get install texlive-font-utils
