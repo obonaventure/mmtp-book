@@ -21,8 +21,7 @@ From a pure layering viewpoint, QUIC can be illustrated as shown in :numref:`fig
    box/.style = {draw, text width=#1, inner sep=2mm, align=center},
    box/.default = 38mm,
    FIT/.style = {draw, semithick, dotted, fit=#1,
-                 inner xsep=4mm, inner ysep=2mm},  % here you can adjust inner distance of node
-                                                   % this adjust you need to consider at defining the width of the top nodes
+                 inner xsep=4mm, inner ysep=2mm},  
 		 label distance = 2mm,
 		 font = \sffamily
                  ]
@@ -56,6 +55,8 @@ QUIC uses a four-way handshake to create a QUIC connection. :numref:`fig-quic-ha
 .. tikz:: Simplified QUIC Handshake
    :libs: positioning, matrix, arrows, math
 
+
+   \begin{tikzpicture}	  
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
@@ -72,7 +73,9 @@ QUIC uses a four-way handshake to create a QUIC connection. :numref:`fig-quic-ha
    \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=center, fill=white] {Initial (CRYPTO)\\Handshake (CRYPTO)};
    \draw[blue,thick, ->] (\c1,\y-2) -- (\s1,\y-3) node [midway, fill=white] {Handshake (CRYPTO)};
    \draw[blue,thick, ->] (\s1,\y-3) -- (\c1,\y-4) node [midway, fill=white] {Handshake\_Done};
- 
+
+   \end{tikzpicture}
+   
 Before looking at the details of the negotiation of the cryptographic parameters, it is interesting to see how QUIC counters denial of service attacks that use spoofed addresses. During such attack, host `x` sends packets using the address of host `y` as their source. The main risk of such attacks is that the server could send a large number of packets towards address `y` although this address did not try to establish a QUIC connection with the server. QUIC prevents such attacks using two distinct techniques. First, and this is unusual for transport protocols, the Initial QUIC packet sent by the client is large. The first packet sent to create a QUIC connection must contain a UDP payload of at least 1200 bytes :cite:`rfc9000`. Such a packet contains a CRYPTO frame has shown in the figure, but also padding frames to fill the packet. If an attacker wants to send spoofed packets to initiate a connection with a server, it needs to send more than one KByte for each connection attempt. By sending a large initial packet, the client can also perform Path MTU discovery and detect routers that could fragment the QUIC packets.
 
 .. note:: Address spoofing
