@@ -38,11 +38,11 @@
 <h1>Multipath TCP<a class="headerlink" href="#multipath-tcp" title="Permalink to this headline">¶</a></h1>
 <div class="admonition-todo admonition" id="id1">
 <p class="admonition-title">Todo</p>
-<p>all the nitty details behind MPTCP</p>
+<p>all the  details behind MPTCP</p>
 </div>
 <div class="admonition-todo admonition" id="id2">
 <p class="admonition-title">Todo</p>
-<p>focus on mptcp version 1 and briefly explain version 0</p>
+<p>focus on MPTCP version 1 and briefly explain version 0</p>
 </div>
 <p>Multipath TCP <span id="id3">[<a class="reference internal" href="biblio.html#id729" title="J. Postel. Transmission Control Protocol. RFC 793 (Internet Standard), September 1981. Updated by RFCs 1122, 3168, 6093, 6528. URL: https://www.rfc-editor.org/rfc/rfc793.txt, doi:10.17487/RFC0793.">4</a>]</span> is an extension to the TCP protocol <span id="id4">[<a class="reference internal" href="biblio.html#id729" title="J. Postel. Transmission Control Protocol. RFC 793 (Internet Standard), September 1981. Updated by RFCs 1122, 3168, 6093, 6528. URL: https://www.rfc-editor.org/rfc/rfc793.txt, doi:10.17487/RFC0793.">4</a>]</span> that was presented earlier. We start with an overview of Multipath TCP. Then we explain how a Multipath TCP connection can be established. Then we analyze how data is exchanged over different paths and explain the multipath congestion control schemes. Finally, we explain how Multipath TCP connections can be terminated.</p>
 <section id="an-overview-of-multipath-tcp">
@@ -50,15 +50,15 @@
 </section>
 <section id="connection-establishment">
 <h2>Connection establishment<a class="headerlink" href="#connection-establishment" title="Permalink to this headline">¶</a></h2>
-<p>A Multipath TCP connection starts with a three-way handshake like a regular TCP connection. To indicate that it wishes to uze Multipath TCP, the client adds the <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option to the <code class="docutils literal notranslate"><span class="pre">SYN</span></code> segment. In the <code class="docutils literal notranslate"><span class="pre">SYN</span></code> segment, this option only contains some flags and occupies 4 bytes. The server replies with a <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code> segment than contains an <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option including a server generated 64 bits random key that will be used to authenticate connections over different paths. The client concludes the handshake by sending an <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option in the <code class="docutils literal notranslate"><span class="pre">ACK</span></code> segment containing the random keys chosen by the client and the server.</p>
-<div class="figure" id="id10" style="text-align: center">
+<p>A Multipath TCP connection starts with a three-way handshake like a regular TCP connection. To indicate that it wishes to use Multipath TCP, the client adds the <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option to the <code class="docutils literal notranslate"><span class="pre">SYN</span></code> segment. In the <code class="docutils literal notranslate"><span class="pre">SYN</span></code> segment, this option only contains some flags and occupies 4 bytes. The server replies with a <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code> segment than contains an <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option including a server generated 64 bits random key that will be used to authenticate connections over different paths. The client concludes the handshake by sending an <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option in the <code class="docutils literal notranslate"><span class="pre">ACK</span></code> segment containing the random keys chosen by the client and the server.</p>
+<div class="figure" id="id11" style="text-align: center">
 <span id="fig-tcp-handshake-mptcp"></span><p><img  src="_images/tikz-f2fea4a175c9b7afdde43e081c577d6c214f8e7f.png" alt="Figure made with TikZ" /></p>
 <p><span class="caption-number">Fig. 15 </span><span class="caption-text">Negotiating the utilization of Multipath TCP during the three-way handshake</span></p>
 </div><div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Multipath TCP version 0</p>
 <p>The first version of Multipath TCP used a slightly different handshake <span id="id5">[<a class="reference internal" href="biblio.html#id6658" title="A. Ford, C. Raiciu, M. Handley, and O. Bonaventure. TCP Extensions for Multipath Operation with Multiple Addresses. RFC 6824 (Experimental), January 2013. Obsoleted by RFC 8684. URL: https://www.rfc-editor.org/rfc/rfc6824.txt, doi:10.17487/RFC6824.">8</a>]</span>. The <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option sent by the client contains the 64 bits key chosen by the client. The <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code> segment contains an <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option with 64 bits key chosen by the server. The client echoes the client and server keys in the third <code class="docutils literal notranslate"><span class="pre">ACK</span></code> of the handshake.</p>
-<div class="figure" id="id11" style="text-align: center">
+<div class="figure" id="id12" style="text-align: center">
 <span id="fig-tcp-handshake-mptcp-v0"></span><p><img  src="_images/tikz-f1babbc1cfb54ffe7bece849effc2ae4227350e2.png" alt="Figure made with TikZ" /></p>
 <p><span class="caption-number">Fig. 16 </span><span class="caption-text">Negotiating the utilization of Multipath TCP version 0</span></p>
 </div></div>
@@ -78,21 +78,21 @@
 <p>discuss security concerns</p>
 </div>
 <p>The server uses the random nonce sent by the client and its own random nonce to prove its knowledge of the keys exchanged during the initial handshake. The server computes <span class="math notranslate nohighlight">\(HMAC(Key=(Server_{key}||Client_{key}), Msg=(nonce_{Server}||nonce_{Client}))\)</span>, where <code class="docutils literal notranslate"><span class="pre">||</span></code> denotes the concatenation operation. It then returns the high order 64 bits of this HMAC in the <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option of the <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code> segment together with its 32 bits nonce. The client computes <span class="math notranslate nohighlight">\(HMAC(Key=(Client_{key}||Server_{key}), Msg=(nonce_{Client}||nonce_{Server}))\)</span> and sends the 160 bits HMAC in the <code class="docutils literal notranslate"><span class="pre">ACK</span></code> segment.</p>
-<div class="figure" id="id12" style="text-align: center">
+<div class="figure" id="id13" style="text-align: center">
 <span id="fig-mptcp-join"></span><p><img  src="_images/tikz-c1a3696955639ac9e16a2e0795586cf2a95c7345.png" alt="Figure made with TikZ" /></p>
 <p><span class="caption-number">Fig. 17 </span><span class="caption-text">MPTCP Join</span></p>
 </div><div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Generating random keys</p>
-<p>Voir papier NSDI</p>
+<p>Explained in NSDI paper <span id="id9">[]</span></p>
 </div>
 </section>
-<section id="data-transfert">
-<h2>Data transfert<a class="headerlink" href="#data-transfert" title="Permalink to this headline">¶</a></h2>
+<section id="data-transfer">
+<h2>Data transfer<a class="headerlink" href="#data-transfer" title="Permalink to this headline">¶</a></h2>
 </section>
 <section id="congestion-control">
 <h2>Congestion control<a class="headerlink" href="#congestion-control" title="Permalink to this headline">¶</a></h2>
-<div class="admonition-todo admonition" id="id9">
+<div class="admonition-todo admonition" id="id10">
 <p class="admonition-title">Todo</p>
 <p>explain basic idea and the problem of having</p>
 </div>
@@ -143,7 +143,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Multipath TCP</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#an-overview-of-multipath-tcp">An overview of Multipath TCP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#connection-establishment">Connection establishment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#data-transfert">Data transfert</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-transfer">Data transfer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#congestion-control">Congestion control</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#connection-release">Connection release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#coping-with-middlebox-interference">Coping with middlebox interference</a></li>
