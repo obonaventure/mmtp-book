@@ -615,10 +615,13 @@ QUIC connection migrations occur in two steps. As an example, we consider the cl
 .. tikz:: A naive approach to migrate a QUIC connection from Wi-Fi to cellular
    :libs: positioning, matrix, arrows, math
 
+
+   \begin{tikzpicture}	  
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
 
    \node [black, fill=white] at (0,0) {TODO};
-
+   \end{tikzpicture}
+   
 This naive approach has several problems. Consider the server that receives the first QUIC packet from the smartphone's cellular interface. This packet originates from a different IP address than the previous one, but still belongs to the same connection. If the server accepts this packet and moves the connection to the cellular path, this creates several security risks. First, consider an attacker who has captured a packet over the Wi-Fi network. By sending again this unmodified packet from another IP address, the attacker could disrupt the ongoing connection by forcing the server to send replies to its own IP address. This also opens a risk of denial of service attack as the server could send a large number of packets to the smartphone's new IP address. QUIC copes with these problems by using different connection identifiers and using the path validation mechanism.
 
 To enable a client to migrate a QUIC connection, the server must first advertise at least one different connection identifier. This is done with the ``NEW_CONNECTION_ID`` frame. The client uses this additional connection identifier to try to move the connection to a new path. The client cannot use a new path before have the guarantee that the server can reply over the new path. To verify that the new path is bidirectional, the client sends a ``PATH_CHALLENGE`` frame in a QUIC packet that uses the new connection identifier over the new path. This frame mainly contains a 64 bits random nonce must be echoed by the server. Upon reception of this packet, the server detects an attempt to use a new path with the new connection identifier. It replies with a ``PATH_RESPONSE`` frame that echoes the client nonce. The server may also perform its own path validation by sending a ``PATH_CHALLENGE`` with a different nonce in the same packet as the ``PATH_RESPONSE``. The client considers that the path has been validated upon reception of the valid ``PATH_RESPONSE`` frame. The packets that contain the ``PATH_CHALLENGE`` and ``PATH_RESPONSE`` frames can be padded with ``PADDING`` frames. At this time, it switches to the new connection identifier and the new path for all the frames that it sends. It may still continue to receive packets over the former path for some time. The server will switch to the new path once it has received a response to its ``PATH_CHALLENGE`` if it decided to validate the new path. Otherwise, the reception of a QUICK packet that contains other frames than ``PATH_CHALLENGE``, ``PATH_RESPONSE``, ``NEW_CONNECTION_ID`` or ``PADDING``. The client could send a ``NEW_CONNECTION_ID`` frame together with the ``PATH_CHALLENGE`` frame if the client uses a non-null connection identifier and it has not sent a ``NEW_CONNECTION_ID`` frame before. This is illustrated in :numref:`fig-quic-client-migration`.
@@ -627,10 +630,14 @@ To enable a client to migrate a QUIC connection, the server must first advertise
 .. tikz:: A QUIC connection migration initiated by the client
    :libs: positioning, matrix, arrows, math
 
+   \begin{tikzpicture}
+	  
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
 
    \node [black, fill=white] at (0,0) {TODO};
+   \end{tikzpicture}
 
+   
 The examples above showed a connection that migrates from one network interface to another. This is expected to be a frequent situation for smartphones that moves. However, there are also cases where the client will trigger a connection migration even if they use a single network interface. In this case, connection migration allows the client to hide the fact that it has a long QUIC connection with the same endpoint. The initial use case for QUIC is to support HTTP/3, but QUIC could also be used to provide VPN-like services as proposed in :cite:`de2019pluginizing`. By regularly changing their connection identifiers, such VPN services could prevent some middleboxes from blocking them.
 
 .. note:: Unintended QUIC connection migrations
@@ -641,9 +648,13 @@ The examples above showed a connection that migrates from one network interface 
    .. tikz:: A QUIC connection migration trigerred by a NAT
       :libs: positioning, matrix, arrows, math
 
+
+      \begin{tikzpicture}	     
       \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
 
       \node [black, fill=white] at (0,0) {TODO};
+      \end{tikzpicture}
+
       
    Upon reception of the QUIC packet coming from the new IP address, the server triggers a path validation. Once the path has been validated, the QUIC connection can continue.
 
@@ -655,10 +666,12 @@ The previous examples have shown that a client can trigger a connection migratio
 .. tikz:: Using the ``preferred_address`` transport parameter, a QUIC server can advertise its unicast address
    :libs: positioning, matrix, arrows, math
 
+   \begin{tikzpicture}
+	  
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
        
    \node [black, fill=white] at (0,0) {TODO};
-
+   \end{tikzpicture}
 
 
 Observing a QUIC connection
