@@ -14,3 +14,5 @@ If time permits, it could also cover:
 - Multipath DCCP (provided that it progresses within the IETF)
 
 At this stage, the document is not open-source.
+
+You can browse the HTML version of the document at https://obonaventure.github.io/mmtp-book/

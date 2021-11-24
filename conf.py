@@ -45,9 +45,11 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
     'sphinxcontrib.spelling',
-    'sphinx.ext.githubpages'
+    'sphinx.ext.githubpages',
+    'matplotlib.sphinxext.plot_directive',
     
    
+
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -111,6 +113,13 @@ bibtex_default_style = 'unsrt'
 
 
 numfig=True
+
+
+# Matplotlib
+
+plot_include_source=False
+plot_html_show_source_link=False
+plot_html_show_formats=False
 
 # -- Options for HTML output -------------------------------------------------
 
