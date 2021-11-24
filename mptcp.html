@@ -1,0 +1,206 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Multipath TCP &#8212; Modern Multipath Transport Protocols 2021 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Multipath QUIC" href="mpquic.html" />
+    <link rel="prev" title="Principles of multipath transport" href="principles.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="multipath-tcp">
+<h1>Multipath TCP<a class="headerlink" href="#multipath-tcp" title="Permalink to this headline">¶</a></h1>
+<div class="admonition-todo admonition" id="id1">
+<p class="admonition-title">Todo</p>
+<p>all the nitty details behind MPTCP</p>
+</div>
+<div class="admonition-todo admonition" id="id2">
+<p class="admonition-title">Todo</p>
+<p>focus on mptcp version 1 and briefly explain version 0</p>
+</div>
+<p>Multipath TCP <span id="id3">[<a class="reference internal" href="biblio.html#id729" title="J. Postel. Transmission Control Protocol. RFC 793 (Internet Standard), September 1981. Updated by RFCs 1122, 3168, 6093, 6528. URL: https://www.rfc-editor.org/rfc/rfc793.txt, doi:10.17487/RFC0793.">4</a>]</span> is an extension to the TCP protocol <span id="id4">[<a class="reference internal" href="biblio.html#id729" title="J. Postel. Transmission Control Protocol. RFC 793 (Internet Standard), September 1981. Updated by RFCs 1122, 3168, 6093, 6528. URL: https://www.rfc-editor.org/rfc/rfc793.txt, doi:10.17487/RFC0793.">4</a>]</span> that was presented earlier. We start with an overview of Multipath TCP. Then we explain how a Multipath TCP connection can be established. Then we analyze how data is exchanged over different paths and explain the multipath congestion control schemes. Finally, we explain how Multipath TCP connections can be terminated.</p>
+<section id="an-overview-of-multipath-tcp">
+<h2>An overview of Multipath TCP<a class="headerlink" href="#an-overview-of-multipath-tcp" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="connection-establishment">
+<h2>Connection establishment<a class="headerlink" href="#connection-establishment" title="Permalink to this headline">¶</a></h2>
+<p>A Multipath TCP connection starts with a three-way handshake like a regular TCP connection. To indicate that it wishes to uze Multipath TCP, the client adds the <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option to the <code class="docutils literal notranslate"><span class="pre">SYN</span></code> segment. In the <code class="docutils literal notranslate"><span class="pre">SYN</span></code> segment, this option only contains some flags and occupies 4 bytes. The server replies with a <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code> segment than contains an <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option including a server generated 64 bits random key that will be used to authenticate connections over different paths. The client concludes the handshake by sending an <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option in the <code class="docutils literal notranslate"><span class="pre">ACK</span></code> segment containing the random keys chosen by the client and the server.</p>
+<div class="figure" id="id10" style="text-align: center">
+<span id="fig-tcp-handshake-mptcp"></span><p><img  src="_images/tikz-f2fea4a175c9b7afdde43e081c577d6c214f8e7f.png" alt="Figure made with TikZ" /></p>
+<p><span class="caption-number">Fig. 15 </span><span class="caption-text">Negotiating the utilization of Multipath TCP during the three-way handshake</span></p>
+</div><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Multipath TCP version 0</p>
+<p>The first version of Multipath TCP used a slightly different handshake <span id="id5">[<a class="reference internal" href="biblio.html#id6658" title="A. Ford, C. Raiciu, M. Handley, and O. Bonaventure. TCP Extensions for Multipath Operation with Multiple Addresses. RFC 6824 (Experimental), January 2013. Obsoleted by RFC 8684. URL: https://www.rfc-editor.org/rfc/rfc6824.txt, doi:10.17487/RFC6824.">8</a>]</span>. The <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option sent by the client contains the 64 bits key chosen by the client. The <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code> segment contains an <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option with 64 bits key chosen by the server. The client echoes the client and server keys in the third <code class="docutils literal notranslate"><span class="pre">ACK</span></code> of the handshake.</p>
+<div class="figure" id="id11" style="text-align: center">
+<span id="fig-tcp-handshake-mptcp-v0"></span><p><img  src="_images/tikz-f1babbc1cfb54ffe7bece849effc2ae4227350e2.png" alt="Figure made with TikZ" /></p>
+<p><span class="caption-number">Fig. 16 </span><span class="caption-text">Negotiating the utilization of Multipath TCP version 0</span></p>
+</div></div>
+<p>The 64 bits random keys chosen by the client and the server play three different roles in Multipath TCP. Their first role is to identify the Multipath TCP connection to which an additional connection must be attached. Since a Multipath TCP connection can combine several TCP connections, Multipath TCP cannot use the IP addresses and port numbers to identify a TCP connection. Multipath TCP uses a specific identifier that is called a token. For technical reasons, this token is derived from the 64 bits key as the most significant 32 bits of the SHA-256 <span id="id6">[<a class="reference internal" href="biblio.html#id6083" title="D. Eastlake 3rd and T. Hansen. US Secure Hash Algorithms (SHA and SHA-based HMAC and HKDF). RFC 6234 (Informational), May 2011. URL: https://www.rfc-editor.org/rfc/rfc6234.txt, doi:10.17487/RFC6234.">19</a>]</span> hash of the key. The second role of the 64 bits keys is to authenticate the establishment of additional connections as we will see shortly. Finally, the keys are also used to compute random initial sequence numbers.</p>
+<p>The main benefit of Multipath TCP is that a Multipath TCP connection can combine different TCP connections that potentially use different paths. Starting from now on, we will consider a client with two network interfaces and a server with one network interface. This could for example correspond to a client application running on a smartphone that interacts with a server. We explore more complex scenarios later.</p>
+<p>We can know how a Multipath TCP connection can combine different TCP connections. According to the Multipath TCP specification, these connections are called subflows <span id="id7">[<a class="reference internal" href="biblio.html#id8500" title="A. Ford, C. Raiciu, M. Handley, O. Bonaventure, and C. Paasch. TCP Extensions for Multipath Operation with Multiple Addresses. RFC 8684 (Proposed Standard), March 2020. URL: https://www.rfc-editor.org/rfc/rfc8684.txt, doi:10.17487/RFC8684.">20</a>]</span>. We also adopt this terminology in this document. <a class="reference internal" href="#fig-mptcp-join"><span class="std std-numref">Fig. 17</span></a> shows a Multipath TCP that combines two subflows. To establish the Multipath TCP connection, the client initiates the initial subflow by using the <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option during the three-way handshake. At the end of the initial handshake, the client and the server have exchanged their keys. Based on their keys, they have both computed the token that the remote host uses to identify the Multipath TCP connection.</p>
+<p>To attach a second subflow to this Multipath TCP connection, the client needs to create it. For this, it starts a three-way handshake with the server by sending a <code class="docutils literal notranslate"><span class="pre">SYN</span></code> segment containing the <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option. This option indicates that the client uses Multipath TCP and wishes to attach this new connection to an existing Multipath TCP connection. The <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option contains two important fields:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>the token that the server uses to identify the Multipath TCP connection</p></li>
+<li><p>a random nonce</p></li>
+</ul>
+</div></blockquote>
+<p>The client has derived the token from the key announced by the server in the <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option of the <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code> segment on the initial subflow. Thanks to this token, the server knows to which Multipath TCP connection the new subflow needs to be attached.</p>
+<div class="admonition-todo admonition" id="id8">
+<p class="admonition-title">Todo</p>
+<p>discuss security concerns</p>
+</div>
+<p>The server uses the random nonce sent by the client and its own random nonce to prove its knowledge of the keys exchanged during the initial handshake. The server computes <span class="math notranslate nohighlight">\(HMAC(Key=(Server_{key}||Client_{key}), Msg=(nonce_{Server}||nonce_{Client}))\)</span>, where <code class="docutils literal notranslate"><span class="pre">||</span></code> denotes the concatenation operation. It then returns the high order 64 bits of this HMAC in the <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option of the <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code> segment together with its 32 bits nonce. The client computes <span class="math notranslate nohighlight">\(HMAC(Key=(Client_{key}||Server_{key}), Msg=(nonce_{Client}||nonce_{Server}))\)</span> and sends the 160 bits HMAC in the <code class="docutils literal notranslate"><span class="pre">ACK</span></code> segment.</p>
+<div class="figure" id="id12" style="text-align: center">
+<span id="fig-mptcp-join"></span><p><img  src="_images/tikz-c1a3696955639ac9e16a2e0795586cf2a95c7345.png" alt="Figure made with TikZ" /></p>
+<p><span class="caption-number">Fig. 17 </span><span class="caption-text">MPTCP Join</span></p>
+</div><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Generating random keys</p>
+<p>Voir papier NSDI</p>
+</div>
+</section>
+<section id="data-transfert">
+<h2>Data transfert<a class="headerlink" href="#data-transfert" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="congestion-control">
+<h2>Congestion control<a class="headerlink" href="#congestion-control" title="Permalink to this headline">¶</a></h2>
+<div class="admonition-todo admonition" id="id9">
+<p class="admonition-title">Todo</p>
+<p>explain basic idea and the problem of having</p>
+</div>
+<section id="lia">
+<h3>LIA<a class="headerlink" href="#lia" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="olia">
+<h3>OLIA<a class="headerlink" href="#olia" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="balia">
+<h3>BALIA<a class="headerlink" href="#balia" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="mpcc">
+<h3>MPCC<a class="headerlink" href="#mpcc" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+<section id="connection-release">
+<h2>Connection release<a class="headerlink" href="#connection-release" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="coping-with-middlebox-interference">
+<h2>Coping with middlebox interference<a class="headerlink" href="#coping-with-middlebox-interference" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Modern Multipath Transport Protocols</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usecases.html">Use cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singlepath.html">Single path transport protocols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="principles.html">Principles of multipath transport</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Multipath TCP</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#an-overview-of-multipath-tcp">An overview of Multipath TCP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#connection-establishment">Connection establishment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-transfert">Data transfert</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#congestion-control">Congestion control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#connection-release">Connection release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#coping-with-middlebox-interference">Coping with middlebox interference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mpquic.html">Multipath QUIC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sctp.html">SCTP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementations.html">Multipath TCP implementations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comparison.html">Alternatives</a></li>
+<li class="toctree-l1"><a class="reference internal" href="biblio.html">Bibliography</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="principles.html" title="previous chapter">Principles of multipath transport</a></li>
+      <li>Next: <a href="mpquic.html" title="next chapter">Multipath QUIC</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Olivier Bonaventure and Quentin De Coninck.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/mptcp.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
