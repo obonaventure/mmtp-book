@@ -4,10 +4,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: List
-      run: ls -lR
     - name: Install
-      run: bash ${GITHUB_WORKSPACE}/../.github/scripts/install.sh
+      run: ./.github/scripts/install.sh
+      shell: bash
     - name: Checkout
       uses: actions/checkout@master
       with:
