@@ -171,7 +171,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'MMTP', 'Modern Multipath Transport Protocols', 
+    (master_doc, 'MMTP.tex', 'Modern Multipath Transport Protocols', 
      'Olivier Bonaventure', 'manual'),
 ]
 

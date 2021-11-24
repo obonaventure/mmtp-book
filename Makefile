@@ -2,7 +2,7 @@
 #
 
 # You can set these variables from the command line.
-SPHINXOPTS    = -N 
+SPHINXOPTS    = -N -j auto
 SPHINXBUILD   = sphinx-build
 SPHINXPROJ    = MultipathTCPamoreresilienttransport
 SOURCEDIR     = .
