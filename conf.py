@@ -80,7 +80,7 @@ pygments_style = 'sphinx'
 # spelling
 spelling_lang='en_US'
 tokenizer_lang='en_US'
-spelling_show_suggestions=False
+spelling_show_suggestions=True
 # Private dictionnary
 spelling_word_list_filename=['wordlist.dict']
 

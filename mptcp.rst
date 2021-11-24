@@ -2,9 +2,9 @@ Multipath TCP
 *************
 
 
-.. todo:: all the nitty details behind MPTCP
+.. todo:: all the  details behind MPTCP
 
-.. todo:: focus on mptcp version 1 and briefly explain version 0
+.. todo:: focus on MPTCP version 1 and briefly explain version 0
 
 Multipath TCP :cite:`rfc793` is an extension to the TCP protocol :cite:p:`rfc793` that was presented earlier. We start with an overview of Multipath TCP. Then we explain how a Multipath TCP connection can be established. Then we analyze how data is exchanged over different paths and explain the multipath congestion control schemes. Finally, we explain how Multipath TCP connections can be terminated.
 
@@ -20,7 +20,7 @@ An overview of Multipath TCP
 Connection establishment
 ========================
 
-A Multipath TCP connection starts with a three-way handshake like a regular TCP connection. To indicate that it wishes to uze Multipath TCP, the client adds the ``MP_CAPABLE`` option to the ``SYN`` segment. In the ``SYN`` segment, this option only contains some flags and occupies 4 bytes. The server replies with a ``SYN+ACK`` segment than contains an ``MP_CAPABLE`` option including a server generated 64 bits random key that will be used to authenticate connections over different paths. The client concludes the handshake by sending an ``MP_CAPABLE`` option in the ``ACK`` segment containing the random keys chosen by the client and the server.
+A Multipath TCP connection starts with a three-way handshake like a regular TCP connection. To indicate that it wishes to use Multipath TCP, the client adds the ``MP_CAPABLE`` option to the ``SYN`` segment. In the ``SYN`` segment, this option only contains some flags and occupies 4 bytes. The server replies with a ``SYN+ACK`` segment than contains an ``MP_CAPABLE`` option including a server generated 64 bits random key that will be used to authenticate connections over different paths. The client concludes the handshake by sending an ``MP_CAPABLE`` option in the ``ACK`` segment containing the random keys chosen by the client and the server.
 
 .. _fig-tcp-handshake-mptcp:
 .. tikz:: Negotiating the utilization of Multipath TCP during the three-way handshake
@@ -123,10 +123,10 @@ The server uses the random nonce sent by the client and its own random nonce to 
  
 .. note:: Generating random keys
 
-   Voir papier NSDI       
+   Explained in NSDI paper :cite:`Raiciu_Hard:2012`       
    
-Data transfert
-==============
+Data transfer
+=============
 	  
 Congestion control
 ==================

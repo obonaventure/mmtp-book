@@ -6,7 +6,7 @@ Single path transport protocols
 TCP is a connection-oriented transport protocol. This means that a TCP connection must be established before communicating hosts can exchange data. A connection is a logical relation between the two communication hosts. Each hosts maintains some state about the connection and uses it to manage the connection.
 
 
-TCP uses the three-way handshake as shown in :numref:`fig-tcp-handshake`. To initiate a connection, the client sends a TCP segment with the ``SYN`` flag set. Such a segment is usually called a ``SYN`` segment. It contains a random sequence number (`x` in :numref:`fig-tcp-handshake`). If the server accepts the connection, it replies with a ``SYN+ACK`` segment whose ``SYN`` and ``ACK`` flags are set. The acknowledgement number of this segment is set to ``x+1`` to confirm the reception of the ``SYN`` segment sent by the client. The server selects a random sequence number (`y` in :numref:`fig-tcp-handshake`). Finally, the client replies with an `ACK` segment that acknowledges the reception of the ``SYN+ACK`` segment. 
+TCP uses the three-way handshake as shown in :numref:`fig-tcp-handshake`. To initiate a connection, the client sends a TCP segment with the ``SYN`` flag set. Such a segment is usually called a ``SYN`` segment. It contains a random sequence number (`x` in :numref:`fig-tcp-handshake`). If the server accepts the connection, it replies with a ``SYN+ACK`` segment whose ``SYN`` and ``ACK`` flags are set. The acknowledgment number of this segment is set to ``x+1`` to confirm the reception of the ``SYN`` segment sent by the client. The server selects a random sequence number (`y` in :numref:`fig-tcp-handshake`). Finally, the client replies with an `ACK` segment that acknowledges the reception of the ``SYN+ACK`` segment. 
 
 .. _fig-tcp-handshake:
 .. tikz:: Establishing a TCP connection using the three-way handshake
@@ -32,7 +32,7 @@ TCP uses the three-way handshake as shown in :numref:`fig-tcp-handshake`. To ini
 TCP was designed to be extensible. The TCP header contains a TCP Header Length (THL) field that indicates the total length of the TCP header in four-bytes words. For the normal header, this field is set to 5, which corresponds to the 20 bytes long TCP header. Larger values of the THL field indicate that the segment contains one or more TCP options. TCP options are encoded as a Type-Length-Value field. The first byte specifies the Type, the second byte indicates the length of the entire TCP option in bytes. The utilization of TCP options is usually negotiated during the three-way-exchange. The client adds a TCP option in the ``SYN`` segment. If the server does not recognize the option, it simply ignores it. If the server wants to utilize the extension for the connection, it simply adds the corresponding option in the ``SYN+ACK`` segment. This is illustrated in :numref:`fig-tcp-handshake-sack` with the Selective Acknowledgments extension :cite:p:`rfc2018` as an example.
 
 .. _fig-tcp-handshake-sack:
-.. tikz:: Negotiating the utilization of Selective Acknowledgements during the three-way handshake
+.. tikz:: Negotiating the utilization of Selective Acknowledgments during the three-way handshake
    :libs: positioning, matrix, arrows, math
 
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=4.5; }
@@ -69,11 +69,11 @@ A TCP receiver also maintains state variables. These include ``rcv.next``, the n
 
 Finally, TCP implementations store the state of the connection according to the TCP state machine :cite:p:`rfc793`.
 
-TCP implementations include lots of optimizations that are outside the scope of this brief introduction. Let us know briefly describe how TCP sends data reliably. Consider a TCP connection established between a client and a server. :numref:`fig-tcp-simple-data` shows a simple data transfert between these two hosts. The sequence number of the first segment starts at ``1234``, the current value of ``snd.nxt``. For TCP, each transmitted byte consumes one sequence number. Thus, after having sent the first segment, the client's ``snd.nxt`` is set to ``1238``.  The server receives the data in sequence and immediately acknowledges it. A TCP receiver always sets the acknowledgement number of the segments that it sends with the next expected sequence number, i.e. ``rcv.nxt``. 
+TCP implementations include lots of optimizations that are outside the scope of this brief introduction. Let us know briefly describe how TCP sends data reliably. Consider a TCP connection established between a client and a server. :numref:`fig-tcp-simple-data` shows a simple data transfer between these two hosts. The sequence number of the first segment starts at ``1234``, the current value of ``snd.nxt``. For TCP, each transmitted byte consumes one sequence number. Thus, after having sent the first segment, the client's ``snd.nxt`` is set to ``1238``.  The server receives the data in sequence and immediately acknowledges it. A TCP receiver always sets the acknowledgment number of the segments that it sends with the next expected sequence number, i.e. ``rcv.nxt``. 
 
 
 .. _fig-tcp-simple-data:
-.. tikz:: TCP Reliable data transfert
+.. tikz:: TCP Reliable data transfer
    :libs: positioning, matrix, arrows, math
 
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=4; }
@@ -94,11 +94,11 @@ TCP implementations include lots of optimizations that are outside the scope of 
    \draw[blue,thick, ->] (\s1,\y-2) -- (\c1,\y-3) node [midway, align=left, fill=white] {ACK\small{[ack=1224]}};
 
 
-In practice, TCP implementations use the Nagle algorithm :cite:p:`rfc896` and thus usually try to send full segments. They use the Maximum Segment Size (MSS) option during the handshake and PathMTU discovery the determine the largest segment which can be safely sent over a connection. Furthermore, TCP implementations usually delay acknowledgements and only acknowledge every second segment when these are received in sequence. This is illustrated in :numref:`fig-tcp-data-delack`.
+In practice, TCP implementations use the Nagle algorithm :cite:p:`rfc896` and thus usually try to send full segments. They use the Maximum Segment Size (MSS) option during the handshake and PathMTU discovery the determine the largest segment which can be safely sent over a connection. Furthermore, TCP implementations usually delay acknowledgments and only acknowledge every second segment when these are received in sequence. This is illustrated in :numref:`fig-tcp-data-delack`.
 
 
 .. _fig-tcp-data-delack:
-.. tikz:: TCP Reliable data transfert with delayed acknowledgements.
+.. tikz:: TCP Reliable data transfer with delayed acknowledgments.
    :libs: positioning, matrix, arrows, math
 
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=5.0; }
@@ -118,7 +118,7 @@ In practice, TCP implementations use the Nagle algorithm :cite:p:`rfc896` and th
    \draw[blue,thick, ->] (\s1,\y-1.6) -- (\c1,\y-2.6) node [midway, align=left, fill=white] {ACK\small{[ack=3920]}};
 
 
-TCP uses a single segment type and each segment contains both a sequence number and an acknowledgement number. The sequence number is mainly useful when a segment contains data. A receiver only processes the acknowledgment number if the ``ACK`` flag is set. In practice, TCP uses cumulative acknowledgements and all the segments sent on a TCP connection have their ``ACK`` flag set. The only exception is the ``SYN`` segment sent by the client to initiate a connection.
+TCP uses a single segment type and each segment contains both a sequence number and an acknowledgment number. The sequence number is mainly useful when a segment contains data. A receiver only processes the acknowledgment number if the ``ACK`` flag is set. In practice, TCP uses cumulative acknowledgments and all the segments sent on a TCP connection have their ``ACK`` flag set. The only exception is the ``SYN`` segment sent by the client to initiate a connection.
 
 
 .. _fig-tcp-piggyback:
@@ -141,7 +141,7 @@ TCP uses a single segment type and each segment contains both a sequence number 
    \draw[blue,thick, ->] (\c1,\y-2) -- (\s1,\y-3) node [midway, fill=white] {ACK\small{[seq=1238,ack=5680,len=4,data="ghij"]}};
    
    
-TCP uses different techniques to retransmit errored or lost data. The TCP header contains a 16 bits checksum that is computed over the entire TCP segment and a part of the IP header. The value of this checksum is computed by the sender and checked by the receiver to detect transmission errors. TCP copes with these errors by retransmitting data. The simplest technique is to rely on a retransmission timer. TCP continuously measure the round-trip-time, i.e. the delay between the transmission of a segment and the reception of the corresponding acknowledgment. It then sets a per-connection retransmission timer based on its estimations of the mean rtt and its variance :cite:p:`rfc6298`. This is illustrated in :numref:`fig-tcp-retrans` where the arrow terminated with red cross corresponds to a lost segment. Upon expiration of the retransmission timer, the client retransmits the unacknowledged segment. 
+TCP uses different techniques to retransmit corrupted or lost data. The TCP header contains a 16 bits checksum that is computed over the entire TCP segment and a part of the IP header. The value of this checksum is computed by the sender and checked by the receiver to detect transmission errors. TCP copes with these errors by retransmitting data. The simplest technique is to rely on a retransmission timer. TCP continuously measure the round-trip-time, i.e. the delay between the transmission of a segment and the reception of the corresponding acknowledgment. It then sets a per-connection retransmission timer based on its estimations of the mean rtt and its variance :cite:p:`rfc6298`. This is illustrated in :numref:`fig-tcp-retrans` where the arrow terminated with red cross corresponds to a lost segment. Upon expiration of the retransmission timer, the client retransmits the unacknowledged segment. 
 
 .. _fig-tcp-retrans:
 .. tikz:: TCP protects data by a retransmission timer
@@ -164,10 +164,10 @@ TCP uses different techniques to retransmit errored or lost data. The TCP header
    \draw[blue,thick, ->] (\c1,\y-3) -- (\s1,\y-4) node [midway, fill=white]  {ACK\small{[seq=1234,ack=5678,len=4,data="abcd"]}};
    \draw[blue,thick, ->] (\s1,\y-4.1) -- (\c1,\y-5) node [midway, fill=white] {ACK\small{[seq=5678,ack=1238]}};
 
-For performance reasons, TCP implementations try to avoid relying on the retransmission timer to retransmit the lost segments. Modern TCP implementations use selective acknowledgements which can be negotiated during the handshake. This is illustrated in :numref:`fig-tcp-retrans-sack`. A selective acknowledgement reports blocks of sequence number that have been received correctly by the receiver. Upon reception of the ``SACK`` option, the sender knows that sequence numbers ``1234-1237`` have not been received while sequence numbers ``1238-1250`` have been correctly received.
+For performance reasons, TCP implementations try to avoid relying on the retransmission timer to retransmit the lost segments. Modern TCP implementations use selective acknowledgments which can be negotiated during the handshake. This is illustrated in :numref:`fig-tcp-retrans-sack`. A selective acknowledgment reports blocks of sequence number that have been received correctly by the receiver. Upon reception of the ``SACK`` option, the sender knows that sequence numbers ``1234-1237`` have not been received while sequence numbers ``1238-1250`` have been correctly received.
 
 .. _fig-tcp-retrans-sack:
-.. tikz:: TCP leverages selective acknowledgements to retransmit lost data
+.. tikz:: TCP leverages selective acknowledgments to retransmit lost data
    :libs: positioning, matrix, arrows, math, arrows.meta
 
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
