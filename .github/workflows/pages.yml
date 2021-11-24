@@ -5,8 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Install
-      run: |
-      bash ./.github/scripts/install.sh
+      run: bash ./.github/scripts/install.sh
     - name: Checkout
       uses: actions/checkout@master
       with:
