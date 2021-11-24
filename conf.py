@@ -44,7 +44,8 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
-    'sphinxcontrib.spelling'
+    'sphinxcontrib.spelling',
+    'sphinx.ext.githubpages'
     
    
 ]
