@@ -20,8 +20,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Modern Multipath Transport Protocols'
-copyright = '2021, Olivier Bonaventure and Quentin De Coninck'
-author = 'Olivier Bonaventure and Quentin De Coninck'
+copyright = '2021, Olivier Bonaventure'
+author = 'Olivier Bonaventure'
 
 # The short X.Y version
 version = ''
@@ -172,7 +172,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'MMTP', 'Modern Multipath Transport Protocols', 
-     'Olivier Bonaventure and Quentin De Coninck', 'manual'),
+     'Olivier Bonaventure', 'manual'),
 ]
 
 latex_elements = {
