@@ -123,7 +123,9 @@ Another important class of middleboxes are the load-balancers. Several types of 
 .. _fig-load-balancer:
 .. tikz:: Load-balancers
 
-   todo	  
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
+
+   \node [black, fill=white] at (0,0) {TODO};
 
 Surprisingly, the high-speed network adapters used mainly on servers, but also on some laptops, can also interfere with the transport protocols. Network adapters are more efficient when sending large than small packets. The main reason is that there is a fixed cost for the operating system to prepare the transmission of a packet. This cost is roughly independent of the size of the packet that needs to be transferred. On the other hand, given network constraints with IPv4 :cite:`kent1995fragmentation` and IPv6 :cite:`rfc8900`, hosts only send network packets that fit in Ethernet's MTU size, i.e. 1500 bytes. To efficiently support such small packet size, high performance network adapters implement Segmentation Offload and Receive Offload. There are variants of these techniques that are specific to protocols such as TCP and UDP. TCP Segmentation Offload :cite:`freimuth2005server` is widely used and can be described as follows. To encourage the TCP stack to use large packets, the network adapter exposes a large MTU, e.g. 16 KBytes. When the TCP stack passes a 16 KBytes packet containing a TCP segment, the adapter automatically segments it in packets that are not longer than 1500 bytes. To perform this segmentation, the adapter creates the IP and TCP headers that are required for each 1500 Bytes packet with the correct sequence numbers. It copies other fields such as the receive window and also the TCP options :cite:`honda2011still`. The adapter also computes the checksums required by each packet. The receiver side performs the opposite and gathers several 1500 bytes packets in a larger one that is passed to the TCP stack. Without these optimizations, servers would not be able to reach the multiple tens of Gbps that are achievable today.
 
