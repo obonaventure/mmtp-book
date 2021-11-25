@@ -30,17 +30,16 @@ From a pure layering viewpoint, QUIC can be illustrated as shown in :numref:`fig
    \node (dl1) [box, above = of phy1]   {Data Link};
    \node (net1) [box, above = of dl1]   {IP};
    \node (transport1) [box, above = of net1]   {UDP};
-   \node (transport2) [box, above = of transport1]   {reliable};
-   \node (app) [box, above = of transport2]   {TLS};
+   \node (transport2) [box, color=red, dashed, above = of transport1]   {reliable};
+   \node (app) [box, color=red, dashed, above = of transport2]   {TLS};
 
    \end{tikzpicture}
 
 
 It is unusual to layer a transport protocol above another one. QUIC opted for this solution for two main reasons. First, on most operating systems, any application can directly use UDP without requiring special privileges. This implies that QUIC can be implemented as a library which can be included directly inside applications. This contrasts with TCP, SCTP or DCCP whose implementations are either part of the operating system kernel or need special privileges to send `raw` packets. The second motivation is that UDP (as well as TCP and ICMP) is supported by most middleboxes while many of them block transport protocols that were not defined when they were designed :cite:`barik2020usability`.
 
-It is useful to note that by using UDP, QUIC slightly increases its overhead. Each QUIC packet carries 8 bytes of headers containing the source and destination ports, the length field and a checksum. UDP also comes with a performance penalty. During the last decades, operating system kernels have been optimized to provide high bandwidth using TCP with techniques such as TCP Segmentation Offload (TSO) and Generic Receive Offload (GRO). In parallel, the UDP implementation has not changed significantly and most of the optimizations focused on request-response services such as DNS servers. The situation has changed recently with some effort, notably on Linux, to improve UDP's raw throughput.
+It is useful to note that by using UDP, QUIC slightly increases its overhead. Each QUIC packet carries 8 bytes of headers containing the source and destination ports, the length field and a checksum. UDP also comes with a performance penalty. During the last decades, operating system kernels have been optimized to provide high bandwidth using TCP with techniques such as TCP Segmentation Offload (TSO) and Generic Receive Offload (GRO). In parallel, the UDP implementation has not changed significantly and most of the optimizations focused on request-response services such as DNS servers. The situation has changed recently with some effort, notably on Linux, to improve UDP's raw throughput :cite:`de2018optimizing`.
 
-.. todo:: add reference
 
 
 
@@ -58,23 +57,27 @@ QUIC uses a four-way handshake to create a QUIC connection. :numref:`fig-quic-ha
 
    \begin{tikzpicture}	  
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
-   
+   \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
    \node [black, fill=white] at (\c1,\max) {Client};
    \node [black, fill=white] at (\s1,\max) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[blue,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[black,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
+   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
    
    \tikzmath{\y=\max-1;}
    
-   \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, fill=white]  {Initial (CRYPTO)};
+   \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-0.9) node [midway, fill=white]  {Initial (CRYPTO)};
    \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=center, fill=white] {Initial (CRYPTO)\\Handshake (CRYPTO)};
-   \draw[blue,thick, ->] (\c1,\y-2) -- (\s1,\y-3) node [midway, fill=white] {Handshake (CRYPTO)};
-   \draw[blue,thick, ->] (\s1,\y-3) -- (\c1,\y-4) node [midway, fill=white] {Handshake\_Done};
+   \draw[blue,thick, ->] (\c1,\y-2.1) -- (\s1,\y-3.1) node [midway, fill=white] {Handshake (CRYPTO)};
+   \draw[blue,thick, ->] (\s1,\y-3.1) -- (\c1,\y-4.1) node [midway, fill=white] {Handshake\_Done};
 
    \end{tikzpicture}
+
+
+The client sends an ``Initial`` packet containing a ``CRYPTO`` frame. This packet carries the ``TLS Client Hello`` and the transport parameters proposed by the client for this connection. The server replies with an ``Initial`` packet containing also a ``CRYPTO`` frame. This one contains the ``TLS Server Hello``. It is immediately followed by one or more ``Handshake`` packets containing also a ``CRYPTO`` frame with the ``TLS Encrypted Extensions``. The contents of this frame is encrypted using the session key derived from the information contained in the ``TLS Client Hello`` and the ``TLS Server Hello``. It mainly contains the certificate and the transport parameters of the server. This frame can be spread over several QUIC packets. The client replies with a ``Handshake`` packet that contains a ``CRYPTO`` frame with the ``TLS Finished`` message. The server later confirms the end of the TLS handshake by sending a ``Handshake_Done`` frame.
+   
    
 Before looking at the details of the negotiation of the cryptographic parameters, it is interesting to see how QUIC counters denial of service attacks that use spoofed addresses. During such attack, host `x` sends packets using the address of host `y` as their source. The main risk of such attacks is that the server could send a large number of packets towards address `y` although this address did not try to establish a QUIC connection with the server. QUIC prevents such attacks using two distinct techniques. First, and this is unusual for transport protocols, the Initial QUIC packet sent by the client is large. The first packet sent to create a QUIC connection must contain a UDP payload of at least 1200 bytes :cite:`rfc9000`. Such a packet contains a CRYPTO frame has shown in the figure, but also padding frames to fill the packet. If an attacker wants to send spoofed packets to initiate a connection with a server, it needs to send more than one KByte for each connection attempt. By sending a large initial packet, the client can also perform Path MTU discovery and detect routers that could fragment the QUIC packets.
 
@@ -94,14 +97,14 @@ The second mitigation against denial-of-service attacks using spoofed packets op
    :libs: positioning, matrix, arrows, math
 
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
-   
+   \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
    \node [black, fill=white] at (\c1,\max) {Client};
    \node [black, fill=white] at (\s1,\max) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[blue,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[black,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
+   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
    
    \tikzmath{\y=\max-1;}
    
@@ -125,20 +128,20 @@ A TCP connection is identified by a four tuple :math:`IP_{Client},IP_{Server},Po
 .. tikz:: Connection identifiers during a simplified QUIC Handshake
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=5; }
-   
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=4.5; }
+   \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
    \node [black, fill=white] at (\c1,\max) {Client};
    \node [black, fill=white] at (\s1,\max) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[blue,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[black,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
+   \draw[black,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
    
    \tikzmath{\y=\max-1;}
    
-   \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, fill=white]  {\small [SCID=$x$, DCID=$y$] Initial (CRYPTO)};
-   \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, fill=white,align=center] {\small [SCID=$z$, DCID=$x$] Initial (CRYPTO)\\Handshake (CRYPTO)};
+   \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, fill=white,align=center]  {\small [SCID=$x$, DCID=$y$] \\Initial};
+   \draw[blue,thick, ->] (\s1,\y-1.2) -- (\c1,\y-2.2) node [midway, fill=white,align=center] {\small [SCID=$z$, DCID=$x$] \\ Initial \\Handshake};
 
 
 The connection identifiers selected by the client and the server uniquely identify the QUIC connection. However, in contrast with TCP and UDP, the two identifiers are not present in all packets. Since a host selects a unique identifier for each connection, it only needs this identifier to identify a connection to which a packet belongs. For this reason, the QUIC packets exchanged on a connection after the handshake only contain the destination CID, i.e. the CID selected by the host that receives the packet. 
@@ -166,23 +169,23 @@ We can now discuss how QUIC leverages TLS 1.3 to negotiate the security keys tha
 .. tikz:: Simplified TLS Handshake within a QUIC connection 
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
-   
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
+   \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
    \node [black, fill=white] at (\c1,\max) {Client};
    \node [black, fill=white] at (\s1,\max) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[blue,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[black,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
+   \draw[black,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
    
    \tikzmath{\y=\max-1;}
    
-   \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, fill=white]  {ClientHello};
-   \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, fill=white, align=center] {ServerHello\\$EncryptedExtensions$\\$Finished$};
-   \draw[blue,thick, ->] (\c1,\y-3) -- (\s1,\y-4) node [midway, fill=white]  {$Finished$};
+   \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, fill=white]  {TLS Client Hello};
+   \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, fill=white, align=center] {TLS Server Hello\\$EncryptedExtensions$\\$Finished$};
+   \draw[blue,thick, ->] (\c1,\y-2.2) -- (\s1,\y-3.2) node [midway, fill=white]  {$Finished$};
    
-   \draw[blue,thick, ->] (\s1,\y-4) -- (\c1,\y-5) node [midway, align=center, fill=white] {Handshake\_Done};
+   \draw[blue,thick, ->] (\s1,\y-3.2) -- (\c1,\y-4.2) node [midway, align=center, fill=white] {$Handshake\_Done$};
 
 
 .. note:: Encrypting ``TLS Client Hello`` and ``TLS Server Hello``
@@ -295,10 +298,16 @@ The QUIC short header contains fewer fields. The most significant bit of the fir
 The short header format depicted in :numref:`fig-quic-short-header` is used by all QUIC packets once the session keys have been derived. This usually happens after one round-trip-time. They packets are called the 1-RTT packets in the QUIC specification. This notation is used to emphasize the fact that QUIC also supports 0-RTT packets, i.e. packets that carry data and can be exchanged in parallel with the TLS handshake.
 
 
+.. note:: Coalescing packets
+
+   Besides the connection identifiers, another difference between the short and the long headers is the presence of the ``Packet Length`` field in the long header. This field might surprise the reader who is familiar with UDP since UDP also contains a Length field. As QUIC packet are placed inside UDP messages, the QUIC Length field could seem redunduant. This Length field was included in the QUIC long header to allow a QUIC sender to coalesce several consecutive and small packets inside a single UDP message. Some of the frames exchanged during the handshake are rather small. Sending a UDP message for each of these frames would be a waste of resources. Furthermore, a mix of ``Initial``, ``Handshake`` and ``0-RTT`` packets are exchanged when creating a QUIC connection. It would not be wise to require the utilization of one UDP message to send each of these packets.
+   	  
+
+
 0-RTT data
 ----------
 
-Latency is a key concern for transport protocols. The QUIC/TLS handshake that we have described until now allows the client and the server to agree on security keys within one round-trip-time. However, one round-trip-time can be a long delay for some applications. To minimize the impact of the connection setup time, QUIC allows applications to exchange data during the QUIC/TLS handshake. This data is called the 0-RTT data. To ensure that 0-RTT data is exchanged securely, the client and the server must have previously agreed on a key which can be used to encrypt and authenticate the 0-RTT data. Such a 0-RTT key could either be a pre-shared key that the client and the server have shared without using the QUIC protocol or, and this is the most frequent solution, the key that they negotiated during a previous connection. In practice, the server enables 0-RTT by sending a session ticket to the client. This session ticket is an encrypted record that contains information that enables the server to recover information about the session such as its session keys. It is also linked to the client's address to enable the server to verify that a given client reuses the tickets that it has received earlier. Usually, these tickets also contain an expiration date. The client places the received ticket and the encrypted data in a 0-RTT packet. The server decrypts the information contained in the ticket to recover the session key and decrypt the data. :numref:`fig-quic-0-rtt-packet` shows the format of QUIC's 0-RTT packet. 
+Latency is a key concern for transport protocols. The QUIC/TLS handshake that we have described until now allows the client and the server to agree on security keys within one round-trip-time. However, one round-trip-time can be a long delay for some applications. To minimize the impact of the connection setup time, QUIC allows applications to exchange data during the QUIC/TLS handshake. This data is called the 0-RTT data. To ensure that 0-RTT data is exchanged securely, the client and the server must have previously agreed on a key which can be used to encrypt and authenticate the 0-RTT data. Such a 0-RTT key could either be a pre-shared key that the client and the server have shared without using the QUIC protocol or, and this is the most frequent solution, the key that they negotiated during a previous connection. In practice, the server enables 0-RTT by sending a TLS session ticket to the client. This session ticket is an encrypted record that contains information that enables the server to recover information about the session such as its session keys. It is also linked to the client's address to enable the server to verify that a given client reuses the tickets that it has received earlier. Usually, these tickets also contain an expiration date. The client places the received ticket in the ``TLS CLient Hello`` that it sends in the first ``Initial`` packet. It uses the pre-shared key corresponding to this ticket to encrypt data and place it in one or more ``0-RTT`` packets. The server uses the information contained in the ticket to recover the key and decrypt the data of the ``0-RTT`` packet. :numref:`fig-quic-0-rtt-packet` shows the format of QUIC's 0-RTT packet. 
    
    
 
@@ -322,6 +331,36 @@ Latency is a key concern for transport protocols. The QUIC/TLS handshake that we
      Packet Payload (8..),
    }
 
+
+The main benefit of these ``0-RTT`` packets is that the client can immediately send encrypted data when sending its ``Initial`` packet. This is illustrated in :numref:`fig-quic-handshake-Ortt` where the encrypted frames are shown in italics. Note that some of these encrypted frames can span several packets. ``0-RTT`` packets are only sent by the QUIC client since the server can send encrypted data immediately after having sent its ``Handshake`` frames.  
+
+.. _fig-quic-handshake-Ortt:
+.. tikz:: Simplified QUIC Handshake with 0-RTT data
+   :libs: positioning, matrix, arrows, math
+
+
+   \begin{tikzpicture}	  
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
+   \tikzstyle{every node}=[font=\small]
+   \tikzstyle{arrow} = [thick,->,>=stealth]
+   \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
+   \node [black, fill=white] at (\c1,\max) {Client};
+   \node [black, fill=white] at (\s1,\max) {Server};
+   
+   \draw[black,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
+   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   
+   \tikzmath{\y=\max-1;}
+   
+   \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-0.9) node [midway, fill=white]  {Initial (CRYPTO)};
+   \draw[blue,thick, ->] (\c1,\y-0.5) -- (\s1,\y-1.4) node [midway, fill=white]  {$0-RTT (Data)$};
+   \draw[blue,thick, ->] (\s1,\y-2) -- (\c1,\y-3) node [midway, align=center, fill=white] {Initial (CRYPTO)\\$Handshake (CRYPTO)$};
+   \draw[blue,thick, ->] (\c1,\y-3.1) -- (\s1,\y-4.1) node [midway, fill=white] {$Handshake (CRYPTO)$};
+   \draw[blue,thick, ->] (\s1,\y-4.1) -- (\c1,\y-5.1) node [midway, fill=white] {$Handshake\_Done$};
+
+   \end{tikzpicture}
+
+   
 
 .. note:: Replay attacks and 0-RTT packets
 
@@ -348,7 +387,29 @@ The second technique to terminate a QUIC connection is to use the ``CONNECTION_C
 A host also sends a ``CONNECTION_CLOSE`` frame to abruptly terminate a connection if it receives an invalid frame or detects a protocol error. In this case, the ``CONNECTION_CLOSE`` frame contains a variable length integer that indicates the reason for the termination, the type of the frame that triggered the error and additional information encoded as a text string.
 
 
-.. figure connection close ?
+.. _fig-quic-connection-close:
+.. tikz:: A server that refuses a connection
+   :libs: positioning, matrix, arrows, math
+
+
+   \begin{tikzpicture}	  
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=4; }
+   \tikzstyle{every node}=[font=\small]
+   \tikzstyle{arrow} = [thick,->,>=stealth]
+   \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
+   \node [black, fill=white] at (\c1,\max) {Client};
+   \node [black, fill=white] at (\s1,\max) {Server};
+   
+   \draw[black,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
+   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   
+   \tikzmath{\y=\max-1;}
+   
+   \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-0.9) node [midway, fill=white]  {Initial (CRYPTO)};
+   \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=center, fill=white] {Initial(CONNECTION\_CLOSE)};
+
+   \end{tikzpicture}
+
 
 The QUIC specification also defines a third technique called `stateless reset` to cope with hosts that have lost connection state after a crash or outage. It relies on 16 bytes stateless token announced together with the connection identifier. See :cite:`rfc9000` for all the details.
 
@@ -374,7 +435,7 @@ QUIC places all data inside ``STREAM`` frames that are then placed inside QUIC p
    :name: fig-quic-stream-frame
 
    STREAM Frame {
-      Type (i) = 0x0e..0x0f,
+      Type (i) = 0x08..0x0f,
       Stream ID (i),
       Offset (i),
       Length (i),
@@ -430,7 +491,7 @@ Using this information, the receiver can easily reassemble the data received ove
 
 The penultimate frame shown in :numref:`fig-quic-streams-example` has the ``FIN`` flag set. It marks the end of stream ``1`` that has transport three bytes in total. The ``FIN`` flag is the normal way to gracefully close a QUIC stream. There are however cases where an application might need to cancel a stream abruptly without closing the connection. First, the sending side of a stream can decide to reset the stream. For this, it sends a ``RESET_STREAM`` frame that indicates the identifier of the stream that is canceled. The receiving side of a stream might also need to stop receiving data over a given stream. Consider for example a web browser that has started to download the different images that compose a web while the user has already clicked on another page from the same server. The streams that corresponds to these images become useless. In this case, our browser can send a ``STOP_SENDING`` frame to indicate that it discards the incoming data over the corresponding streams. Upon reception of this frame, the server sends a ``RESET_STREAM`` frame to indicate that the corresponding stream has been closed.
 
-.. exemple stop sending et reset strem ?
+.. exemple stop sending et reset stream ?
 
 
 Flow control in QUIC
@@ -453,26 +514,43 @@ Flow control can also take place at the stream level. During the handshake, seve
 
 These limits restricts the number of streams that a host can create and the amount of bytes that it can send. If a host is blocked by any of these limits, it may sent a control frame to request the remote host to extend the limit. For each type of flow control, there is an associated control frame which can be used to request an extension of the limit.
 
-A host should send a ``DATA_BLOCKED`` frame when it reaches the limit on the maximum amount of data set by the ``initial_max_data`` transport parameter or a previously received ``MAX_DATA`` frame. The ``DATA_BLOCKED`` frame contains the connection limit that caused the transmission to be blocked. In practice, a receiving host should increase the connection-level limit by sending ``MAX_DATA`` frames before reaching the limit. However, since this limit is function of the available memory, a host might not always be able to send a ``MAX_DATA`` frame. :numref:`fig-quic-example-max_data` provides an example packet flow with the utilization of these frames.
+A host should send a ``DATA_BLOCKED`` frame when it reaches the limit on the maximum amount of data set by the ``initial_max_data`` transport parameter or a previously received ``MAX_DATA`` frame. The ``DATA_BLOCKED`` frame contains the connection limit that caused the transmission to be blocked. In practice, a receiving host should increase the connection-level limit by sending ``MAX_DATA`` frames before reaching the limit. However, since this limit is function of the available memory, a host might not always be able to send a ``MAX_DATA`` frame. :numref:`fig-quic-example-max_data` provides an example packet flow with the utilization of these frames. We assume that the ``initial_max_data`` transport parameter was set to ``100`` bytes by the client during the handshake and the the server needs to send 900 bytes. The server creates a stream and sends 100 bytes in a ``1-RTT`` packet carrying a ``STREAM`` frame. At this point, the server is blocked. 
 
 .. _fig-quic-example-max_data:
-.. tikz:: QUIC use ``MAX_DATA`` frames when a connection's flow control is blocked 
+.. tikz:: QUIC uses ``DATA_BLOCKED`` frames when a connection's flow control is blocked 
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
-   
+   \begin{tikzpicture}	  	  
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=10; }
+   \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
    \node [black, fill=white] at (\c1,\max) {Client};
    \node [black, fill=white] at (\s1,\max) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[blue,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[black,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
+   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
 	  
+   \tikzmath{\y=\max-1;}
    
+   \draw[blue,thick, ->] (\s1,\y) -- (\c1,\y-1) node [midway, fill=white]  {1-RTT(STREAM,100 bytes)};
+   \draw[blue,thick, ->] (\c1,\y-1) -- (\s1,\y-2) node [midway, align=center, fill=white] {1-RTT(ACK)};
+   \draw[blue,thick, ->] (\s1,\y-2) -- (\c1,\y-3) node [midway, fill=white]  {1-RTT(DATA\_BLOCKED)};
+   \draw[blue,thick, ->] (\c1,\y-3) -- (\s1,\y-4) node [midway, align=center, fill=white] {1-RTT(ACK)};
+   \draw[blue,thick, ->] (\s1,\y-5) -- (\c1,\y-6) node [midway, fill=white]  {1-RTT(DATA\_BLOCKED)};
+   \draw[blue,thick, ->] (\c1,\y-6) -- (\s1,\y-7) node [midway, align=center, fill=white] {1-RTT(ACK,MAX\_DATA(5000))};
+   \draw[blue,thick, ->] (\s1,\y-7) -- (\c1,\y-8) node [midway, fill=white]  {1-RTT(STREAM,800 bytes)};
+
+   \end{tikzpicture}
 
 	  
 The same applies with the ``STREAM_DATA_BLOCKED`` frame that is sent when a host reaching the per-stream limit. The ``STREAMS_BLOCKED`` frame is used when a host has reached the maximum number of established streams.
+
+.. note:: Connections blocked by flow control are not totally idle
+
+   If a QUIC host detects that a connection is blocked by flow control, it should regularly send ``DATA_BLOCKED`` or ``STREAM_DATA_BLOCKED`` frames to request the remote host to extend the current limit. The QUIC specification :cite:`rfc9000` does not recommend precisely how often these frames should be sent when a connection is blocked by flow control. Experience with QUIC deployments will enable the QUIC developers to more precisely define how often these frames should be sent.
+	   
+
 
 
 QUIC Loss Detection
@@ -513,7 +591,7 @@ With this in mind, it is interesting to look at the format of the QUIC acknowled
    :libs: positioning, matrix, arrows, math
 
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
-   
+   \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
    \node [black, fill=white] at (\c1,\max) {Client};
@@ -565,12 +643,13 @@ In contrast with other reliable transport protocols, QUIC does not use cumulativ
 
 
 .. figure example to be proposed
-   
 
-QUIC also allows a receiver to send information about the ECN flags in the received packets. Two flags of the IP header :cite:`rfc3168` are reserved to indicate support for Explicit Congestion Notification. The QUIC ECN count field shown in :numref:`fig-quic-ecn-count` contains three counters for the different values of the ECN flags. These counters are incremented upon the reception of each QUIC packet based on the values of the ECN flag of the received packet.
 
    
-   
+
+QUIC also allows a receiver to send information about the ECN flags in the received packets. Two flags of the IP header :cite:`rfc3168` are reserved to indicate support for Explicit Congestion Notification. The QUIC ECN count field shown in :numref:`fig-quic-ecn-count` contains three counters for the different values of the ECN flags. These counters are incremented upon the reception of each QUIC packet based on the values of the ECN flag of the received packet. Unfortunately, there are still many operational  problems when using ECN in the global Internet :cite:`mandalari2018measuring`. Time will tell whether it is easier to deploy ECN with QUIC than with TCP.
+
+      
 .. code-block:: console
    :caption: A QUIC ECN Count
    :name: fig-quic-ecn-count
@@ -587,6 +666,19 @@ QUIC also allows a receiver to send information about the ECN flags in the recei
 To fully illustrate the QUIC protocol, let us consider two different QUIC connections. The client starts a QUIC connection with a new server, sends a request, receives a response and then closes the connection. There are no losses in this connection.
 
 
+.. _fig-quic-naive-migration:
+.. tikz:: A naive approach to migrate a QUIC connection from Wi-Fi to cellular
+   :libs: positioning, matrix, arrows, math
+
+
+   \begin{tikzpicture}	  
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
+   \tikzstyle{every node}=[font=\small]
+   \node [black, fill=white] at (0,0) {TODO};
+   \end{tikzpicture}
+   
+This naive approach has several problems. Consider the server that receives the first QUIC packet from the smartphone's cellular interface. This packet originates from a different IP address than the previous one, but still belongs to the same connection. If the server accepts this packet and moves the connection to the cellular path, this creates several security risks. First, consider an attacker who has captured a packet over the Wi-Fi network. By sending again this unmodified packet from another IP address, the attacker could disrupt the ongoing connection by forcing the server to send replies to its own IP address. This also opens a risk of denial of service attack as the server could send a large number of packets to the smartphone's new IP address. QUIC copes with these problems by using different connection identifiers and using the path validation mechanism.
+
 .. example with full connection
    
 
@@ -594,6 +686,19 @@ Our second example is a followup to this connection. The client now uses 0-RTT t
 
 .. example with connection using 0-RTT
 
+.. _fig-quic-example-0rtt:
+.. tikz:: Illustration of a QUIC connection using 0-RTT packets
+   :libs: positioning, matrix, arrows, math
+
+
+   \begin{tikzpicture}	  
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
+   \tikzstyle{every node}=[font=\small]
+   \node [black, fill=white] at (0,0) {TODO};
+   \end{tikzpicture}
+   
+This naive approach has several problems. Consider the server that receives the first QUIC packet from the smartphone's cellular interface. This packet originates from a different IP address than the previous one, but still belongs to the same connection. If the server accepts this packet and moves the connection to the cellular path, this creates several security risks. First, consider an attacker who has captured a packet over the Wi-Fi network. By sending again this unmodified packet from another IP address, the attacker could disrupt the ongoing connection by forcing the server to send replies to its own IP address. This also opens a risk of denial of service attack as the server could send a large number of packets to the smartphone's new IP address. QUIC copes with these problems by using different connection identifiers and using the path validation mechanism.
+   
 
 Migrating QUIC connections   
 --------------------------
@@ -613,7 +718,7 @@ QUIC connection migrations occur in two steps. As an example, we consider the cl
 
    \begin{tikzpicture}	  
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
-
+   \tikzstyle{every node}=[font=\small]
    \node [black, fill=white] at (0,0) {TODO};
    \end{tikzpicture}
    
@@ -626,7 +731,7 @@ To enable a client to migrate a QUIC connection, the server must first advertise
    :libs: positioning, matrix, arrows, math
 
    \begin{tikzpicture}
-	  
+   \tikzstyle{every node}=[font=\small] 
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
 
    \node [black, fill=white] at (0,0) {TODO};
@@ -646,7 +751,7 @@ The examples above showed a connection that migrates from one network interface 
 
       \begin{tikzpicture}	     
       \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
-
+      \tikzstyle{every node}=[font=\small]
       \node [black, fill=white] at (0,0) {TODO};
       \end{tikzpicture}
 
@@ -664,7 +769,7 @@ The previous examples have shown that a client can trigger a connection migratio
    \begin{tikzpicture}
 	  
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
-       
+   \tikzstyle{every node}=[font=\small]
    \node [black, fill=white] at (0,0) {TODO};
    \end{tikzpicture}
 
@@ -679,7 +784,7 @@ This trace contains 16 packets. The scenario is a simply handshake with an excha
 
 .. figure:: figures/qtracker-nghttp2-1.png
 
-   Sample quic tracker trace from nghttp2.org
+   Sample QUIC tracker trace from nghttp2.org with a succesful handshake
 
 
 To initiate the connection, the client sends an ``Initial`` QUIC packet.  It is interesting to analyze the content of this packet. It starts with a long QUIC header shown in :numref:`fig-trace-quic-header-p1`.
@@ -820,7 +925,7 @@ It is interesting to analyze how different servers perform the handshake with QU
 
 .. figure:: figures/qtracker-cloudflare-1.png
 
-   Sample quic tracker trace from cloudflare-quic.com
+   Sample quic tracker trace from cloudflare-quic.com with a succesful handshake
 
 There are several differences with the first trace that we have analyzed. First, the server sends two small packets in response to the client's ``Initial``. The first packet only contains an ``ACK`` frame. It advertises a 20 bytes long connection identifier. The second contains a ``CRYPTO`` frame with a the ``TLS Hello Retry Request``. This message indicates that the server did not agree with the ``key_share`` parameter of the ``TLS Client Hello`` sent in the first packet. The client acknowledges this packet and sends a new ``TLS Client Hello`` in the fourth packet. The server replies with a ``TLS Server Hello`` and then the ``TLSEncryptedExtensions`` in three QUIC packets. The certificate used by ``cloudflare-quic.com`` is more compact than the one used by ``nghttp2.org``.
    
@@ -832,7 +937,7 @@ Our third example is `picoquic <https://github.com/private-octopus/picoquic>`_. 
 
 .. figure:: figures/qtracker-picoquic-1.png
 
-   Sample QUIC tracker trace from test.privateoctopus.com
+   Sample QUIC tracker trace from test.privateoctopus.com with a succesful handshake
 
    
 picoquic uses 64 bits long connection identifiers. It manages to fit its ``TLS Encrypted Extensions`` within two ``Handshake`` packets. The first ``1-RTT`` packet that it sends contains a ``PING`` frame. The second ``1-RTT`` packet contains one ``CRYPTO`` frame that advertises one ``TLS New Session Ticket``, three ``NEW_CONNECTION_ID`` frames and a ``NEW_TOKEN``. This test server does not try to create new streams in contrast with the two others.
@@ -859,10 +964,60 @@ picoquic uses 64 bits long connection identifiers. It manages to fit its ``TLS E
       plt.title('Length of the CIDs advertised by different QUIC servers')
       plt.show()
 
- 
-   
+
+
+The ability to send data immediately was one of the requirements for the design of QUIC. It is interesting to observe how QUIC uses the ``0-RTT`` packets for this purpose. We use a `trace collected between QUIC tracker and picoquic as our example <https://quic-tracker.info.ucl.ac.be/traces/20211122/619>`_. This trace covers two QUIC connections.
+
+.. figure:: figures/qtracker-picoquic-0rtt.png
+
+   Sample QUIC trace with test.privateoctopus.com with 0-RTT packets
+
+During the first QUIC connection, QUIC tracker receives one TLS session ticket in the ``CRYPTO`` frame contained in the 1-RTT packet that the server sent with packet number set to 0. This ticket contains all the information required by the server to retrieve the key in a subsequent connection. QUIC tracker starts the second connection by sending an ``Initial`` packet. This packet contains a ``CRYPTO`` frame that contains the ``TLS Client Hello`` message. A comparison between this ``TLS Client Hello`` and the one sent to create the first connection shows that the latter contains the ``psk_key_exchange_modes`` TLS extension. This extension contains the information that enables the server to recover the key required to decrypt the ``0-RTT`` packet. In this example, the client sends a ``0-RTT`` that contains the beginning of a simple ``HTTP GET``.
       
+
+As QUIC support multiple streams, it is interesting to analyze how the streams are managed over a real QUIC connection. For this example, we use a `trace between QUIC tracker and quic.tech <https://quic-tracker.info.ucl.ac.be/traces/20211122/375>`_. In the example, the QUIC tracker creates four streams and sends one ``HTTP GET`` request over each of them.
+
+.. figure:: figures/qtracker-quictech-1.png
+
+   Sample QUIC trace with quic.tech using multiple streams
+
+   
+In this trace, the client creates four streams in its first ``STREAM`` frame sent in its first ``1-RTT`` packet. :numref:`fig-quic-trace-stream-frame` shows the first of these ``STREAM`` frames. The ``Type`` of the ``STREAM`` is one octet structured as ``0b00001OLF`` where ``O`` is set to ``1`` if the ``STREAM`` frame contains an ``Offset`` field. Bit ``L`` is set to ``1`` if the frame contains a ``Length`` field. Finally, the ``F`` is set to ``1`` to mark the end of the ``STREAM``. In this test, QUIC Tracker sends 17 bytes over each stream and closes it. 
+
+
+.. code-block:: console
+   :caption: The first QUIC STREAM frame sent by QUIC Tracker
+   :name: fig-quic-trace-stream-frame
+
+   STREAM Frame {
+      Type (i) = 0b00001011,  # Offset=0, Length=1, FIN=1
+      Stream ID = 8,
+      Length = 17,
+      Stream Data = GET /index.html\r\n
+   }
+
+The server sends each response in a ``STREAM`` frame. :numref:`fig-quic-trace-stream-frame-2` shows the frame returned by the server. Its ``Offset`` bit is set to ``1``. It carries the entire HTML page and its ``Offset`` field could have been ignored since this is the first frame of the stream. 
+
+
+.. code-block:: console
+   :caption: The QUIC STREAM frame returned by the server
+   :name: fig-quic-trace-stream-frame-2
+
+   STREAM Frame {
+      Type (i) = 0b00001111,  # Offset=1, Length=1, FIN=1
+      Stream ID = 8,
+      Offset = 0,
+      Length = 462,
+      Stream Data = <!DOCTYPE html>...
+   }
+
+
+   
+
+
 .. rubric:: Footnotes
 
+	   
 
 .. [#f-stream-type] All ``STREAM`` frames have a type that starts with ``0b0001...``. The three low order bits of the ``STREAM`` frame indicate the presence of the ``Offset`` and ``Length`` fields. The lowest order bit is the ``FIN`` bit.
+
