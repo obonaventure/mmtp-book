@@ -1,13 +1,20 @@
 import matplotlib.pyplot as plt
+import numpy as np
 plt.rcParams["figure.autolayout"] = True
 fig = plt.figure()
 # Using the Handshake trace on Nov 23, 2021
 
-servers = ['cloudflare-quic.com','f5quic.com', 'h2o.example.net', 'h3.stammw.eu', 'http3-test.litespeedtech.com', 'ietf.akaquic.com','mew.org','nghttp2.org','quic.aiortc.org','quic.tech','test.privateoctopus.com']
-cids = [20,8,9,8,8,8,8,18,8,20,8]
+servers = ['aioquic', 'google', 'lsquic', 'mvfst', 'ngtcp2', 'picoquic', 'quic-go', 'quiche', 'quicly', 'quinn']
+ackfreq_min = [2,2,2,10,2,2,2,1,2,1]
+ackfreq_max = [8,10,8,10,4,6,9,38,2,17]
+ackfreq_delta = ackfreq_max
+for i in range(len(ackfreq_max)):
+  ackfreq_max[i]=ackfreq_max[i]-ackfreq_min[i]+0.5
 plt.xticks(ticks=range(len(servers)), labels=servers, rotation=90)
-plt.yticks(ticks=[0,4,8,12,16,20])
-plt.bar(servers,cids)
-plt.ylabel('Bytes')
-plt.title('Length of the CIDs advertised by different QUIC servers')
+plt.yticks(ticks=[0,5,10,15,20,25,30,35,40])
+#plt.boxplot(servers,ackfreq,whis='range')
+
+plt.ylabel('Ack Frequency')
+plt.bar(servers, ackfreq_max, bottom=ackfreq_min)
+plt.title('Ack frequencies of different QUIC servers')
 plt.show()
