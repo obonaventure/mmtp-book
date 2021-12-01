@@ -45,27 +45,446 @@
 <p class="admonition-title">Todo</p>
 <p>focus on MPTCP version 1 and briefly explain version 0</p>
 </div>
-<p>Multipath TCP <span id="id3">[<a class="reference internal" href="biblio.html#id729" title="J. Postel. Transmission Control Protocol. RFC 793 (Internet Standard), September 1981. Updated by RFCs 1122, 3168, 6093, 6528. URL: https://www.rfc-editor.org/rfc/rfc793.txt, doi:10.17487/RFC0793.">5</a>]</span> is an extension to the TCP protocol <span id="id4">[<a class="reference internal" href="biblio.html#id729" title="J. Postel. Transmission Control Protocol. RFC 793 (Internet Standard), September 1981. Updated by RFCs 1122, 3168, 6093, 6528. URL: https://www.rfc-editor.org/rfc/rfc793.txt, doi:10.17487/RFC0793.">5</a>]</span> that was presented earlier. We start with an overview of Multipath TCP. Then we explain how a Multipath TCP connection can be established. Then we analyze how data is exchanged over different paths and explain the multipath congestion control schemes. Finally, we explain how Multipath TCP connections can be terminated.</p>
+<p>Multipath TCP <span id="id3">[<a class="reference internal" href="biblio.html#id8500" title="A. Ford, C. Raiciu, M. Handley, O. Bonaventure, and C. Paasch. TCP Extensions for Multipath Operation with Multiple Addresses. RFC 8684 (Proposed Standard), March 2020. URL: https://www.rfc-editor.org/rfc/rfc8684.txt, doi:10.17487/RFC8684.">48</a>]</span> is an extension to the TCP protocol <span id="id4">[<a class="reference internal" href="biblio.html#id729" title="J. Postel. Transmission Control Protocol. RFC 793 (Internet Standard), September 1981. Updated by RFCs 1122, 3168, 6093, 6528. URL: https://www.rfc-editor.org/rfc/rfc793.txt, doi:10.17487/RFC0793.">5</a>]</span> that was presented earlier. We start with an overview of Multipath TCP. Then we explain how a Multipath TCP connection can be established. Then we analyze how data is exchanged over different paths and explain the multipath congestion control schemes. Finally, we explain how Multipath TCP connections can be terminated.</p>
 <section id="an-overview-of-multipath-tcp">
 <h2>An overview of Multipath TCP<a class="headerlink" href="#an-overview-of-multipath-tcp" title="Permalink to this headline">¶</a></h2>
+<p>The main design objective for Multipath TCP <span id="id5">[<a class="reference internal" href="biblio.html#id6658" title="A. Ford, C. Raiciu, M. Handley, and O. Bonaventure. TCP Extensions for Multipath Operation with Multiple Addresses. RFC 6824 (Experimental), January 2013. Obsoleted by RFC 8684. URL: https://www.rfc-editor.org/rfc/rfc6824.txt, doi:10.17487/RFC6824.">9</a>]</span> was to enable hosts to exchange the packets that belong to a single TCP connection over different network paths. Several definitions are possible for a network path. Considering a TCP connection between a client and a server, a network path can be defined as the succession of the links and routers that create a path between the client and the server. For example, in <a class="reference internal" href="#fig-simple-network"><span class="std std-numref">Fig. 34</span></a>, there are many paths between the client host <cite>C</cite> and the server <cite>S</cite>, e.g. <span class="math notranslate nohighlight">\(C \rightarrow R1 \rightarrow R2 \rightarrow R4 \rightarrow S\)</span> and <span class="math notranslate nohighlight">\(C \rightarrow R1 \rightarrow R3 \rightarrow R4 \rightarrow S\)</span>, but also <span class="math notranslate nohighlight">\(C \rightarrow R1 \rightarrow R3 \rightarrow R5 \rightarrow R4 \rightarrow S\)</span> or even <span class="math notranslate nohighlight">\(C \rightarrow R1 \rightarrow R2 \rightarrow R4 \rightarrow R3 \rightarrow R5 \rightarrow R4 \rightarrow S\)</span>.</p>
+<div class="figure" id="id19" style="text-align: center">
+<span id="fig-simple-network"></span><p><img  src="_images/tikz-69cb31f9853e78a5897d722ea8f00f15fa55fe26.png" alt="Figure made with TikZ" /></p>
+<p><span class="caption-number">Fig. 34 </span><span class="caption-text">A simple network</span></p>
+</div><p>During the first discussions on Multipath TCP within the IETF, there was a debate on the types of paths that Multipath TCP could use in IP networks. Although networks provide a wide range of paths between a source and a destination, it is not necessarily simple to use all these paths in a pure IP network. Looking a <a class="reference internal" href="#fig-simple-network"><span class="std std-numref">Fig. 34</span></a> and assuming that all links have the same IGP weigth, packets sent by <cite>C</cite> will follow one of the two shortest paths, i.e. <span class="math notranslate nohighlight">\(C \rightarrow R1 \rightarrow R2 \rightarrow R4 \rightarrow S\)</span> or <span class="math notranslate nohighlight">\(C \rightarrow R1 \rightarrow R3 \rightarrow R4 \rightarrow S\)</span>. Since routers usually use hash-hased load-balancing <span id="id6">[<a class="reference internal" href="biblio.html#id2922" title="C. Hopps. Analysis of an Equal-Cost Multi-Path Algorithm. RFC 2992 (Informational), November 2000. URL: https://www.rfc-editor.org/rfc/rfc2992.txt, doi:10.17487/RFC2992.">11</a>]</span> to distribute packets over equal cost paths, all the packets from a given connection will follow either the first or the second shortest path. In most networks, the path followed by a TCP connection will only change if there are link or router failures on this particular path.</p>
+<p>When Multipath TCP was designed, the IETF did not want to design techniques to enable the transport layer to specify the paths that packets should follow. They opted for a very conservative definition of the paths that Multipath TCP can use <span id="id7">[<a class="reference internal" href="biblio.html#id6033" title="A. Ford, C. Raiciu, M. Handley, S. Barre, and J. Iyengar. Architectural Guidelines for Multipath TCP Development. RFC 6182 (Informational), March 2011. URL: https://www.rfc-editor.org/rfc/rfc6182.txt, doi:10.17487/RFC6182.">49</a>]</span>. Multipath TCP assumes that the endpoints of a TCP connection are identified by their IP addresses. If two hosts want to exchange packets over different paths, then at least one of them must have two or more IP addresses. This covers two very important use cases:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>mobile devices like the smartphones that have a cellular and a Wi-Fi network interface each identified by its own IP address</p></li>
+<li><p>dual-stack hosts that have both an IPv4 and an IPv6 address</p></li>
+</ul>
+</div></blockquote>
+<p>In this document, we will often use smartphones to illustrate Multipath TCP client hosts. This corresponds to a widely deployed use case that simplifies many of the examples, but is not the only possible deployment.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Using non-equal cost paths with Multipath TCP</p>
+<p>When Multipath TCP was designed, there was no standardized solution that enabled a host to control the path followed by its packets inside a network. This is slowly changing. First, the IETF has adopted the Segment Routing architecture <span id="id8">[<a class="reference internal" href="biblio.html#id8227" title="C. Filsfils (Ed.), S. Previdi (Ed.), L. Ginsberg, B. Decraene, S. Litkowski, and R. Shakir. Segment Routing Architecture. RFC 8402 (Proposed Standard), July 2018. URL: https://www.rfc-editor.org/rfc/rfc8402.txt, doi:10.17487/RFC8402.">50</a>]</span>. This architecture is a modern version of source routing which can be used in MPLS and IPv6 networks. In particular, using the IPv6 Segment Routing Header <span id="id9">[<a class="reference internal" href="biblio.html#id8570" title="C. Filsfils (Ed.), D. Dukes (Ed.), S. Previdi, J. Leddy, S. Matsushima, and D. Voyer. IPv6 Segment Routing Header (SRH). RFC 8754 (Proposed Standard), March 2020. URL: https://www.rfc-editor.org/rfc/rfc8754.txt, doi:10.17487/RFC8754.">51</a>]</span>, a host can decide the path that its packets will follow inside the network. This opens new possibilities for Multipath TCP. Some of these possibilities are explored by the Path Aware Networking Research Group of the Internet Research Task Force.</p>
+</div>
+<p>A second important design question for the Multipath TCP designers was how use two or more paths for a single connection ? As an example, let us consider a smartphone that interacts with a server. This smartphone has two different IP addresses: one over its Wi-Fi interface and one over its cellular interface. Assume that the smartphone initiates a TCP connection over its Wi-Fi interface. This handhsake is illustrated in blue in <a class="reference internal" href="#fig-mptcp-naive"><span class="std std-numref">Fig. 35</span></a>. It sends a data packet over this interface and the next one over the cellular one (shown in red).</p>
+<div class="figure" id="id20" style="text-align: center">
+<span id="fig-mptcp-naive"></span><p><img  src="_images/tikz-32002e044877a88681f2cded9bc04e6c2237dcad.png" alt="Figure made with TikZ" /></p>
+<p><span class="caption-number">Fig. 35 </span><span class="caption-text">A naive approach to create a Multipath TCP connection</span></p>
+</div><p>This utilization of the two paths between the smartphone and the server pose two different problems. First, the server must be able to accept the packet sent by the smarphone, that uses another source IP address than the address used during the handshake and associate it with an existing Multipath TCP connection. If the server blindingly accept this packet from another address than the one used during the handshake, then there are two main security risks. An attacker could inject a packet inside an existing connection. Furthermore, he could cause a denial of service attack by sending a spoofed packet in an existing connection that requests the server to send a large volume of data to the spoofed address. Second, a middlebox such as a firewall on the cellular path between the smartphone and the server could block the packet because it does not belong to a TCP connection created on the cellular path.</p>
+<p>To cope with this problem, the Multipath TCP designers opted for an architecture where a Multipath TCP connection combines several TCP connections that are called subflows over the different paths. A Multipath TCP connection starts with a three-way handshake like a regular TCP connection. A client that wishes to use Multipath TCP sends a <code class="docutils literal notranslate"><span class="pre">SYN</span></code> with the <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option to negotiate a Multipath TCP connection with a server. If the server replies with the same option, the handshake succeeds and creates the first subflow belonging to this Multipath TCP connection. The client and the server can send data over this connection as over any TCP connection. To use a second path, the client (or the server), must initiate another TCP handshake over the new path. The <code class="docutils literal notranslate"><span class="pre">SYN</span></code> sent over this second path uses the <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option to indicate that this is an additional subflow that must be linked to an existing Multipath TCP connection. This is illustrated in <a class="reference internal" href="#fig-mptcp-capable-join"><span class="std std-numref">Fig. 36</span></a>.</p>
+<div class="figure" id="id21" style="text-align: center">
+<span id="fig-mptcp-capable-join"></span><p><img  src="_images/tikz-62ce6915297847743faec678d526c8bc965d321d.png" alt="Figure made with TikZ" /></p>
+<p><span class="caption-number">Fig. 36 </span><span class="caption-text">A Multipath TCP connection with two subflows</span></p>
+</div><p>These two three-way handshakes create two TCP connections called subflows in the Multipath TCP terminology. It is interesting to analyze how these two connections are identified on the server. A host identifies a TCP connection using four identifiers that are present in all the packets of this connection:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>the local IP address</p></li>
+<li><p>the remote IP address</p></li>
+<li><p>the local port</p></li>
+<li><p>the remote port</p></li>
+</ul>
+</div></blockquote>
+<p>Assume that the client uses IP address <span class="math notranslate nohighlight">\(IP_{\alpha}\)</span> on its Wi-Fi intefance and <span class="math notranslate nohighlight">\(IP_{\beta}\)</span> on its cellular interface and that <span class="math notranslate nohighlight">\(p\)</span> is the port used by the server. If the client used port <span class="math notranslate nohighlight">\(p_1\)</span> to create the initial subflows, then the identifier of this subflow on the server is <span class="math notranslate nohighlight">\(&lt;IP_{S},IP_{\alpha},p,p_{1}&gt;\)</span>. Similarly, the second subflow is identified by the <span class="math notranslate nohighlight">\(&lt;IP_{S},IP_{\beta},p,p_{2}&gt;\)</span> tuple on the server. Note that these two connection identifiers differ by at least one IP address as specified in <span id="id10">[<a class="reference internal" href="biblio.html#id6033" title="A. Ford, C. Raiciu, M. Handley, S. Barre, and J. Iyengar. Architectural Guidelines for Multipath TCP Development. RFC 6182 (Informational), March 2011. URL: https://www.rfc-editor.org/rfc/rfc6182.txt, doi:10.17487/RFC6182.">49</a>]</span>.</p>
+<p>A server usually manages a large number of simulatenous connections. When it receives the <code class="docutils literal notranslate"><span class="pre">SYN</span></code> for the second subflow, it must be able to link this new subflow with the corresponding Multipath TCP connection. For this, the client must include an identifier of associated Multipath TCP connection in its <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option. This identifier must unambiguously identify the corresponding Multipath TCP connection on the server.</p>
+<p>A first possible identifier is the four tuple that identifies the initial subflow, i.e. <span class="math notranslate nohighlight">\(&lt;IP_{S},IP_{\alpha},p,p_{1}&gt;\)</span>. If the server received this identifier in the <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option, it could link the new subflow to the previous one. Unfortunately, this solution does not work in today’s Internet. The main concern comes from the middleboxes such as NATs and transparent proxies. To illustrate the problem, consider a simple NAT, such as the one used on most home Wi-Fi access points. <a class="reference internal" href="#fig-nat-interference"><span class="std std-numref">Fig. 37</span></a> illustrates a handshake in such an evnrionment. If we assume that the NAT only changes the client’s IP address, then the connection is identified by the <span class="math notranslate nohighlight">\(&lt;IP_{A},IP_{S},p,p_{1}&gt;\)</span> tuple on the smartphone and <span class="math notranslate nohighlight">\(&lt;IP_{S},IP_{N},p,p_{1}&gt;\)</span> on the server. Note that a NAT could also change the client port. If the smartphone places its local connection identifier inside an <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option, the server might not be able to recognise the corresponding connection in the <code class="docutils literal notranslate"><span class="pre">SYN</span></code> packets that it received.</p>
+<div class="figure" id="id22" style="text-align: center">
+<span id="fig-nat-interference"></span><p><img  src="_images/tikz-fce585f814aa224e8ae25d053e89f79d7f279d9e.png" alt="Figure made with TikZ" /></p>
+<p><span class="caption-number">Fig. 37 </span><span class="caption-text">With Network Address Translation, A naive approach to create a Multipath TCP connection</span></p>
+</div><p>To cope with this problem, Multipath TCP uses a local identifier, called <cite>token</cite> in the Multipath TCP specification, to identify each Multipath TCP connection. The client assigns its token when it initiates a new Multipath TCP connection. A server assigns its token when it accepts a new Multipath TCP connection. These two tokens are chosen idependently by the client and the server. For security reasons, they should be random. The <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option contains the token assigned by the remote host. This is illustrated in <a class="reference internal" href="#fig-mptcp-capable-join-token"><span class="std std-numref">Fig. 38</span></a>. The server assigns token <cite>456</cite> to the Multipath TCP connection created as the first subflow. It informs the smartphone by sending this token in its <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option in the <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code>. When the client creates the second subflow, it includes this token in the <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option of its <code class="docutils literal notranslate"><span class="pre">SYN</span></code>.</p>
+<div class="figure" id="id23" style="text-align: center">
+<span id="fig-mptcp-capable-join-token"></span><p><img  src="_images/tikz-c25f67c46a28c2a2ec03cb20a10f486aca72fc7f.png" alt="Figure made with TikZ" /></p>
+<p><span class="caption-number">Fig. 38 </span><span class="caption-text">A Multipath TCP connection with two subflows</span></p>
+</div><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Multipath TCP in datacenters</p>
+<p>The Multipath TCP architecture <span id="id11">[<a class="reference internal" href="biblio.html#id6033" title="A. Ford, C. Raiciu, M. Handley, S. Barre, and J. Iyengar. Architectural Guidelines for Multipath TCP Development. RFC 6182 (Informational), March 2011. URL: https://www.rfc-editor.org/rfc/rfc6182.txt, doi:10.17487/RFC6182.">49</a>]</span> assumes that at least one of the communicating hosts will use different IP addresses to identify the different paths used by a Multipath TCP connection. In practice, this architectural requirement is not always enforced by Multipath TCP implementations. A Multipath TCP implementation can combine different subflows into one Multipath TCP connection provided that each subflow is identified by a different four-tuple. Two subflows between two communicating hosts can differ in their client-selected ports. This solution has been chosen when Multipath TCP was proposed to mitigate congestion in datacenter networks <span id="id12">[<a class="reference internal" href="biblio.html#id8922" title="C. Raiciu, S. Barre, C. Pluntke, A. Greenhalgh, D. Wischik, and M. Handley. Improving Datacenter Performance and Robustness with Multipath TCP. In ACM SIGCOMM 2011. 2011. URL: http://doi.acm.org/10.1145/2018436.2018467, doi:10.1145/2018436.2018467.">10</a>]</span>.</p>
+<p>Several designs exist for datacenter networks, but the fat-tree architecture shown in <a class="reference internal" href="#fig-fat-tree"><span class="std std-numref">Fig. 39</span></a> is a very popular one.</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">   \begin{tikzpicture}[node distance=4cm]
+   \tikzset{router/.style = {rectangle, draw, text centered, minimum height=2em}, }
+   \tikzset{host/.style = {circle, draw, text centered, minimum height=2em}, }
+   \node[router] (C1) {C1};
+   \node[router, right= 6cm of C1] (C2) {C2};
+   \node[router, below left=1cm of C1] (A1) {A1};
+   \node[router, below right= 1cm of C1] (A2) {A2};
+   \node[router, below left= 1cm of C2] (A3) {A3};
+   \node[router, below right= 1cm of C2] (A4) {A4};
+   \node[router, below= 1cm of A1] (E1) {E1};
+   \node[router, below= 1cm of A2] (E2) {E2};
+   \node[router, below= 1cm of A3] (E3) {E3};
+   \node[router, below= 1cm of A4] (E4) {E4};
+   \node[host, below left= 0.5cm of E1] (P1) {$\alpha$};
+   \node[host, below right= 0.5cm of E1] (P2) {$\beta$};
+   \node[host, below left= 0.5cm of E2] (P3) {$\gamma$};
+   \node[host, below right= 0.5cm of E2] (P4) {$\delta$};
+   \node[host, below left= 0.5cm of E3] (P5) {$\kappa$};
+   \node[host, below right= 0.5cm  of E3] (P6) {$\nu$};
+   \node[host, below left= 0.5cm of E4] (P7) {$\mu$};
+   \node[host, below right= 0.5cm of E4] (P8) {$\pi$};
+   \path[draw,thick]
+   (P1) edge (E1)
+   (P2) edge (E1)
+   (P3) edge (E2)
+   (P4) edge (E2)
+   (P5) edge (E3)
+   (P6) edge (E3)
+   (P7) edge (E4)
+   (P8) edge (E4)
+   (E1) edge (A1)
+   (E1) edge (A2)
+   (E2) edge (A1)
+   (E2) edge (A2)
+   (E3) edge (A3)
+   (E3) edge (A4)
+   (E4) edge (A3)
+   (E4) edge (A4)
+   (A1) edge (C1)
+   (A1) edge (C2)
+   (A2) edge (C1)
+   (A2) edge (C2)
+   (A3) edge (C1)
+   (A3) edge (C2)
+   (A4) edge (C1)
+   (A4) edge (C2);
+
+   \end{tikzpicture}
+
+This network topology exposes a large number of equal cost paths between the servers that are shown using circles in :numref:`fig-fat-tree`. For example, consider the paths between the :math:`\alpha` and :math:`\pi`. The paths start at :math:`E1`. This router can reach :math:`E4` and :math:`\pi` via :math:`A1` or :math:`A2`. Each of these two aggregation routers can reach :math:`\pi` via one of the two core routers. These two routers can then balance the flows via both :math:`A3` and :math:`A4`. There are :math:`2^{4}=16` different paths between :math:`\alpha` and :math:`\pi` in this very small network. If each of these routers balance the incoming packets using a hash function that takes as input their source and destination addresses and ports, then the subflows of a Multipath TCP connection that use different client problems will be spread evenly accross the network topology.  Raiciu et al. provide simulations and measurements showing the benefits of using Multipath TCP in datacenters :cite:`Raiciu_Datacenter:2011`.</span>)</p>
+<p>! Package PGF Math Error: Unknown operator `o' or `of' (in '6cm of C1').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.25    \
+ode[router, right= 6cm of C1]
+                                        (C2) {C2};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of C1').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.26    \
+ode[router, below left=1cm of C1]
+                                            (A1) {A1};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of C1').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.26    \
+ode[router, below left=1cm of C1]
+                                            (A1) {A1};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of C1').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.27    \
+ode[router, below right= 1cm of C1]
+                                              (A2) {A2};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of C1').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.27    \
+ode[router, below right= 1cm of C1]
+                                              (A2) {A2};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of C2').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.28    \
+ode[router, below left= 1cm of C2]
+                                             (A3) {A3};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of C2').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.28    \
+ode[router, below left= 1cm of C2]
+                                             (A3) {A3};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of C2').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.29    \
+ode[router, below right= 1cm of C2]
+                                              (A4) {A4};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of C2').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.29    \
+ode[router, below right= 1cm of C2]
+                                              (A4) {A4};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of A1').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.30    \
+ode[router, below= 1cm of A1]
+                                        (E1) {E1};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of A2').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.31    \
+ode[router, below= 1cm of A2]
+                                        (E2) {E2};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of A3').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.32    \
+ode[router, below= 1cm of A3]
+                                        (E3) {E3};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of A4').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.33    \
+ode[router, below= 1cm of A4]
+                                        (E4) {E4};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E1').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.34    \
+ode[host, below left= 0.5cm of E1]
+                                             (P1) {$\\alpha$};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E1').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.34    \
+ode[host, below left= 0.5cm of E1]
+                                             (P1) {$\\alpha$};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E1').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.35    \
+ode[host, below right= 0.5cm of E1]
+                                              (P2) {$\\beta$};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E1').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.35    \
+ode[host, below right= 0.5cm of E1]
+                                              (P2) {$\\beta$};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E2').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.36    \
+ode[host, below left= 0.5cm of E2]
+                                             (P3) {$\\gamma$};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E2').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.36    \
+ode[host, below left= 0.5cm of E2]
+                                             (P3) {$\\gamma$};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E2').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.37    \
+ode[host, below right= 0.5cm of E2]
+                                              (P4) {$\\delta$};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E2').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.37    \
+ode[host, below right= 0.5cm of E2]
+                                              (P4) {$\\delta$};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E3').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.38    \
+ode[host, below left= 0.5cm of E3]
+                                             (P5) {$\\kappa$};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E3').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.38    \
+ode[host, below left= 0.5cm of E3]
+                                             (P5) {$\\kappa$};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E3').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.39    \
+ode[host, below right= 0.5cm  of E3]
+                                               (P6) {$\
+u$};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E3').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.39    \
+ode[host, below right= 0.5cm  of E3]
+                                               (P6) {$\
+u$};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E4').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.40    \
+ode[host, below left= 0.5cm of E4]
+                                             (P7) {$\\mu$};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E4').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.40    \
+ode[host, below left= 0.5cm of E4]
+                                             (P7) {$\\mu$};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E4').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.41    \
+ode[host, below right= 0.5cm of E4]
+                                              (P8) {$\\pi$};
+
+! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E4').
+
+See the PGF Math package documentation for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.41    \
+ode[host, below right= 0.5cm of E4]
+                                              (P8) {$\\pi$};
+! Missing $ inserted.
+&lt;inserted text&gt; 
+                $
+l.68 ...nsider the paths between the :math:`\\alpha
+                                                  ` and :math:`\\pi`. The pat...
+
+! Missing $ inserted.
+&lt;inserted text&gt; 
+                $
+l.69 \\end{tikzpicture}
+                      
+[1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
+(./tikz-2587abe068e7fb163aa1b5e9b7c1700ba46214c3.aux) )
+(see the transcript file for additional information)&lt;/usr/share/texlive/texmf-d
+ist/fonts/type1/public/amsfonts/cm/cmmi12.pfb&gt;&lt;/usr/share/texlive/texmf-dist/fo
+nts/type1/public/amsfonts/cm/cmmi8.pfb&gt;&lt;/usr/share/texlive/texmf-dist/fonts/typ
+e1/public/amsfonts/cm/cmr12.pfb&gt;&lt;/usr/share/texlive/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmr8.pfb&gt;
+Output written on tikz-2587abe068e7fb163aa1b5e9b7c1700ba46214c3.pdf (1 page, 43
+165 bytes).
+Transcript written on tikz-2587abe068e7fb163aa1b5e9b7c1700ba46214c3.log.
+&quot;</p>
+</div>
+<p><span class="caption-number">Fig. 39 </span><span class="caption-text">A simple datacenter network
+  :libs: positioning, matrix, arrows, math</span></p>
+</div></div>
 </section>
 <section id="connection-establishment">
 <h2>Connection establishment<a class="headerlink" href="#connection-establishment" title="Permalink to this headline">¶</a></h2>
 <p>A Multipath TCP connection starts with a three-way handshake like a regular TCP connection. To indicate that it wishes to use Multipath TCP, the client adds the <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option to the <code class="docutils literal notranslate"><span class="pre">SYN</span></code> segment. In the <code class="docutils literal notranslate"><span class="pre">SYN</span></code> segment, this option only contains some flags and occupies 4 bytes. The server replies with a <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code> segment than contains an <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option including a server generated 64 bits random key that will be used to authenticate connections over different paths. The client concludes the handshake by sending an <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option in the <code class="docutils literal notranslate"><span class="pre">ACK</span></code> segment containing the random keys chosen by the client and the server.</p>
-<div class="figure" id="id11" style="text-align: center">
-<span id="fig-tcp-handshake-mptcp"></span><p><img  src="_images/tikz-f2fea4a175c9b7afdde43e081c577d6c214f8e7f.png" alt="Figure made with TikZ" /></p>
-<p><span class="caption-number">Fig. 34 </span><span class="caption-text">Negotiating the utilization of Multipath TCP during the three-way handshake</span></p>
+<div class="figure" id="id25" style="text-align: center">
+<span id="fig-tcp-handshake-mptcp"></span><p><img  src="None" alt="Figure made with TikZ" /></p>
+<p><span class="caption-number">Fig. 40 </span><span class="caption-text">Negotiating the utilization of Multipath TCP during the three-way handshake</span></p>
 </div><div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Multipath TCP version 0</p>
-<p>The first version of Multipath TCP used a slightly different handshake <span id="id5">[<a class="reference internal" href="biblio.html#id6658" title="A. Ford, C. Raiciu, M. Handley, and O. Bonaventure. TCP Extensions for Multipath Operation with Multiple Addresses. RFC 6824 (Experimental), January 2013. Obsoleted by RFC 8684. URL: https://www.rfc-editor.org/rfc/rfc6824.txt, doi:10.17487/RFC6824.">9</a>]</span>. The <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option sent by the client contains the 64 bits key chosen by the client. The <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code> segment contains an <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option with 64 bits key chosen by the server. The client echoes the client and server keys in the third <code class="docutils literal notranslate"><span class="pre">ACK</span></code> of the handshake.</p>
-<div class="figure" id="id12" style="text-align: center">
-<span id="fig-tcp-handshake-mptcp-v0"></span><p><img  src="_images/tikz-f1babbc1cfb54ffe7bece849effc2ae4227350e2.png" alt="Figure made with TikZ" /></p>
-<p><span class="caption-number">Fig. 35 </span><span class="caption-text">Negotiating the utilization of Multipath TCP version 0</span></p>
+<p>The first version of Multipath TCP used a slightly different handshake <span id="id13">[<a class="reference internal" href="biblio.html#id6658" title="A. Ford, C. Raiciu, M. Handley, and O. Bonaventure. TCP Extensions for Multipath Operation with Multiple Addresses. RFC 6824 (Experimental), January 2013. Obsoleted by RFC 8684. URL: https://www.rfc-editor.org/rfc/rfc6824.txt, doi:10.17487/RFC6824.">9</a>]</span>. The <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option sent by the client contains the 64 bits key chosen by the client. The <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code> segment contains an <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option with 64 bits key chosen by the server. The client echoes the client and server keys in the third <code class="docutils literal notranslate"><span class="pre">ACK</span></code> of the handshake.</p>
+<div class="figure" id="id26" style="text-align: center">
+<span id="fig-tcp-handshake-mptcp-v0"></span><p><img  src="None" alt="Figure made with TikZ" /></p>
+<p><span class="caption-number">Fig. 41 </span><span class="caption-text">Negotiating the utilization of Multipath TCP version 0</span></p>
 </div></div>
-<p>The 64 bits random keys chosen by the client and the server play three different roles in Multipath TCP. Their first role is to identify the Multipath TCP connection to which an additional connection must be attached. Since a Multipath TCP connection can combine several TCP connections, Multipath TCP cannot use the IP addresses and port numbers to identify a TCP connection. Multipath TCP uses a specific identifier that is called a token. For technical reasons, this token is derived from the 64 bits key as the most significant 32 bits of the SHA-256 <span id="id6">[<a class="reference internal" href="biblio.html#id6083" title="D. Eastlake 3rd and T. Hansen. US Secure Hash Algorithms (SHA and SHA-based HMAC and HKDF). RFC 6234 (Informational), May 2011. URL: https://www.rfc-editor.org/rfc/rfc6234.txt, doi:10.17487/RFC6234.">48</a>]</span> hash of the key. The second role of the 64 bits keys is to authenticate the establishment of additional connections as we will see shortly. Finally, the keys are also used to compute random initial sequence numbers.</p>
+<p>The 64 bits random keys chosen by the client and the server play three different roles in Multipath TCP. Their first role is to identify the Multipath TCP connection to which an additional connection must be attached. Since a Multipath TCP connection can combine several TCP connections, Multipath TCP cannot use the IP addresses and port numbers to identify a TCP connection. Multipath TCP uses a specific identifier that is called a token. For technical reasons, this token is derived from the 64 bits key as the most significant 32 bits of the SHA-256 <span id="id14">[<a class="reference internal" href="biblio.html#id6083" title="D. Eastlake 3rd and T. Hansen. US Secure Hash Algorithms (SHA and SHA-based HMAC and HKDF). RFC 6234 (Informational), May 2011. URL: https://www.rfc-editor.org/rfc/rfc6234.txt, doi:10.17487/RFC6234.">52</a>]</span> hash of the key. The second role of the 64 bits keys is to authenticate the establishment of additional connections as we will see shortly. Finally, the keys are also used to compute random initial sequence numbers.</p>
 <p>The main benefit of Multipath TCP is that a Multipath TCP connection can combine different TCP connections that potentially use different paths. Starting from now on, we will consider a client with two network interfaces and a server with one network interface. This could for example correspond to a client application running on a smartphone that interacts with a server. We explore more complex scenarios later.</p>
-<p>We can know how a Multipath TCP connection can combine different TCP connections. According to the Multipath TCP specification, these connections are called subflows <span id="id7">[<a class="reference internal" href="biblio.html#id8500" title="A. Ford, C. Raiciu, M. Handley, O. Bonaventure, and C. Paasch. TCP Extensions for Multipath Operation with Multiple Addresses. RFC 8684 (Proposed Standard), March 2020. URL: https://www.rfc-editor.org/rfc/rfc8684.txt, doi:10.17487/RFC8684.">49</a>]</span>. We also adopt this terminology in this document. <a class="reference internal" href="#fig-mptcp-join"><span class="std std-numref">Fig. 36</span></a> shows a Multipath TCP that combines two subflows. To establish the Multipath TCP connection, the client initiates the initial subflow by using the <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option during the three-way handshake. At the end of the initial handshake, the client and the server have exchanged their keys. Based on their keys, they have both computed the token that the remote host uses to identify the Multipath TCP connection.</p>
+<p>We can know how a Multipath TCP connection can combine different TCP connections. According to the Multipath TCP specification, these connections are called subflows <span id="id15">[<a class="reference internal" href="biblio.html#id8500" title="A. Ford, C. Raiciu, M. Handley, O. Bonaventure, and C. Paasch. TCP Extensions for Multipath Operation with Multiple Addresses. RFC 8684 (Proposed Standard), March 2020. URL: https://www.rfc-editor.org/rfc/rfc8684.txt, doi:10.17487/RFC8684.">48</a>]</span>. We also adopt this terminology in this document. <a class="reference internal" href="#fig-mptcp-join"><span class="std std-numref">Fig. 42</span></a> shows a Multipath TCP that combines two subflows. To establish the Multipath TCP connection, the client initiates the initial subflow by using the <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option during the three-way handshake. At the end of the initial handshake, the client and the server have exchanged their keys. Based on their keys, they have both computed the token that the remote host uses to identify the Multipath TCP connection.</p>
 <p>To attach a second subflow to this Multipath TCP connection, the client needs to create it. For this, it starts a three-way handshake with the server by sending a <code class="docutils literal notranslate"><span class="pre">SYN</span></code> segment containing the <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option. This option indicates that the client uses Multipath TCP and wishes to attach this new connection to an existing Multipath TCP connection. The <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option contains two important fields:</p>
 <blockquote>
 <div><ul class="simple">
@@ -74,18 +493,18 @@
 </ul>
 </div></blockquote>
 <p>The client has derived the token from the key announced by the server in the <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option of the <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code> segment on the initial subflow. Thanks to this token, the server knows to which Multipath TCP connection the new subflow needs to be attached.</p>
-<div class="admonition-todo admonition" id="id8">
+<div class="admonition-todo admonition" id="id16">
 <p class="admonition-title">Todo</p>
 <p>discuss security concerns</p>
 </div>
 <p>The server uses the random nonce sent by the client and its own random nonce to prove its knowledge of the keys exchanged during the initial handshake. The server computes <span class="math notranslate nohighlight">\(HMAC(Key=(Server_{key}||Client_{key}), Msg=(nonce_{Server}||nonce_{Client}))\)</span>, where <code class="docutils literal notranslate"><span class="pre">||</span></code> denotes the concatenation operation. It then returns the high order 64 bits of this HMAC in the <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option of the <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code> segment together with its 32 bits nonce. The client computes <span class="math notranslate nohighlight">\(HMAC(Key=(Client_{key}||Server_{key}), Msg=(nonce_{Client}||nonce_{Server}))\)</span> and sends the 160 bits HMAC in the <code class="docutils literal notranslate"><span class="pre">ACK</span></code> segment.</p>
-<div class="figure" id="id13" style="text-align: center">
-<span id="fig-mptcp-join"></span><p><img  src="_images/tikz-c1a3696955639ac9e16a2e0795586cf2a95c7345.png" alt="Figure made with TikZ" /></p>
-<p><span class="caption-number">Fig. 36 </span><span class="caption-text">MPTCP Join</span></p>
+<div class="figure" id="id27" style="text-align: center">
+<span id="fig-mptcp-join"></span><p><img  src="None" alt="Figure made with TikZ" /></p>
+<p><span class="caption-number">Fig. 42 </span><span class="caption-text">MPTCP Join</span></p>
 </div><div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Generating random keys</p>
-<p>Explained in NSDI paper <span id="id9">[<a class="reference internal" href="biblio.html#id8930" title="Costin Raiciu, Christoph Paasch, Sebastien Barre, Alan Ford, Michio Honda, Fabien Duchene, Olivier Bonaventure, and Mark Handley. How hard can it be? Designing and implementing a deployable Multipath TCP. In Proceedings of the 9th USENIX Conference on Networked Systems Design and Implementation, NSDI'12, 29–29. Berkeley, CA, USA, 2012. USENIX Association. URL: http://inl.info.ucl.ac.be/publications/how-hard-can-it-be-designing-and-implementing-deployable-multipath-tcp.">50</a>]</span></p>
+<p>Explained in NSDI paper <span id="id17">[<a class="reference internal" href="biblio.html#id8930" title="Costin Raiciu, Christoph Paasch, Sebastien Barre, Alan Ford, Michio Honda, Fabien Duchene, Olivier Bonaventure, and Mark Handley. How hard can it be? Designing and implementing a deployable Multipath TCP. In Proceedings of the 9th USENIX Conference on Networked Systems Design and Implementation, NSDI'12, 29–29. Berkeley, CA, USA, 2012. USENIX Association. URL: http://inl.info.ucl.ac.be/publications/how-hard-can-it-be-designing-and-implementing-deployable-multipath-tcp.">53</a>]</span></p>
 </div>
 </section>
 <section id="data-transfer">
@@ -93,7 +512,7 @@
 </section>
 <section id="congestion-control">
 <h2>Congestion control<a class="headerlink" href="#congestion-control" title="Permalink to this headline">¶</a></h2>
-<div class="admonition-todo admonition" id="id10">
+<div class="admonition-todo admonition" id="id18">
 <p class="admonition-title">Todo</p>
 <p>explain basic idea and the problem of having</p>
 </div>
