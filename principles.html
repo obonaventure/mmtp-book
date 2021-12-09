@@ -48,7 +48,7 @@
 <h2>Middleboxes<a class="headerlink" href="#middleboxes" title="Permalink to this headline">¶</a></h2>
 <p>IP networks contain a variety of devices. Besides the endhosts, networking students are familiar with the switches and access points that relay layer-2 frames and the routers that relay packets. <a class="reference internal" href="#fig-switches-routers"><span class="std std-numref">Fig. 30</span></a> illustrates a network with two hosts communicating through one switch and one router.</p>
 <div class="figure" id="id26">
-<span id="fig-switches-routers"></span><p><img src="None" alt="% inspired by https://newbedev.com/tikz-draw-simplified-ble-stack
+<span id="fig-switches-routers"></span><p><img src="_images/tikz-c67987cbbd9be8c669d51f89d27d50ae6aa6c61b.png" alt="% inspired by https://newbedev.com/tikz-draw-simplified-ble-stack
 \begin{tikzpicture}[
 node distance = 1mm and 0mm,
 box/.style = {draw, text width=40mm, inner sep=2mm, align=center}
@@ -79,7 +79,7 @@ box/.style = {draw, text width=40mm, inner sep=2mm, align=center}
 <p class="caption"><span class="caption-number">Fig. 30 </span><span class="caption-text">Routers and switches in the reference model</span></p>
 </div><p><span id="id2">Sherry <em>et al.</em> [<a class="reference internal" href="biblio.html#id8911" title="Justine Sherry, Shaddi Hasan, Colin Scott, Arvind Krishnamurthy, Sylvia Ratnasamy, and Vyas Sekar. Making middleboxes someone else's problem: network processing as a cloud service. ACM SIGCOMM Computer Communication Review, 42(4):13–24, 2012.">35</a>]</span> show that deployed networks contain a variety of devices besides the traditional layer-2 switches and the layer-3 routers <span id="id3">[<a class="reference internal" href="biblio.html#id8911" title="Justine Sherry, Shaddi Hasan, Colin Scott, Arvind Krishnamurthy, Sylvia Ratnasamy, and Vyas Sekar. Making middleboxes someone else's problem: network processing as a cloud service. ACM SIGCOMM Computer Communication Review, 42(4):13–24, 2012.">35</a>]</span>. These middleboxes include firewalls, Network Address Translators, transparent proxies, VPN gateways, network caches, … Each of these middleboxes processes the packets at different layers. From a reference model viewpoint, they can be depicted as shown in <a class="reference internal" href="#fig-middlebox"><span class="std std-numref">Fig. 31</span></a>.</p>
 <div class="figure" id="id27">
-<span id="fig-middlebox"></span><p><img src="None" alt="% inspired by https://newbedev.com/tikz-draw-simplified-ble-stack
+<span id="fig-middlebox"></span><p><img src="_images/tikz-c17932483827b6bfa1b22c9b112b841ffa20bc4d.png" alt="% inspired by https://newbedev.com/tikz-draw-simplified-ble-stack
 \begin{tikzpicture}[
 node distance = 1mm and 0mm,
 box/.style = {draw, text width=40mm, inner sep=2mm, align=center}
@@ -121,7 +121,7 @@ box/.style = {draw, text width=40mm, inner sep=2mm, align=center}
 <p>Measurement studies performed in 2010 <span id="id13">[<a class="reference internal" href="biblio.html#id8908" title="Seppo Hätönen, Aki Nyrhinen, Lars Eggert, Stephen Strowes, Pasi Sarolahti, and Markku Kojo. An experimental study of home gateway characteristics. In Proceedings of the 10th ACM SIGCOMM conference on Internet measurement, 260–266. 2010.">25</a>]</span> showed that some deployed NATs do not support all standardized transport protocols and their recent extensions. Unfortunately, recent measurements <span id="id14">[<a class="reference internal" href="biblio.html#id8912" title="Runa Barik, Michael Welzl, Gorry Fairhurst, Ahmed Elmokashfi, Thomas Dreibholz, and Stein Gjessing. On the usability of transport protocols other than tcp: a home gateway and internet path traversal study. Computer Networks, 173:107211, 2020.">16</a>]</span> confirm that today’s NATs still limit the deployment of new transport protocols and the extensibility of widely deployed protocols. Many of these problems were anticipated by the IETF <span id="id15">[<a class="reference internal" href="biblio.html#id2957" title="M. Holdrege and P. Srisuresh. Protocol Complications with the IP Network Address Translator. RFC 3027 (Informational), January 2001. URL: https://www.rfc-editor.org/rfc/rfc3027.txt, doi:10.17487/RFC3027.">41</a>]</span>.</p>
 <p>Another important class of middleboxes are the load-balancers. Several types of load-balancers exist. For this section, we focus on a simple load-balancer that is placed in front of a group of servers as illustrated in <a class="reference internal" href="#fig-load-balancer"><span class="std std-numref">Fig. 32</span></a>. The simplest design is a load-balancer that receives all packets from clients and servers. When a connection attempt arrives, the load-balancer selects one server (e.g. the less loaded one) and then forwards the packet and all the other packets of the connection to this specific server. If all packets exchanged by the client and the servers pass through the load-balancer, it could become a bottleneck. Some designs allow the servers to send back their replies directly to the client without passing through the load-balancers. With other designs, it becomes possible for the load-balancer to only see the first packets of each connection. With such designs, most of the packets exchanged by the clients and the servers bypass the load-balancer. We will discuss how multipath protocols enable some of these designs later in this document.</p>
 <div class="figure" id="id28">
-<span id="fig-load-balancer"></span><p><img src="None" alt="\begin{tikzpicture}
+<span id="fig-load-balancer"></span><p><img src="_images/tikz-dee6486e69dd90d47e9f00df6dfcbe0ae6ff78f9.png" alt="\begin{tikzpicture}
 
 
 \node [black, fill=white] at (0,0) {TODO};
@@ -134,7 +134,7 @@ box/.style = {draw, text width=40mm, inner sep=2mm, align=center}
 </div>
 <p>Our last middlebox is the transparent proxy. Transparent proxies are deployed in enterprise or mobile networks for security or performance reasons. Some enterprise networks use transparent proxies on their firewalls to observe all the data exchanged over transport connections and detect any attack or leak of information. Some mobile network providers have deployed transparent proxies to improve the performance of transport protocols in the wireless network compared to the classical client stacks <span id="id21">[<a class="reference internal" href="biblio.html#id8915" title="Raffaele Zullo, Antonio Pescapé, Korian Edeline, and Benoit Donnet. Hic sunt proxies: unveiling proxy phenomena in mobile networks. In 2019 Network Traffic Measurement and Analysis Conference (TMA), 227–232. IEEE, 2019.">45</a>]</span>.</p>
 <div class="figure" id="id29">
-<span id="fig-transparent-proxy"></span><p><img src="None" alt="\begin{tikzpicture}[
+<span id="fig-transparent-proxy"></span><p><img src="_images/tikz-c17932483827b6bfa1b22c9b112b841ffa20bc4d.png" alt="\begin{tikzpicture}[
 node distance = 1mm and 0mm,
 box/.style = {draw, text width=40mm, inner sep=2mm, align=center}
 ]

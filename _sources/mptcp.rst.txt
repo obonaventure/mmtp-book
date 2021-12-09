@@ -10,8 +10,8 @@ Multipath TCP :cite:`rfc8684` is an extension to the TCP protocol :cite:p:`rfc79
 
 
 
-An overview of Multipath TCP
-============================
+A brief overview of Multipath TCP
+=================================
 
 The main design objective for Multipath TCP :cite:`rfc6824` was to enable hosts to exchange the packets that belong to a single TCP connection over different network paths. Several definitions are possible for a network path. Considering a TCP connection between a client and a server, a network path can be defined as the succession of the links and routers that create a path between the client and the server. For example, in :numref:`fig-simple-network`, there are many paths between the client host `C` and the server `S`, e.g. :math:`C \rightarrow R1 \rightarrow R2 \rightarrow R4 \rightarrow S` and :math:`C \rightarrow R1 \rightarrow R3 \rightarrow R4 \rightarrow S`, but also :math:`C \rightarrow R1 \rightarrow R3 \rightarrow R5 \rightarrow R4 \rightarrow S` or even :math:`C \rightarrow R1 \rightarrow R2 \rightarrow R4 \rightarrow R3 \rightarrow R5 \rightarrow R4 \rightarrow S`.   
 
@@ -182,7 +182,7 @@ To cope with this problem, Multipath TCP uses a local identifier, called `token`
    \draw[blue,thick, ->] (\c1,\y-2.1) -- (\s1,\y-3) node [midway, align=center, fill=white] {ACK\small{[seq=x+1,ack=y+1]}};
    \draw[blue,thick, ->] (\c1,\y-3) -- (\s1,\y-4) node [midway, align=center, fill=white] {Data\small{[seq=x+1]}};
    \draw[red,thick, ->] (\c2,\y-4) -- (\s1,\y-5) node [midway, align=center, fill=white] {SYN\small{[seq=p]}\\\small{MP\_Join[token=456]}};
-   \draw[red,thick, ->] (\s1,\y-5) -- (\c2,\y-6) node [midway, align=center, fill=white] {SYN+ACK\small{[seq=q,ack=p+1]}\\\small{MP\_Join}};
+   \draw[red,thick, ->] (\s1,\y-5) -- (\c2,\y-6) node [midway, align=center, fill=white] {SYN+ACK\small{[seq=q,ack=p+1]}\\\small{MP\_Join[\ldots]}};
    \draw[red,thick, ->] (\c2,\y-6) -- (\s1,\y-7) node [midway, align=center, fill=white] {ACK\small{[seq=p+1,ack=q+1]}};
 
    
@@ -245,16 +245,204 @@ To cope with this problem, Multipath TCP uses a local identifier, called `token`
        (A4) edge (C2);
 
        \end{tikzpicture}
+
+
+       
+   This network topology exposes a large number of equal cost paths between the servers that are shown using circles in :numref:`fig-fat-tree`. For example, consider the paths between the :math:`\alpha` and :math:`\pi` hosts. The paths start at :math:`E1`. This router can reach :math:`E4` and :math:`\pi` via :math:`A1` or :math:`A2`. Each of these two aggregation routers can reach :math:`\pi` via one of the two core routers. These two routers can then balance the flows via both :math:`A3` and :math:`A4`. There are :math:`2^{4}=16` different paths between :math:`\alpha` and :math:`\pi` in this very small network. If each of these routers balance the incoming packets using a hash function that takes as input their source and destination addresses and ports, then the subflows of a Multipath TCP connection that use different client problems will be spread evenly accross the network topology.  Raiciu et al. provide simulations and measurements showing the benefits of using Multipath TCP in datacenters :cite:`Raiciu_Datacenter:2011`.
+
+
+..  explain architecture and show that an MPTCP connection manages several subflows    
+
+Once a Multipath TCP connection and the additional subflows have been established, we can use them to exchange data. An important point to remember is that a Multipath TCP connection offers a bidirectional bytestream service like a regular TCP connection. This service does not change even if Multipath TCP uses different subflows to carry the data between the sender and the receiver. As an example, consider a sender that sends ``ABCD`` one byte at a time over a Multipath TCP connection composed of two subflows. A naive approach to sedn these bytes would be to simply placed them in TCP segments. This is illustrated in :numref:`fig-mptcp-data-naive` where we assume that the two TCP subflows have already been established.
+    
+.. _fig-mptcp-data-naive:
+.. tikz:: A naive approach to send data over a Multipath TCP connection 
+   :libs: positioning, matrix, arrows, math
+
+   \tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \max=10; }
+   
+   \tikzstyle{arrow} = [thick,->,>=stealth]
+   \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
+   \node [black, fill=white] at (\c1,\max) {Smartphone};
+   \node [black, fill=white] at (\s1,\max) {Server};
+   
+   \draw[blue,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
+   \draw[red,thick,->] (\c2,\max-0.5) -- (\c2,0.5);
+   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   
+   \tikzmath{\y=\max-1;}
+   
+   \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=center, fill=white] {DATA\small{[seq=x,A]}};
+   \draw[black,thick, ->] (\s1,\y-1) -- (\s1+4,\y-1) node [midway, align=center, fill=white] {DATA.ind(A)};
+   \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=center, fill=white] {ACK\small{[ack=x+1]}};
+   \draw[red,thick, ->] (\c2,\y-2) -- (\s1,\y-3) node [midway, align=center, fill=white] {DATA\small{[seq=p,B]}};
+   \draw[black,thick, ->] (\s1,\y-3) -- (\s1+4,\y-3) node [midway, align=center, fill=white] {DATA.ind(B)};
+   \draw[red,thick, ->] (\s1,\y-3) -- (\c2,\y-4) node [midway, align=center, fill=white] {ACK\small{[ack=p+1]}};
+   \draw[blue,thick, ->] (\c1,\y-4) -- (\s1,\y-5) node [midway, align=center, fill=white] {DATA\small{[seq=x+1,C]}};
+      \draw[black,thick, ->] (\s1,\y-5) -- (\s1+4,\y-5) node [midway, align=center, fill=white] {DATA.ind(C)};
+   \draw[blue,thick, ->] (\s1,\y-5) -- (\c1,\y-6) node [midway, align=center, fill=white] {ACK\small{[ack=x+2]}};
+   \draw[red,thick, ->] (\c2,\y-6) -- (\s1,\y-7) node [midway, align=center, fill=white] {DATA\small{[seq=p+1,D]}};
+      \draw[black,thick, ->] (\s1,\y-7) -- (\s1+4,\y-7) node [midway, align=center, fill=white] {DATA.ind(D)};
+   \draw[red,thick, ->] (\s1,\y-7) -- (\c2,\y-8) node [midway, align=center, fill=white] {ACK\small{[acl=p+2]}};
+
+In this example, the Smartphone slowly sends data in sequence. The server receives the data in sequence over the two subflows and the server could simply deliver the data as soon as it arrives over each subflow. This is illustrated with the ``DATA.ind(\ldots)`` primitives that represent the delivery of the data to the server application. However, consider now that the first packet sent on the red subflow is lost and is retransmitted together with the fourth byte as shown in :numref:`fig-mptcp-data-naive-2`.
+
+
+.. _fig-mptcp-data-naive-2:
+.. tikz:: A naive approach to send data over a Multipath TCP connection 
+   :libs: positioning, matrix, arrows.meta, math
+
+   \tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \max=10; }
+   
+   \tikzstyle{arrow} = [thick,->,>=stealth]
+   \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
+   \node [black, fill=white] at (\c1,\max) {Smartphone};
+   \node [black, fill=white] at (\s1,\max) {Server};
+   
+   \draw[blue,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
+   \draw[red,thick,->] (\c2,\max-0.5) -- (\c2,0.5);
+   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   
+   \tikzmath{\y=\max-1;}
+   
+   \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=center, fill=white] {DATA\small{[seq=x,A]}};
+   \draw[black,thick, ->] (\s1,\y-1) -- (\s1+4,\y-1) node [midway, align=center, fill=white] {DATA.ind(A)};
+   \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=center, fill=white] {ACK\small{[ack=x+1]}};
+   \draw[red,thick, -Circle] (\c2,\y-2) -- (\s1-1,\y-2.8) node [midway, align=center, fill=white] {DATA\small{[seq=p,bseq=1,B]}};
+
+   \draw[blue,thick, ->] (\c1,\y-4) -- (\s1,\y-5) node [midway, align=center, fill=white] {DATA\small{[seq=x+1,C]}};
+   \draw[black,thick, ->] (\s1,\y-5) -- (\s1+4,\y-5) node [midway, align=center, fill=white] {DATA.ind(C) ????};
+   \draw[blue,thick, ->] (\s1,\y-5) -- (\c1,\y-6) node [midway, align=center, fill=white] {ACK\small{[ack=x+2]}};
+   \draw[red,thick, ->] (\c2,\y-6) -- (\s1,\y-7) node [midway, align=center, fill=white] {DATA\small{[seq=p,BD]}};
+   \draw[black,thick, ->] (\s1,\y-7) -- (\s1+4,\y-7) node [midway, align=center, fill=white] {DATA.ind(BD) ????};
+   \draw[red,thick, ->] (\s1,\y-7) -- (\c2,\y-8) node [midway, align=center, fill=white] {ACK\small{[acl=p+2]}};
+
+
+In :numref:`fig-mptcp-data-naive-2`, it is clear that the server cannot simply deliver the data as soon as it receives it to its application. If the server behaves this way, it will deliver ``ACBD`` to its application instead of the ``ABCD`` bytestream send by the smartphone. To cope with the reordering of the data sent over the different subflows, Multipath TCP includes bytestream-level data sequence numbers that enable it to preserve the ordering of the data sent over the bytestream. This is illustrated in :numref:`fig-mptcp-data-seq` with the bytestream-level sequence number shown as ``bseq``. We will detail later how this sequence number is exactly transported by Multipath TCP.
+
+.. _fig-mptcp-data-seq:
+.. tikz:: A naive approach to send data over a Multipath TCP connection 
+   :libs: positioning, matrix, arrows.meta, math
+
+   \tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \max=10; }
+   
+   \tikzstyle{arrow} = [thick,->,>=stealth]
+   \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
+   \node [black, fill=white] at (\c1,\max) {Smartphone};
+   \node [black, fill=white] at (\s1,\max) {Server};
+   
+   \draw[blue,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
+   \draw[red,thick,->] (\c2,\max-0.5) -- (\c2,0.5);
+   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   
+   \tikzmath{\y=\max-1;}
+   
+   \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=center, fill=white] {DATA\small{[seq=x,bseq=0,A]}};
+   \draw[black,thick, ->] (\s1,\y-1) -- (\s1+4,\y-1) node [midway, align=center, fill=white] {DATA.ind(A)};
+   \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=center, fill=white] {ACK\small{[ack=x+1]}};
+   \draw[red,thick, -Circle] (\c2,\y-2) -- (\s1-1,\y-2.8) node [midway, align=center, fill=white] {DATA\small{[seq=p,bseq=1,B]}};
+
+   \draw[blue,thick, ->] (\c1,\y-4) -- (\s1,\y-5) node [midway, align=center, fill=white] {DATA\small{[seq=x+1,bseq=2,C]}};
+
+   \draw[blue,thick, ->] (\s1,\y-5) -- (\c1,\y-6) node [midway, align=center, fill=white] {ACK\small{[ack=x+2]}};
+   \draw[red,thick, ->] (\c2,\y-5.5) -- (\s1,\y-6.5) node [midway, align=center, fill=white] {DATA\small{[seq=p,bseq=1,BC]}};
+   \draw[black,thick, ->] (\s1,\y-6.5) -- (\s1+4,\y-6.5) node [midway, align=center, fill=white] {DATA.ind(BC)};   
+   \draw[red,thick, ->] (\c2,\y-6) -- (\s1,\y-7) node [midway, align=center, fill=white] {DATA\small{[seq=p,bseq=3,D]}};
+   \draw[black,thick, ->] (\s1,\y-7) -- (\s1+4,\y-7) node [midway, align=center, fill=white] {DATA.ind(D)};   
+   \draw[red,thick, ->] (\s1,\y-7) -- (\c2,\y-8) node [midway, align=center, fill=white] {ACK\small{[acl=p+2]}};
+
+   
+Thanks to the bytestream sequence number, the server can reorder the data received over the different subflows and preserve the ordering in the bytestream.
+
+
+
+Creating a Multipath TCP connection
+===================================
+
+Before delving into the details of how a Multipath TCP connection is created, let use first analyze the main requirements of this establishment and how they can be met without considering all the protocol details. During the three-way handshake, TCP hosts agree to establishment a connection, select the initial sequence number in each direction and negotiate the utilization of TCP extensions. In addition to these objectives, the handshake used by Multipath TCP also allows the communicating hosts to:
+
+ - agree to use the Multipath TCP extension
+ - exchange the tokens used to identify the connection
+ - agree on initial bytestream sequence numbers
+
+
+
+To meet the first objective, the client simply needs to send a Multipath TCP option (``MPO```) in its ``SYN``. If the server supports Multipath TCP, it will respond with a ``SYNC+AC`` that carries this option.
+
+To meet the second objective, the simplest solution is reserve some space, e.g. 64 bits, in the ``MPO`` option to encode the token chosen by the host that sends the ``SYN`` or ``SYN+ACK``. With this approach, each host can autonomously select the token that it uses to identify each Multipath TCP connection. To meet the third objective, the simplest solution is also to place the initial sequence number in the ``MPO`` option. :numref:`fig-tcp-handshake-mpo` illustrates a handshake using the ``MPO`` option. 
+
+
+.. _fig-tcp-handshake-mpo:
+.. tikz:: Opening a Multipath TCP connection with a MPO option
+   :libs: positioning, matrix, arrows, math
+
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
+   
+   \tikzstyle{arrow} = [thick,->,>=stealth]
+   \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
+   \node [black, fill=white] at (\c1,\max) {Client};
+   \node [black, fill=white] at (\s1,\max) {Server};
+   
+   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
+   \draw[blue,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[red,thick,->] (\c2,\max-0.5) -- (\c2,0.5);
 	  
-    This network topology exposes a large number of equal cost paths between the servers that are shown using circles in :numref:`fig-fat-tree`. For example, consider the paths between the :math:`\alpha` and :math:`\pi`. The paths start at :math:`E1`. This router can reach :math:`E4` and :math:`\pi` via :math:`A1` or :math:`A2`. Each of these two aggregation routers can reach :math:`\pi` via one of the two core routers. These two routers can then balance the flows via both :math:`A3` and :math:`A4`. There are :math:`2^{4}=16` different paths between :math:`\alpha` and :math:`\pi` in this very small network. If each of these routers balance the incoming packets using a hash function that takes as input their source and destination addresses and ports, then the subflows of a Multipath TCP connection that use different client problems will be spread evenly accross the network topology.  Raiciu et al. provide simulations and measurements showing the benefits of using Multipath TCP in datacenters :cite:`Raiciu_Datacenter:2011`.
+   \tikzmath{\y=\max-1;}
+   
+   \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {SYN\small{[seq=x]}\\\small{MPO[$Client_{token}$,$Client_{bseq}$]}};
+   \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=left, fill=white] {SYN+ACK\small{[seq=y,ack=x+1]}\\\small{MPO[$Server_{token}$,$Server_{bseq}$]}};
+   \draw[blue,thick, ->] (\c1,\y-2.1) -- (\s1,\y-3) node [midway, align=left, fill=white] {ACK\small{[seq=x+1,ack=y+1]}};
+
+   \draw[red,thick, ->] (\c2,\y-4) -- (\s1,\y-5) node [midway, align=center, fill=white] {SYN\small{[seq=p]}\\\small{MP\_Join[token=$Server_{token}$]}};
+   \draw[red,thick, ->] (\s1,\y-5) -- (\c2,\y-6) node [midway, align=center, fill=white] {SYN+ACK\small{[seq=q,ack=p+1]}\\\small{MP\_Join[\ldots]}};
+   \draw[red,thick, ->] (\c2,\y-6) -- (\s1,\y-7) node [midway, align=center, fill=white] {ACK\small{[seq=p+1,ack=q+1]}};
+   
+The Multipath TCP working group was worried about the risk of attacks with this approach. When the smartphone creates an additional subflow, it includes the token allocated by the server inside the ``MP_JOIN`` option. This token serves two different purposes. First, it identifies the relevant Multipath TCP connection on the server. Second, it also "authenticates" that the ``SYN`` also originates from this client. Authenticating the client is a key concern from a security viewpoint. The main risk is that an on-path attacker who has observed the token in the ``MP_JOIN`` option can reuse it to create additional subflows from any other source. To cope with this problem, Multipath TCP relies on a shared secret that the client and the server exchange during the initial handshake. The client proposes one halve of the secret and the server the other halve. This is illustrated in :numref:`fig-tcp-handshake-mpo-secret`. The client proposes its part of the shared secret in the ``SYN`` (:math:`Client_{secret}`). The server replies with its part of the secret in the ``SYN+ACK``.
+   
+
+.. _fig-tcp-handshake-mpo-secret:
+.. tikz:: Creating a Multipath TCP connection with a MPO option
+   :libs: positioning, matrix, arrows, math
+
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=9; }
+   
+   \tikzstyle{arrow} = [thick,->,>=stealth]
+   \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
+   \node [black, fill=white] at (\c1,\max) {Client};
+   \node [black, fill=white] at (\s1,\max) {Server};
+   
+   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
+   \draw[blue,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[red,thick,->] (\c2,\max-0.5) -- (\c2,0.5);
+	  
+   \tikzmath{\y=\max-1;}
+   
+   \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {SYN\small{[seq=x]}\\\small{MPO[$Client_{token}$,$Client_{bseq}$,$Client_{secret}$]}};
+   \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=left, fill=white] {SYN+ACK\small{[seq=y,ack=x+1]}\\\small{MPO[$Server_{token}$,$Server_{bseq}$,$Server_{secret}$]}};
+   \draw[blue,thick, ->] (\c1,\y-2.1) -- (\s1,\y-3) node [midway, align=left, fill=white] {ACK\small{[seq=x+1,ack=y+1]}};
+
+   \draw[red,thick, ->] (\c2,\y-4) -- (\s1,\y-5) node [midway, align=center, fill=white] {SYN\small{[seq=p]}\\\small{MP\_Join[$Server_{token}$,$Client_{random}$]}};
+   \draw[red,thick, ->] (\s1,\y-5) -- (\c2,\y-6) node [midway, align=center, fill=white] {SYN+ACK\small{[seq=q,ack=p+1]}\\\small{MP\_Join[$Server_{random}$,HMAC1]}};
+   \draw[red,thick, ->] (\c2,\y-6) -- (\s1,\y-7) node [midway, align=center, fill=white] {ACK\small{[seq=p+1,ack=q+1]}\\\small{MP\_Join[HMAC2]}};
+
+   \node[black,fill=white,align=right] at (\c1,0) {HMAC1=HMAC(key=$Server_{secret}$||$Client_{Secret}$,\\msg=$Server_{random}||Client_{random}$)};
+   \node[black,fill=white,align=right] at (\c1,-1)  {HMAC2=HMAC(key=$Client_{secret}$||$Server_{Secret}$,\\msg=$Client_{random}||Server_{random}$)};
+   
+   
+Using these two components of the shared secret, the client and the server must be able to authenticate the additional subflows without revealing the shared secret to an attacker who is able to capture packets on the path of the additional subflow. Multipath TCP requires each host to perform a HMAC :cite:`rfc2104` of a random number to confirm their knowledge of the shared secret. This is illustrated in the second part of :numref:`fig-tcp-handshake-mpo-secret`. To create the additional subflow, the client send a ``SYN`` with the ``MP_JOIN`` option containing the :math:`Server_{token}` and a random nonce, :math:`Client_{random}`. The server confirms the establishment of the subflow by sending a ``SYN+ACK`` containing the HMAC computed using the :math:`Client_{random}` and the :math:`Client_{secret}` and :math:`Server_{secret}` input. Thanks to this HMAC computation, the server can reveal that it knows :math:`Client_{secret}` and :math:`Server_{secret}` without explictly sending them. The server also places a random number, :math:`Server_{random}` in the ``MP_JOIN`` option of the ``SYN+ACK``. The client computes a HMAC and returns it in the third ``ACK``. With these two HMACs, the client and the server can authenticate the establishment of the additional subflow without revealing the shared secret.
 
 
+.. note:: The security of Multipath TCP depends on the security of the initial handshake
 
-    
-    
-Connection establishment
-========================
+   The ability of correctly authenticate the addition of new subflows to a Multipath TCP connection depends on the secrecy of the :math:`Client_{secret}` and :math:`Server_{secret}` exchanged in the ``SYN`` and ``SYN+ACK`` of the initial handshake. An on-path attacker which is able to capture this initial handshake has all the information required to attach a new subflow to this Multipath TCP connectionat any time. Multipath does not include the strong cryptographic techniques (besides HMAC) that would have been required to completely secure the establishment the protocol and the establishment of additional subflows in particular. This threat was considered acceptable for Multipath TCP :cite:`rfc6181` because an attacker who can capture the packets of a single path TCP connection can also inject data inside this connection. To be fully secure Multipath TCP would need to rely on cryptographic techniques that are similar to those used in Transport Layer Security :cite:`rfc8446`. 
 
+
+The solution described above meets the requirements of the Internet Engineering Task Force. From a security viewpoint, the :math:`Client_{secret}`, :math:`Server_{secret}` and the random nonces should be as large as possible to prevent attacks where their values are simply guessed. Unfortunately, since Multipath TCP uses TCP options to exchange all this information, we need to ensure that it fits inside the extended header of a TCP ``SYN``. The TCP specification :cite:`rfc793` reserves up to 40 bytes to place the TCP options in a ``SYN``. Today's TCP stacks already consume 4 bytes for the ``MSS`` option :cite:`rfc793`, 3 for the ``Window Scale`` option :cite:`rfc1323`, 2 for ``SACK Permitted`` :cite:`rfc2018` and 10 for the timestamp option :cite:`rfc1323`. This leaves only 20 bytes to encode a Multipath TCP option that must contain an initial sequence number, a token and a secret. Multipath TCP solves this problem by deriving these three values from a single field encoded in a TCP option. Let us now analyze the Multipath TCP handshake in more details.
+
+The Multipath TCP handshake
+---------------------------
+
+	  
 A Multipath TCP connection starts with a three-way handshake like a regular TCP connection. To indicate that it wishes to use Multipath TCP, the client adds the ``MP_CAPABLE`` option to the ``SYN`` segment. In the ``SYN`` segment, this option only contains some flags and occupies 4 bytes. The server replies with a ``SYN+ACK`` segment than contains an ``MP_CAPABLE`` option including a server generated 64 bits random key that will be used to authenticate connections over different paths. The client concludes the handshake by sending an ``MP_CAPABLE`` option in the ``ACK`` segment containing the random keys chosen by the client and the server.
 
 .. _fig-tcp-handshake-mptcp:
@@ -278,6 +466,7 @@ A Multipath TCP connection starts with a three-way handshake like a regular TCP 
    \draw[blue,thick, ->] (\c1,\y-2.1) -- (\s1,\y-3) node [midway, align=left, fill=white] {ACK\small{[seq=x+1,ack=y+1]}\\\small{MPC[flags,$Client_{key}$,$Server_{key}$]}};
 
 
+   
 .. note:: Multipath TCP version 0
    
    The first version of Multipath TCP used a slightly different handshake :cite:p:`rfc6824`. The ``MP_CAPABLE`` option sent by the client contains the 64 bits key chosen by the client. The ``SYN+ACK`` segment contains an ``MP_CAPABLE`` option with 64 bits key chosen by the server. The client echoes the client and server keys in the third ``ACK`` of the handshake. 

@@ -45,10 +45,10 @@
 <p>focus on MPTCP version 1 and briefly explain version 0</p>
 </div>
 <p>Multipath TCP <span id="id3">[<a class="reference internal" href="biblio.html#id8500" title="A. Ford, C. Raiciu, M. Handley, O. Bonaventure, and C. Paasch. TCP Extensions for Multipath Operation with Multiple Addresses. RFC 8684 (Proposed Standard), March 2020. URL: https://www.rfc-editor.org/rfc/rfc8684.txt, doi:10.17487/RFC8684.">48</a>]</span> is an extension to the TCP protocol <span id="id4">[<a class="reference internal" href="biblio.html#id729" title="J. Postel. Transmission Control Protocol. RFC 793 (Internet Standard), September 1981. Updated by RFCs 1122, 3168, 6093, 6528. URL: https://www.rfc-editor.org/rfc/rfc793.txt, doi:10.17487/RFC0793.">5</a>]</span> that was presented earlier. We start with an overview of Multipath TCP. Then we explain how a Multipath TCP connection can be established. Then we analyze how data is exchanged over different paths and explain the multipath congestion control schemes. Finally, we explain how Multipath TCP connections can be terminated.</p>
-<div class="section" id="an-overview-of-multipath-tcp">
-<h2>An overview of Multipath TCP<a class="headerlink" href="#an-overview-of-multipath-tcp" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="a-brief-overview-of-multipath-tcp">
+<h2>A brief overview of Multipath TCP<a class="headerlink" href="#a-brief-overview-of-multipath-tcp" title="Permalink to this headline">¶</a></h2>
 <p>The main design objective for Multipath TCP <span id="id5">[<a class="reference internal" href="biblio.html#id6658" title="A. Ford, C. Raiciu, M. Handley, and O. Bonaventure. TCP Extensions for Multipath Operation with Multiple Addresses. RFC 6824 (Experimental), January 2013. Obsoleted by RFC 8684. URL: https://www.rfc-editor.org/rfc/rfc6824.txt, doi:10.17487/RFC6824.">9</a>]</span> was to enable hosts to exchange the packets that belong to a single TCP connection over different network paths. Several definitions are possible for a network path. Considering a TCP connection between a client and a server, a network path can be defined as the succession of the links and routers that create a path between the client and the server. For example, in <a class="reference internal" href="#fig-simple-network"><span class="std std-numref">Fig. 34</span></a>, there are many paths between the client host <cite>C</cite> and the server <cite>S</cite>, e.g. <span class="math notranslate nohighlight">\(C \rightarrow R1 \rightarrow R2 \rightarrow R4 \rightarrow S\)</span> and <span class="math notranslate nohighlight">\(C \rightarrow R1 \rightarrow R3 \rightarrow R4 \rightarrow S\)</span>, but also <span class="math notranslate nohighlight">\(C \rightarrow R1 \rightarrow R3 \rightarrow R5 \rightarrow R4 \rightarrow S\)</span> or even <span class="math notranslate nohighlight">\(C \rightarrow R1 \rightarrow R2 \rightarrow R4 \rightarrow R3 \rightarrow R5 \rightarrow R4 \rightarrow S\)</span>.</p>
-<div class="figure" id="id19">
+<div class="figure" id="id28">
 <span id="fig-simple-network"></span><p><img src="_images/tikz-69cb31f9853e78a5897d722ea8f00f15fa55fe26.png" alt="\tikzset{router/.style = {rectangle, draw, text centered, minimum height=2em}, }
 \tikzset{host/.style = {circle, draw, text centered, minimum height=2em}, }
 \node[host] (A) {C};
@@ -84,7 +84,7 @@
 <p>When Multipath TCP was designed, there was no standardized solution that enabled a host to control the path followed by its packets inside a network. This is slowly changing. First, the IETF has adopted the Segment Routing architecture <span id="id8">[<a class="reference internal" href="biblio.html#id8227" title="C. Filsfils (Ed.), S. Previdi (Ed.), L. Ginsberg, B. Decraene, S. Litkowski, and R. Shakir. Segment Routing Architecture. RFC 8402 (Proposed Standard), July 2018. URL: https://www.rfc-editor.org/rfc/rfc8402.txt, doi:10.17487/RFC8402.">50</a>]</span>. This architecture is a modern version of source routing which can be used in MPLS and IPv6 networks. In particular, using the IPv6 Segment Routing Header <span id="id9">[<a class="reference internal" href="biblio.html#id8570" title="C. Filsfils (Ed.), D. Dukes (Ed.), S. Previdi, J. Leddy, S. Matsushima, and D. Voyer. IPv6 Segment Routing Header (SRH). RFC 8754 (Proposed Standard), March 2020. URL: https://www.rfc-editor.org/rfc/rfc8754.txt, doi:10.17487/RFC8754.">51</a>]</span>, a host can decide the path that its packets will follow inside the network. This opens new possibilities for Multipath TCP. Some of these possibilities are explored by the Path Aware Networking Research Group of the Internet Research Task Force.</p>
 </div>
 <p>A second important design question for the Multipath TCP designers was how use two or more paths for a single connection ? As an example, let us consider a smartphone that interacts with a server. This smartphone has two different IP addresses: one over its Wi-Fi interface and one over its cellular interface. Assume that the smartphone initiates a TCP connection over its Wi-Fi interface. This handhsake is illustrated in blue in <a class="reference internal" href="#fig-mptcp-naive"><span class="std std-numref">Fig. 35</span></a>. It sends a data packet over this interface and the next one over the cellular one (shown in red).</p>
-<div class="figure" id="id20">
+<div class="figure" id="id29">
 <span id="fig-mptcp-naive"></span><p><img src="_images/tikz-32002e044877a88681f2cded9bc04e6c2237dcad.png" alt="\tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \max=7; }
 
 \tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
@@ -106,7 +106,7 @@
 <p class="caption"><span class="caption-number">Fig. 35 </span><span class="caption-text">A naive approach to create a Multipath TCP connection</span></p>
 </div><p>This utilization of the two paths between the smartphone and the server pose two different problems. First, the server must be able to accept the packet sent by the smarphone, that uses another source IP address than the address used during the handshake and associate it with an existing Multipath TCP connection. If the server blindingly accept this packet from another address than the one used during the handshake, then there are two main security risks. An attacker could inject a packet inside an existing connection. Furthermore, he could cause a denial of service attack by sending a spoofed packet in an existing connection that requests the server to send a large volume of data to the spoofed address. Second, a middlebox such as a firewall on the cellular path between the smartphone and the server could block the packet because it does not belong to a TCP connection created on the cellular path.</p>
 <p>To cope with this problem, the Multipath TCP designers opted for an architecture where a Multipath TCP connection combines several TCP connections that are called subflows over the different paths. A Multipath TCP connection starts with a three-way handshake like a regular TCP connection. A client that wishes to use Multipath TCP sends a <code class="docutils literal notranslate"><span class="pre">SYN</span></code> with the <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option to negotiate a Multipath TCP connection with a server. If the server replies with the same option, the handshake succeeds and creates the first subflow belonging to this Multipath TCP connection. The client and the server can send data over this connection as over any TCP connection. To use a second path, the client (or the server), must initiate another TCP handshake over the new path. The <code class="docutils literal notranslate"><span class="pre">SYN</span></code> sent over this second path uses the <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option to indicate that this is an additional subflow that must be linked to an existing Multipath TCP connection. This is illustrated in <a class="reference internal" href="#fig-mptcp-capable-join"><span class="std std-numref">Fig. 36</span></a>.</p>
-<div class="figure" id="id21">
+<div class="figure" id="id30">
 <span id="fig-mptcp-capable-join"></span><p><img src="_images/tikz-62ce6915297847743faec678d526c8bc965d321d.png" alt="\tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \max=10; }
 
 \tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
@@ -141,7 +141,7 @@
 <p>Assume that the client uses IP address <span class="math notranslate nohighlight">\(IP_{\alpha}\)</span> on its Wi-Fi intefance and <span class="math notranslate nohighlight">\(IP_{\beta}\)</span> on its cellular interface and that <span class="math notranslate nohighlight">\(p\)</span> is the port used by the server. If the client used port <span class="math notranslate nohighlight">\(p_1\)</span> to create the initial subflows, then the identifier of this subflow on the server is <span class="math notranslate nohighlight">\(&lt;IP_{S},IP_{\alpha},p,p_{1}&gt;\)</span>. Similarly, the second subflow is identified by the <span class="math notranslate nohighlight">\(&lt;IP_{S},IP_{\beta},p,p_{2}&gt;\)</span> tuple on the server. Note that these two connection identifiers differ by at least one IP address as specified in <span id="id10">[<a class="reference internal" href="biblio.html#id6033" title="A. Ford, C. Raiciu, M. Handley, S. Barre, and J. Iyengar. Architectural Guidelines for Multipath TCP Development. RFC 6182 (Informational), March 2011. URL: https://www.rfc-editor.org/rfc/rfc6182.txt, doi:10.17487/RFC6182.">49</a>]</span>.</p>
 <p>A server usually manages a large number of simulatenous connections. When it receives the <code class="docutils literal notranslate"><span class="pre">SYN</span></code> for the second subflow, it must be able to link this new subflow with the corresponding Multipath TCP connection. For this, the client must include an identifier of associated Multipath TCP connection in its <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option. This identifier must unambiguously identify the corresponding Multipath TCP connection on the server.</p>
 <p>A first possible identifier is the four tuple that identifies the initial subflow, i.e. <span class="math notranslate nohighlight">\(&lt;IP_{S},IP_{\alpha},p,p_{1}&gt;\)</span>. If the server received this identifier in the <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option, it could link the new subflow to the previous one. Unfortunately, this solution does not work in today’s Internet. The main concern comes from the middleboxes such as NATs and transparent proxies. To illustrate the problem, consider a simple NAT, such as the one used on most home Wi-Fi access points. <a class="reference internal" href="#fig-nat-interference"><span class="std std-numref">Fig. 37</span></a> illustrates a handshake in such an evnrionment. If we assume that the NAT only changes the client’s IP address, then the connection is identified by the <span class="math notranslate nohighlight">\(&lt;IP_{A},IP_{S},p,p_{1}&gt;\)</span> tuple on the smartphone and <span class="math notranslate nohighlight">\(&lt;IP_{S},IP_{N},p,p_{1}&gt;\)</span> on the server. Note that a NAT could also change the client port. If the smartphone places its local connection identifier inside an <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option, the server might not be able to recognise the corresponding connection in the <code class="docutils literal notranslate"><span class="pre">SYN</span></code> packets that it received.</p>
-<div class="figure" id="id22">
+<div class="figure" id="id31">
 <span id="fig-nat-interference"></span><p><img src="_images/tikz-fce585f814aa224e8ae25d053e89f79d7f279d9e.png" alt="\tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
 \tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \max=5; \nat=4.5;}
 
@@ -166,8 +166,8 @@
 \draw[blue,thick, -&gt;] (\nat,\y-3.5) -- (\s1,\y-4) node [midway, align=center, fill=white] {$IP_{N}\rightarrow IP_{S}$\\ACK};" /></p>
 <p class="caption"><span class="caption-number">Fig. 37 </span><span class="caption-text">With Network Address Translation, A naive approach to create a Multipath TCP connection</span></p>
 </div><p>To cope with this problem, Multipath TCP uses a local identifier, called <cite>token</cite> in the Multipath TCP specification, to identify each Multipath TCP connection. The client assigns its token when it initiates a new Multipath TCP connection. A server assigns its token when it accepts a new Multipath TCP connection. These two tokens are chosen idependently by the client and the server. For security reasons, they should be random. The <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option contains the token assigned by the remote host. This is illustrated in <a class="reference internal" href="#fig-mptcp-capable-join-token"><span class="std std-numref">Fig. 38</span></a>. The server assigns token <cite>456</cite> to the Multipath TCP connection created as the first subflow. It informs the smartphone by sending this token in its <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option in the <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code>. When the client creates the second subflow, it includes this token in the <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option of its <code class="docutils literal notranslate"><span class="pre">SYN</span></code>.</p>
-<div class="figure" id="id23">
-<span id="fig-mptcp-capable-join-token"></span><p><img src="_images/tikz-c25f67c46a28c2a2ec03cb20a10f486aca72fc7f.png" alt="\tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \max=10; }
+<div class="figure" id="id32">
+<span id="fig-mptcp-capable-join-token"></span><p><img src="_images/tikz-f09d81ff7621625391dd94cab406435ab16825f7.png" alt="\tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \max=10; }
 
 \tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
 \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
@@ -185,7 +185,7 @@
 \draw[blue,thick, -&gt;] (\c1,\y-2.1) -- (\s1,\y-3) node [midway, align=center, fill=white] {ACK\small{[seq=x+1,ack=y+1]}};
 \draw[blue,thick, -&gt;] (\c1,\y-3) -- (\s1,\y-4) node [midway, align=center, fill=white] {Data\small{[seq=x+1]}};
 \draw[red,thick, -&gt;] (\c2,\y-4) -- (\s1,\y-5) node [midway, align=center, fill=white] {SYN\small{[seq=p]}\\\small{MP\_Join[token=456]}};
-\draw[red,thick, -&gt;] (\s1,\y-5) -- (\c2,\y-6) node [midway, align=center, fill=white] {SYN+ACK\small{[seq=q,ack=p+1]}\\\small{MP\_Join}};
+\draw[red,thick, -&gt;] (\s1,\y-5) -- (\c2,\y-6) node [midway, align=center, fill=white] {SYN+ACK\small{[seq=q,ack=p+1]}\\\small{MP\_Join[\ldots]}};
 \draw[red,thick, -&gt;] (\c2,\y-6) -- (\s1,\y-7) node [midway, align=center, fill=white] {ACK\small{[seq=p+1,ack=q+1]}};" /></p>
 <p class="caption"><span class="caption-number">Fig. 38 </span><span class="caption-text">A Multipath TCP connection with two subflows</span></p>
 </div><div class="admonition note">
@@ -193,380 +193,216 @@
 <p>Multipath TCP in datacenters</p>
 <p>The Multipath TCP architecture <span id="id11">[<a class="reference internal" href="biblio.html#id6033" title="A. Ford, C. Raiciu, M. Handley, S. Barre, and J. Iyengar. Architectural Guidelines for Multipath TCP Development. RFC 6182 (Informational), March 2011. URL: https://www.rfc-editor.org/rfc/rfc6182.txt, doi:10.17487/RFC6182.">49</a>]</span> assumes that at least one of the communicating hosts will use different IP addresses to identify the different paths used by a Multipath TCP connection. In practice, this architectural requirement is not always enforced by Multipath TCP implementations. A Multipath TCP implementation can combine different subflows into one Multipath TCP connection provided that each subflow is identified by a different four-tuple. Two subflows between two communicating hosts can differ in their client-selected ports. This solution has been chosen when Multipath TCP was proposed to mitigate congestion in datacenter networks <span id="id12">[<a class="reference internal" href="biblio.html#id8922" title="C. Raiciu, S. Barre, C. Pluntke, A. Greenhalgh, D. Wischik, and M. Handley. Improving Datacenter Performance and Robustness with Multipath TCP. In ACM SIGCOMM 2011. 2011. URL: http://doi.acm.org/10.1145/2018436.2018467, doi:10.1145/2018436.2018467.">10</a>]</span>.</p>
 <p>Several designs exist for datacenter networks, but the fat-tree architecture shown in <a class="reference internal" href="#fig-fat-tree"><span class="std std-numref">Fig. 39</span></a> is a very popular one.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">   \begin{tikzpicture}[node distance=4cm]
-   \tikzset{router/.style = {rectangle, draw, text centered, minimum height=2em}, }
-   \tikzset{host/.style = {circle, draw, text centered, minimum height=2em}, }
-   \node[router] (C1) {C1};
-   \node[router, right= 6cm of C1] (C2) {C2};
-   \node[router, below left=1cm of C1] (A1) {A1};
-   \node[router, below right= 1cm of C1] (A2) {A2};
-   \node[router, below left= 1cm of C2] (A3) {A3};
-   \node[router, below right= 1cm of C2] (A4) {A4};
-   \node[router, below= 1cm of A1] (E1) {E1};
-   \node[router, below= 1cm of A2] (E2) {E2};
-   \node[router, below= 1cm of A3] (E3) {E3};
-   \node[router, below= 1cm of A4] (E4) {E4};
-   \node[host, below left= 0.5cm of E1] (P1) {$\alpha$};
-   \node[host, below right= 0.5cm of E1] (P2) {$\beta$};
-   \node[host, below left= 0.5cm of E2] (P3) {$\gamma$};
-   \node[host, below right= 0.5cm of E2] (P4) {$\delta$};
-   \node[host, below left= 0.5cm of E3] (P5) {$\kappa$};
-   \node[host, below right= 0.5cm  of E3] (P6) {$\nu$};
-   \node[host, below left= 0.5cm of E4] (P7) {$\mu$};
-   \node[host, below right= 0.5cm of E4] (P8) {$\pi$};
-   \path[draw,thick]
-   (P1) edge (E1)
-   (P2) edge (E1)
-   (P3) edge (E2)
-   (P4) edge (E2)
-   (P5) edge (E3)
-   (P6) edge (E3)
-   (P7) edge (E4)
-   (P8) edge (E4)
-   (E1) edge (A1)
-   (E1) edge (A2)
-   (E2) edge (A1)
-   (E2) edge (A2)
-   (E3) edge (A3)
-   (E3) edge (A4)
-   (E4) edge (A3)
-   (E4) edge (A4)
-   (A1) edge (C1)
-   (A1) edge (C2)
-   (A2) edge (C1)
-   (A2) edge (C2)
-   (A3) edge (C1)
-   (A3) edge (C2)
-   (A4) edge (C1)
-   (A4) edge (C2);
+<div class="figure" id="id33">
+<span id="fig-fat-tree"></span><p><img src="_images/tikz-3f772ca9ad514274d97c456bf62e46136a4f2220.png" alt="\begin{tikzpicture}[node distance=4cm]
+ \tikzset{router/.style = {rectangle, draw, text centered, minimum height=2em}, }
+ \tikzset{host/.style = {circle, draw, text centered, minimum height=2em}, }
+ \node[router] (C1) {C1};
+ \node[router, right= 6cm of C1] (C2) {C2};
+ \node[router, below left=1cm of C1] (A1) {A1};
+ \node[router, below right= 1cm of C1] (A2) {A2};
+ \node[router, below left= 1cm of C2] (A3) {A3};
+ \node[router, below right= 1cm of C2] (A4) {A4};
+ \node[router, below= 1cm of A1] (E1) {E1};
+ \node[router, below= 1cm of A2] (E2) {E2};
+ \node[router, below= 1cm of A3] (E3) {E3};
+ \node[router, below= 1cm of A4] (E4) {E4};
+ \node[host, below left= 0.5cm of E1] (P1) {$\alpha$};
+ \node[host, below right= 0.5cm of E1] (P2) {$\beta$};
+ \node[host, below left= 0.5cm of E2] (P3) {$\gamma$};
+ \node[host, below right= 0.5cm of E2] (P4) {$\delta$};
+ \node[host, below left= 0.5cm of E3] (P5) {$\kappa$};
+ \node[host, below right= 0.5cm  of E3] (P6) {$\nu$};
+ \node[host, below left= 0.5cm of E4] (P7) {$\mu$};
+ \node[host, below right= 0.5cm of E4] (P8) {$\pi$};
+ \path[draw,thick]
+ (P1) edge (E1)
+ (P2) edge (E1)
+ (P3) edge (E2)
+ (P4) edge (E2)
+ (P5) edge (E3)
+ (P6) edge (E3)
+ (P7) edge (E4)
+ (P8) edge (E4)
+ (E1) edge (A1)
+ (E1) edge (A2)
+ (E2) edge (A1)
+ (E2) edge (A2)
+ (E3) edge (A3)
+ (E3) edge (A4)
+ (E4) edge (A3)
+ (E4) edge (A4)
+ (A1) edge (C1)
+ (A1) edge (C2)
+ (A2) edge (C1)
+ (A2) edge (C2)
+ (A3) edge (C1)
+ (A3) edge (C2)
+ (A4) edge (C1)
+ (A4) edge (C2);
 
-   \end{tikzpicture}
-
-This network topology exposes a large number of equal cost paths between the servers that are shown using circles in :numref:`fig-fat-tree`. For example, consider the paths between the :math:`\alpha` and :math:`\pi`. The paths start at :math:`E1`. This router can reach :math:`E4` and :math:`\pi` via :math:`A1` or :math:`A2`. Each of these two aggregation routers can reach :math:`\pi` via one of the two core routers. These two routers can then balance the flows via both :math:`A3` and :math:`A4`. There are :math:`2^{4}=16` different paths between :math:`\alpha` and :math:`\pi` in this very small network. If each of these routers balance the incoming packets using a hash function that takes as input their source and destination addresses and ports, then the subflows of a Multipath TCP connection that use different client problems will be spread evenly accross the network topology.  Raiciu et al. provide simulations and measurements showing the benefits of using Multipath TCP in datacenters :cite:`Raiciu_Datacenter:2011`.</span>)</p>
-<p>! Package PGF Math Error: Unknown operator `o' or `of' (in '6cm of C1').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.25    \
-ode[router, right= 6cm of C1]
-                                        (C2) {C2};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of C1').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.26    \
-ode[router, below left=1cm of C1]
-                                            (A1) {A1};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of C1').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.26    \
-ode[router, below left=1cm of C1]
-                                            (A1) {A1};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of C1').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.27    \
-ode[router, below right= 1cm of C1]
-                                              (A2) {A2};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of C1').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.27    \
-ode[router, below right= 1cm of C1]
-                                              (A2) {A2};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of C2').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.28    \
-ode[router, below left= 1cm of C2]
-                                             (A3) {A3};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of C2').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.28    \
-ode[router, below left= 1cm of C2]
-                                             (A3) {A3};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of C2').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.29    \
-ode[router, below right= 1cm of C2]
-                                              (A4) {A4};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of C2').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.29    \
-ode[router, below right= 1cm of C2]
-                                              (A4) {A4};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of A1').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.30    \
-ode[router, below= 1cm of A1]
-                                        (E1) {E1};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of A2').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.31    \
-ode[router, below= 1cm of A2]
-                                        (E2) {E2};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of A3').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.32    \
-ode[router, below= 1cm of A3]
-                                        (E3) {E3};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '1cm of A4').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.33    \
-ode[router, below= 1cm of A4]
-                                        (E4) {E4};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E1').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.34    \
-ode[host, below left= 0.5cm of E1]
-                                             (P1) {$\\alpha$};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E1').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.34    \
-ode[host, below left= 0.5cm of E1]
-                                             (P1) {$\\alpha$};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E1').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.35    \
-ode[host, below right= 0.5cm of E1]
-                                              (P2) {$\\beta$};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E1').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.35    \
-ode[host, below right= 0.5cm of E1]
-                                              (P2) {$\\beta$};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E2').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.36    \
-ode[host, below left= 0.5cm of E2]
-                                             (P3) {$\\gamma$};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E2').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.36    \
-ode[host, below left= 0.5cm of E2]
-                                             (P3) {$\\gamma$};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E2').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.37    \
-ode[host, below right= 0.5cm of E2]
-                                              (P4) {$\\delta$};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E2').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.37    \
-ode[host, below right= 0.5cm of E2]
-                                              (P4) {$\\delta$};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E3').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.38    \
-ode[host, below left= 0.5cm of E3]
-                                             (P5) {$\\kappa$};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E3').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.38    \
-ode[host, below left= 0.5cm of E3]
-                                             (P5) {$\\kappa$};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E3').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.39    \
-ode[host, below right= 0.5cm  of E3]
-                                               (P6) {$\
-u$};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E3').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.39    \
-ode[host, below right= 0.5cm  of E3]
-                                               (P6) {$\
-u$};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E4').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.40    \
-ode[host, below left= 0.5cm of E4]
-                                             (P7) {$\\mu$};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E4').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.40    \
-ode[host, below left= 0.5cm of E4]
-                                             (P7) {$\\mu$};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E4').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.41    \
-ode[host, below right= 0.5cm of E4]
-                                              (P8) {$\\pi$};
-
-! Package PGF Math Error: Unknown operator `o' or `of' (in '0.5cm of E4').
-
-See the PGF Math package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.41    \
-ode[host, below right= 0.5cm of E4]
-                                              (P8) {$\\pi$};
-! Missing $ inserted.
-&lt;inserted text&gt; 
-                $
-l.68 ...nsider the paths between the :math:`\\alpha
-                                                  ` and :math:`\\pi`. The pat...
-
-! Missing $ inserted.
-&lt;inserted text&gt; 
-                $
-l.69 \\end{tikzpicture}
-                      
-[1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-(./tikz-2587abe068e7fb163aa1b5e9b7c1700ba46214c3.aux) )
-(see the transcript file for additional information)&lt;/usr/share/texlive/texmf-d
-ist/fonts/type1/public/amsfonts/cm/cmmi12.pfb&gt;&lt;/usr/share/texlive/texmf-dist/fo
-nts/type1/public/amsfonts/cm/cmmi8.pfb&gt;&lt;/usr/share/texlive/texmf-dist/fonts/typ
-e1/public/amsfonts/cm/cmr12.pfb&gt;&lt;/usr/share/texlive/texmf-dist/fonts/type1/publ
-ic/amsfonts/cm/cmr8.pfb&gt;
-Output written on tikz-2587abe068e7fb163aa1b5e9b7c1700ba46214c3.pdf (1 page, 43
-165 bytes).
-Transcript written on tikz-2587abe068e7fb163aa1b5e9b7c1700ba46214c3.log.
-&quot;</p>
+ \end{tikzpicture}" /></p>
+<p class="caption"><span class="caption-number">Fig. 39 </span><span class="caption-text">A simple datacenter network</span></p>
+</div><p>This network topology exposes a large number of equal cost paths between the servers that are shown using circles in <a class="reference internal" href="#fig-fat-tree"><span class="std std-numref">Fig. 39</span></a>. For example, consider the paths between the <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\pi\)</span> hosts. The paths start at <span class="math notranslate nohighlight">\(E1\)</span>. This router can reach <span class="math notranslate nohighlight">\(E4\)</span> and <span class="math notranslate nohighlight">\(\pi\)</span> via <span class="math notranslate nohighlight">\(A1\)</span> or <span class="math notranslate nohighlight">\(A2\)</span>. Each of these two aggregation routers can reach <span class="math notranslate nohighlight">\(\pi\)</span> via one of the two core routers. These two routers can then balance the flows via both <span class="math notranslate nohighlight">\(A3\)</span> and <span class="math notranslate nohighlight">\(A4\)</span>. There are <span class="math notranslate nohighlight">\(2^{4}=16\)</span> different paths between <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\pi\)</span> in this very small network. If each of these routers balance the incoming packets using a hash function that takes as input their source and destination addresses and ports, then the subflows of a Multipath TCP connection that use different client problems will be spread evenly accross the network topology.  Raiciu et al. provide simulations and measurements showing the benefits of using Multipath TCP in datacenters <span id="id13">[<a class="reference internal" href="biblio.html#id8922" title="C. Raiciu, S. Barre, C. Pluntke, A. Greenhalgh, D. Wischik, and M. Handley. Improving Datacenter Performance and Robustness with Multipath TCP. In ACM SIGCOMM 2011. 2011. URL: http://doi.acm.org/10.1145/2018436.2018467, doi:10.1145/2018436.2018467.">10</a>]</span>.</p>
 </div>
-<p class="caption"><span class="caption-number">Fig. 39 </span><span class="caption-text">A simple datacenter network
-  :libs: positioning, matrix, arrows, math</span></p>
-</div></div>
+<p>Once a Multipath TCP connection and the additional subflows have been established, we can use them to exchange data. An important point to remember is that a Multipath TCP connection offers a bidirectional bytestream service like a regular TCP connection. This service does not change even if Multipath TCP uses different subflows to carry the data between the sender and the receiver. As an example, consider a sender that sends <code class="docutils literal notranslate"><span class="pre">ABCD</span></code> one byte at a time over a Multipath TCP connection composed of two subflows. A naive approach to sedn these bytes would be to simply placed them in TCP segments. This is illustrated in <a class="reference internal" href="#fig-mptcp-data-naive"><span class="std std-numref">Fig. 40</span></a> where we assume that the two TCP subflows have already been established.</p>
+<div class="figure" id="id34">
+<span id="fig-mptcp-data-naive"></span><p><img src="_images/tikz-891588383ff57dc5137de58cd0b155f610f30b59.png" alt="\tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \max=10; }
+
+\tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
+\tikzset{state/.style={rectangle, dashed, draw, fill=white} }
+\node [black, fill=white] at (\c1,\max) {Smartphone};
+\node [black, fill=white] at (\s1,\max) {Server};
+
+\draw[blue,thick,-&gt;] (\c1,\max-0.5) -- (\c1,0.5);
+\draw[red,thick,-&gt;] (\c2,\max-0.5) -- (\c2,0.5);
+\draw[black,thick,-&gt;] (\s1,\max-0.5) -- (\s1,0.5);
+
+\tikzmath{\y=\max-1;}
+
+\draw[blue,thick, -&gt;] (\c1,\y) -- (\s1,\y-1) node [midway, align=center, fill=white] {DATA\small{[seq=x,A]}};
+\draw[black,thick, -&gt;] (\s1,\y-1) -- (\s1+4,\y-1) node [midway, align=center, fill=white] {DATA.ind(A)};
+\draw[blue,thick, -&gt;] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=center, fill=white] {ACK\small{[ack=x+1]}};
+\draw[red,thick, -&gt;] (\c2,\y-2) -- (\s1,\y-3) node [midway, align=center, fill=white] {DATA\small{[seq=p,B]}};
+\draw[black,thick, -&gt;] (\s1,\y-3) -- (\s1+4,\y-3) node [midway, align=center, fill=white] {DATA.ind(B)};
+\draw[red,thick, -&gt;] (\s1,\y-3) -- (\c2,\y-4) node [midway, align=center, fill=white] {ACK\small{[ack=p+1]}};
+\draw[blue,thick, -&gt;] (\c1,\y-4) -- (\s1,\y-5) node [midway, align=center, fill=white] {DATA\small{[seq=x+1,C]}};
+   \draw[black,thick, -&gt;] (\s1,\y-5) -- (\s1+4,\y-5) node [midway, align=center, fill=white] {DATA.ind(C)};
+\draw[blue,thick, -&gt;] (\s1,\y-5) -- (\c1,\y-6) node [midway, align=center, fill=white] {ACK\small{[ack=x+2]}};
+\draw[red,thick, -&gt;] (\c2,\y-6) -- (\s1,\y-7) node [midway, align=center, fill=white] {DATA\small{[seq=p+1,D]}};
+   \draw[black,thick, -&gt;] (\s1,\y-7) -- (\s1+4,\y-7) node [midway, align=center, fill=white] {DATA.ind(D)};
+\draw[red,thick, -&gt;] (\s1,\y-7) -- (\c2,\y-8) node [midway, align=center, fill=white] {ACK\small{[acl=p+2]}};" /></p>
+<p class="caption"><span class="caption-number">Fig. 40 </span><span class="caption-text">A naive approach to send data over a Multipath TCP connection</span></p>
+</div><p>In this example, the Smartphone slowly sends data in sequence. The server receives the data in sequence over the two subflows and the server could simply deliver the data as soon as it arrives over each subflow. This is illustrated with the <code class="docutils literal notranslate"><span class="pre">DATA.ind(\ldots)</span></code> primitives that represent the delivery of the data to the server application. However, consider now that the first packet sent on the red subflow is lost and is retransmitted together with the fourth byte as shown in <a class="reference internal" href="#fig-mptcp-data-naive-2"><span class="std std-numref">Fig. 41</span></a>.</p>
+<div class="figure" id="id35">
+<span id="fig-mptcp-data-naive-2"></span><p><img src="_images/tikz-4c883aad284995a0a986e808c1fe170585b864f8.png" alt="\tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \max=10; }
+
+\tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
+\tikzset{state/.style={rectangle, dashed, draw, fill=white} }
+\node [black, fill=white] at (\c1,\max) {Smartphone};
+\node [black, fill=white] at (\s1,\max) {Server};
+
+\draw[blue,thick,-&gt;] (\c1,\max-0.5) -- (\c1,0.5);
+\draw[red,thick,-&gt;] (\c2,\max-0.5) -- (\c2,0.5);
+\draw[black,thick,-&gt;] (\s1,\max-0.5) -- (\s1,0.5);
+
+\tikzmath{\y=\max-1;}
+
+\draw[blue,thick, -&gt;] (\c1,\y) -- (\s1,\y-1) node [midway, align=center, fill=white] {DATA\small{[seq=x,A]}};
+\draw[black,thick, -&gt;] (\s1,\y-1) -- (\s1+4,\y-1) node [midway, align=center, fill=white] {DATA.ind(A)};
+\draw[blue,thick, -&gt;] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=center, fill=white] {ACK\small{[ack=x+1]}};
+\draw[red,thick, -Circle] (\c2,\y-2) -- (\s1-1,\y-2.8) node [midway, align=center, fill=white] {DATA\small{[seq=p,bseq=1,B]}};
+
+\draw[blue,thick, -&gt;] (\c1,\y-4) -- (\s1,\y-5) node [midway, align=center, fill=white] {DATA\small{[seq=x+1,C]}};
+\draw[black,thick, -&gt;] (\s1,\y-5) -- (\s1+4,\y-5) node [midway, align=center, fill=white] {DATA.ind(C) ????};
+\draw[blue,thick, -&gt;] (\s1,\y-5) -- (\c1,\y-6) node [midway, align=center, fill=white] {ACK\small{[ack=x+2]}};
+\draw[red,thick, -&gt;] (\c2,\y-6) -- (\s1,\y-7) node [midway, align=center, fill=white] {DATA\small{[seq=p,BD]}};
+\draw[black,thick, -&gt;] (\s1,\y-7) -- (\s1+4,\y-7) node [midway, align=center, fill=white] {DATA.ind(BD) ????};
+\draw[red,thick, -&gt;] (\s1,\y-7) -- (\c2,\y-8) node [midway, align=center, fill=white] {ACK\small{[acl=p+2]}};" /></p>
+<p class="caption"><span class="caption-number">Fig. 41 </span><span class="caption-text">A naive approach to send data over a Multipath TCP connection</span></p>
+</div><p>In <a class="reference internal" href="#fig-mptcp-data-naive-2"><span class="std std-numref">Fig. 41</span></a>, it is clear that the server cannot simply deliver the data as soon as it receives it to its application. If the server behaves this way, it will deliver <code class="docutils literal notranslate"><span class="pre">ACBD</span></code> to its application instead of the <code class="docutils literal notranslate"><span class="pre">ABCD</span></code> bytestream send by the smartphone. To cope with the reordering of the data sent over the different subflows, Multipath TCP includes bytestream-level data sequence numbers that enable it to preserve the ordering of the data sent over the bytestream. This is illustrated in <a class="reference internal" href="#fig-mptcp-data-seq"><span class="std std-numref">Fig. 42</span></a> with the bytestream-level sequence number shown as <code class="docutils literal notranslate"><span class="pre">bseq</span></code>. We will detail later how this sequence number is exactly transported by Multipath TCP.</p>
+<div class="figure" id="id36">
+<span id="fig-mptcp-data-seq"></span><p><img src="_images/tikz-d1207bed27ab36957870a6215ddeb8597274381a.png" alt="\tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \max=10; }
+
+\tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
+\tikzset{state/.style={rectangle, dashed, draw, fill=white} }
+\node [black, fill=white] at (\c1,\max) {Smartphone};
+\node [black, fill=white] at (\s1,\max) {Server};
+
+\draw[blue,thick,-&gt;] (\c1,\max-0.5) -- (\c1,0.5);
+\draw[red,thick,-&gt;] (\c2,\max-0.5) -- (\c2,0.5);
+\draw[black,thick,-&gt;] (\s1,\max-0.5) -- (\s1,0.5);
+
+\tikzmath{\y=\max-1;}
+
+\draw[blue,thick, -&gt;] (\c1,\y) -- (\s1,\y-1) node [midway, align=center, fill=white] {DATA\small{[seq=x,bseq=0,A]}};
+\draw[black,thick, -&gt;] (\s1,\y-1) -- (\s1+4,\y-1) node [midway, align=center, fill=white] {DATA.ind(A)};
+\draw[blue,thick, -&gt;] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=center, fill=white] {ACK\small{[ack=x+1]}};
+\draw[red,thick, -Circle] (\c2,\y-2) -- (\s1-1,\y-2.8) node [midway, align=center, fill=white] {DATA\small{[seq=p,bseq=1,B]}};
+
+\draw[blue,thick, -&gt;] (\c1,\y-4) -- (\s1,\y-5) node [midway, align=center, fill=white] {DATA\small{[seq=x+1,bseq=2,C]}};
+
+\draw[blue,thick, -&gt;] (\s1,\y-5) -- (\c1,\y-6) node [midway, align=center, fill=white] {ACK\small{[ack=x+2]}};
+\draw[red,thick, -&gt;] (\c2,\y-5.5) -- (\s1,\y-6.5) node [midway, align=center, fill=white] {DATA\small{[seq=p,bseq=1,BC]}};
+\draw[black,thick, -&gt;] (\s1,\y-6.5) -- (\s1+4,\y-6.5) node [midway, align=center, fill=white] {DATA.ind(BC)};
+\draw[red,thick, -&gt;] (\c2,\y-6) -- (\s1,\y-7) node [midway, align=center, fill=white] {DATA\small{[seq=p,bseq=3,D]}};
+\draw[black,thick, -&gt;] (\s1,\y-7) -- (\s1+4,\y-7) node [midway, align=center, fill=white] {DATA.ind(D)};
+\draw[red,thick, -&gt;] (\s1,\y-7) -- (\c2,\y-8) node [midway, align=center, fill=white] {ACK\small{[acl=p+2]}};" /></p>
+<p class="caption"><span class="caption-number">Fig. 42 </span><span class="caption-text">A naive approach to send data over a Multipath TCP connection</span></p>
+</div><p>Thanks to the bytestream sequence number, the server can reorder the data received over the different subflows and preserve the ordering in the bytestream.</p>
 </div>
-<div class="section" id="connection-establishment">
-<h2>Connection establishment<a class="headerlink" href="#connection-establishment" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="creating-a-multipath-tcp-connection">
+<h2>Creating a Multipath TCP connection<a class="headerlink" href="#creating-a-multipath-tcp-connection" title="Permalink to this headline">¶</a></h2>
+<p>Before delving into the details of how a Multipath TCP connection is created, let use first analyze the main requirements of this establishment and how they can be met without considering all the protocol details. During the three-way handshake, TCP hosts agree to establishment a connection, select the initial sequence number in each direction and negotiate the utilization of TCP extensions. In addition to these objectives, the handshake used by Multipath TCP also allows the communicating hosts to:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>agree to use the Multipath TCP extension</p></li>
+<li><p>exchange the tokens used to identify the connection</p></li>
+<li><p>agree on initial bytestream sequence numbers</p></li>
+</ul>
+</div></blockquote>
+<p>To meet the first objective, the client simply needs to send a Multipath TCP option (<code class="docutils literal notranslate"><span class="pre">MPO`</span></code>) in its <code class="docutils literal notranslate"><span class="pre">SYN</span></code>. If the server supports Multipath TCP, it will respond with a <code class="docutils literal notranslate"><span class="pre">SYNC+AC</span></code> that carries this option.</p>
+<p>To meet the second objective, the simplest solution is reserve some space, e.g. 64 bits, in the <code class="docutils literal notranslate"><span class="pre">MPO</span></code> option to encode the token chosen by the host that sends the <code class="docutils literal notranslate"><span class="pre">SYN</span></code> or <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code>. With this approach, each host can autonomously select the token that it uses to identify each Multipath TCP connection. To meet the third objective, the simplest solution is also to place the initial sequence number in the <code class="docutils literal notranslate"><span class="pre">MPO</span></code> option. <a class="reference internal" href="#fig-tcp-handshake-mpo"><span class="std std-numref">Fig. 43</span></a> illustrates a handshake using the <code class="docutils literal notranslate"><span class="pre">MPO</span></code> option.</p>
+<div class="figure" id="id37">
+<span id="fig-tcp-handshake-mpo"></span><p><img src="_images/tikz-656fef12f051709d7f3e5fbf7f4d8dc29b7605fa.png" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
+
+\tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
+\tikzset{state/.style={rectangle, dashed, draw, fill=white} }
+\node [black, fill=white] at (\c1,\max) {Client};
+\node [black, fill=white] at (\s1,\max) {Server};
+
+\draw[blue,very thick,-&gt;] (\c1,\max-0.5) -- (\c1,0.5);
+\draw[blue,very thick,-&gt;] (\s1,\max-0.5) -- (\s1,0.5);
+\draw[red,thick,-&gt;] (\c2,\max-0.5) -- (\c2,0.5);
+
+\tikzmath{\y=\max-1;}
+
+\draw[blue,thick, -&gt;] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {SYN\small{[seq=x]}\\\small{MPO[$Client_{token}$,$Client_{bseq}$]}};
+\draw[blue,thick, -&gt;] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=left, fill=white] {SYN+ACK\small{[seq=y,ack=x+1]}\\\small{MPO[$Server_{token}$,$Server_{bseq}$]}};
+\draw[blue,thick, -&gt;] (\c1,\y-2.1) -- (\s1,\y-3) node [midway, align=left, fill=white] {ACK\small{[seq=x+1,ack=y+1]}};
+
+\draw[red,thick, -&gt;] (\c2,\y-4) -- (\s1,\y-5) node [midway, align=center, fill=white] {SYN\small{[seq=p]}\\\small{MP\_Join[token=$Server_{token}$]}};
+\draw[red,thick, -&gt;] (\s1,\y-5) -- (\c2,\y-6) node [midway, align=center, fill=white] {SYN+ACK\small{[seq=q,ack=p+1]}\\\small{MP\_Join[\ldots]}};
+\draw[red,thick, -&gt;] (\c2,\y-6) -- (\s1,\y-7) node [midway, align=center, fill=white] {ACK\small{[seq=p+1,ack=q+1]}};" /></p>
+<p class="caption"><span class="caption-number">Fig. 43 </span><span class="caption-text">Opening a Multipath TCP connection with a MPO option</span></p>
+</div><p>The Multipath TCP working group was worried about the risk of attacks with this approach. When the smartphone creates an additional subflow, it includes the token allocated by the server inside the <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option. This token serves two different purposes. First, it identifies the relevant Multipath TCP connection on the server. Second, it also “authenticates” that the <code class="docutils literal notranslate"><span class="pre">SYN</span></code> also originates from this client. Authenticating the client is a key concern from a security viewpoint. The main risk is that an on-path attacker who has observed the token in the <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option can reuse it to create additional subflows from any other source. To cope with this problem, Multipath TCP relies on a shared secret that the client and the server exchange during the initial handshake. The client proposes one halve of the secret and the server the other halve. This is illustrated in <a class="reference internal" href="#fig-tcp-handshake-mpo-secret"><span class="std std-numref">Fig. 44</span></a>. The client proposes its part of the shared secret in the <code class="docutils literal notranslate"><span class="pre">SYN</span></code> (<span class="math notranslate nohighlight">\(Client_{secret}\)</span>). The server replies with its part of the secret in the <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code>.</p>
+<div class="figure" id="id38">
+<span id="fig-tcp-handshake-mpo-secret"></span><p><img src="_images/tikz-0672548dc4999a2cb5bc482ae61f5425b1e2fa13.png" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=9; }
+
+\tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
+\tikzset{state/.style={rectangle, dashed, draw, fill=white} }
+\node [black, fill=white] at (\c1,\max) {Client};
+\node [black, fill=white] at (\s1,\max) {Server};
+
+\draw[blue,very thick,-&gt;] (\c1,\max-0.5) -- (\c1,0.5);
+\draw[blue,very thick,-&gt;] (\s1,\max-0.5) -- (\s1,0.5);
+\draw[red,thick,-&gt;] (\c2,\max-0.5) -- (\c2,0.5);
+
+\tikzmath{\y=\max-1;}
+
+\draw[blue,thick, -&gt;] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {SYN\small{[seq=x]}\\\small{MPO[$Client_{token}$,$Client_{bseq}$,$Client_{secret}$]}};
+\draw[blue,thick, -&gt;] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=left, fill=white] {SYN+ACK\small{[seq=y,ack=x+1]}\\\small{MPO[$Server_{token}$,$Server_{bseq}$,$Server_{secret}$]}};
+\draw[blue,thick, -&gt;] (\c1,\y-2.1) -- (\s1,\y-3) node [midway, align=left, fill=white] {ACK\small{[seq=x+1,ack=y+1]}};
+
+\draw[red,thick, -&gt;] (\c2,\y-4) -- (\s1,\y-5) node [midway, align=center, fill=white] {SYN\small{[seq=p]}\\\small{MP\_Join[$Server_{token}$,$Client_{random}$]}};
+\draw[red,thick, -&gt;] (\s1,\y-5) -- (\c2,\y-6) node [midway, align=center, fill=white] {SYN+ACK\small{[seq=q,ack=p+1]}\\\small{MP\_Join[$Server_{random}$,HMAC1]}};
+\draw[red,thick, -&gt;] (\c2,\y-6) -- (\s1,\y-7) node [midway, align=center, fill=white] {ACK\small{[seq=p+1,ack=q+1]}\\\small{MP\_Join[HMAC2]}};
+
+\node[black,fill=white,align=right] at (\c1,0) {HMAC1=HMAC(key=$Server_{secret}$||$Client_{Secret}$,\\msg=$Server_{random}||Client_{random}$)};
+\node[black,fill=white,align=right] at (\c1,-1)  {HMAC2=HMAC(key=$Client_{secret}$||$Server_{Secret}$,\\msg=$Client_{random}||Server_{random}$)};" /></p>
+<p class="caption"><span class="caption-number">Fig. 44 </span><span class="caption-text">Creating a Multipath TCP connection with a MPO option</span></p>
+</div><p>Using these two components of the shared secret, the client and the server must be able to authenticate the additional subflows without revealing the shared secret to an attacker who is able to capture packets on the path of the additional subflow. Multipath TCP requires each host to perform a HMAC <span id="id14">[<a class="reference internal" href="biblio.html#id2034" title="H. Krawczyk, M. Bellare, and R. Canetti. HMAC: Keyed-Hashing for Message Authentication. RFC 2104 (Informational), February 1997. Updated by RFC 6151. URL: https://www.rfc-editor.org/rfc/rfc2104.txt, doi:10.17487/RFC2104.">52</a>]</span> of a random number to confirm their knowledge of the shared secret. This is illustrated in the second part of <a class="reference internal" href="#fig-tcp-handshake-mpo-secret"><span class="std std-numref">Fig. 44</span></a>. To create the additional subflow, the client send a <code class="docutils literal notranslate"><span class="pre">SYN</span></code> with the <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option containing the <span class="math notranslate nohighlight">\(Server_{token}\)</span> and a random nonce, <span class="math notranslate nohighlight">\(Client_{random}\)</span>. The server confirms the establishment of the subflow by sending a <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code> containing the HMAC computed using the <span class="math notranslate nohighlight">\(Client_{random}\)</span> and the <span class="math notranslate nohighlight">\(Client_{secret}\)</span> and <span class="math notranslate nohighlight">\(Server_{secret}\)</span> input. Thanks to this HMAC computation, the server can reveal that it knows <span class="math notranslate nohighlight">\(Client_{secret}\)</span> and <span class="math notranslate nohighlight">\(Server_{secret}\)</span> without explictly sending them. The server also places a random number, <span class="math notranslate nohighlight">\(Server_{random}\)</span> in the <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option of the <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code>. The client computes a HMAC and returns it in the third <code class="docutils literal notranslate"><span class="pre">ACK</span></code>. With these two HMACs, the client and the server can authenticate the establishment of the additional subflow without revealing the shared secret.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The security of Multipath TCP depends on the security of the initial handshake</p>
+<p>The ability of correctly authenticate the addition of new subflows to a Multipath TCP connection depends on the secrecy of the <span class="math notranslate nohighlight">\(Client_{secret}\)</span> and <span class="math notranslate nohighlight">\(Server_{secret}\)</span> exchanged in the <code class="docutils literal notranslate"><span class="pre">SYN</span></code> and <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code> of the initial handshake. An on-path attacker which is able to capture this initial handshake has all the information required to attach a new subflow to this Multipath TCP connectionat any time. Multipath does not include the strong cryptographic techniques (besides HMAC) that would have been required to completely secure the establishment the protocol and the establishment of additional subflows in particular. This threat was considered acceptable for Multipath TCP <span id="id15">[<a class="reference internal" href="biblio.html#id6032" title="M. Bagnulo. Threat Analysis for TCP Extensions for Multipath Operation with Multiple Addresses. RFC 6181 (Informational), March 2011. URL: https://www.rfc-editor.org/rfc/rfc6181.txt, doi:10.17487/RFC6181.">53</a>]</span> because an attacker who can capture the packets of a single path TCP connection can also inject data inside this connection. To be fully secure Multipath TCP would need to rely on cryptographic techniques that are similar to those used in Transport Layer Security <span id="id16">[<a class="reference internal" href="biblio.html#id8271" title="E. Rescorla. The Transport Layer Security (TLS) Protocol Version 1.3. RFC 8446 (Proposed Standard), August 2018. URL: https://www.rfc-editor.org/rfc/rfc8446.txt, doi:10.17487/RFC8446.">6</a>]</span>.</p>
+</div>
+<p>The solution described above meets the requirements of the Internet Engineering Task Force. From a security viewpoint, the <span class="math notranslate nohighlight">\(Client_{secret}\)</span>, <span class="math notranslate nohighlight">\(Server_{secret}\)</span> and the random nonces should be as large as possible to prevent attacks where their values are simply guessed. Unfortunately, since Multipath TCP uses TCP options to exchange all this information, we need to ensure that it fits inside the extended header of a TCP <code class="docutils literal notranslate"><span class="pre">SYN</span></code>. The TCP specification <span id="id17">[<a class="reference internal" href="biblio.html#id729" title="J. Postel. Transmission Control Protocol. RFC 793 (Internet Standard), September 1981. Updated by RFCs 1122, 3168, 6093, 6528. URL: https://www.rfc-editor.org/rfc/rfc793.txt, doi:10.17487/RFC0793.">5</a>]</span> reserves up to 40 bytes to place the TCP options in a <code class="docutils literal notranslate"><span class="pre">SYN</span></code>. Today’s TCP stacks already consume 4 bytes for the <code class="docutils literal notranslate"><span class="pre">MSS</span></code> option <span id="id18">[<a class="reference internal" href="biblio.html#id729" title="J. Postel. Transmission Control Protocol. RFC 793 (Internet Standard), September 1981. Updated by RFCs 1122, 3168, 6093, 6528. URL: https://www.rfc-editor.org/rfc/rfc793.txt, doi:10.17487/RFC0793.">5</a>]</span>, 3 for the <code class="docutils literal notranslate"><span class="pre">Window</span> <span class="pre">Scale</span></code> option <span id="id19">[<a class="reference internal" href="biblio.html#id1255" title="V. Jacobson, R. Braden, and D. Borman. TCP Extensions for High Performance. RFC 1323 (Proposed Standard), May 1992. Obsoleted by RFC 7323. URL: https://www.rfc-editor.org/rfc/rfc1323.txt, doi:10.17487/RFC1323.">21</a>]</span>, 2 for <code class="docutils literal notranslate"><span class="pre">SACK</span> <span class="pre">Permitted</span></code> <span id="id20">[<a class="reference internal" href="biblio.html#id1948" title="M. Mathis, J. Mahdavi, S. Floyd, and A. Romanow. TCP Selective Acknowledgment Options. RFC 2018 (Proposed Standard), October 1996. URL: https://www.rfc-editor.org/rfc/rfc2018.txt, doi:10.17487/RFC2018.">12</a>]</span> and 10 for the timestamp option <span id="id21">[<a class="reference internal" href="biblio.html#id1255" title="V. Jacobson, R. Braden, and D. Borman. TCP Extensions for High Performance. RFC 1323 (Proposed Standard), May 1992. Obsoleted by RFC 7323. URL: https://www.rfc-editor.org/rfc/rfc1323.txt, doi:10.17487/RFC1323.">21</a>]</span>. This leaves only 20 bytes to encode a Multipath TCP option that must contain an initial sequence number, a token and a secret. Multipath TCP solves this problem by deriving these three values from a single field encoded in a TCP option. Let us now analyze the Multipath TCP handshake in more details.</p>
+<div class="section" id="the-multipath-tcp-handshake">
+<h3>The Multipath TCP handshake<a class="headerlink" href="#the-multipath-tcp-handshake" title="Permalink to this headline">¶</a></h3>
 <p>A Multipath TCP connection starts with a three-way handshake like a regular TCP connection. To indicate that it wishes to use Multipath TCP, the client adds the <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option to the <code class="docutils literal notranslate"><span class="pre">SYN</span></code> segment. In the <code class="docutils literal notranslate"><span class="pre">SYN</span></code> segment, this option only contains some flags and occupies 4 bytes. The server replies with a <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code> segment than contains an <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option including a server generated 64 bits random key that will be used to authenticate connections over different paths. The client concludes the handshake by sending an <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option in the <code class="docutils literal notranslate"><span class="pre">ACK</span></code> segment containing the random keys chosen by the client and the server.</p>
-<div class="figure" id="id25">
-<span id="fig-tcp-handshake-mptcp"></span><p><img src="None" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
+<div class="figure" id="id39">
+<span id="fig-tcp-handshake-mptcp"></span><p><img src="_images/tikz-f2fea4a175c9b7afdde43e081c577d6c214f8e7f.png" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
 
 \tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
 \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
@@ -581,13 +417,13 @@ Transcript written on tikz-2587abe068e7fb163aa1b5e9b7c1700ba46214c3.log.
 \draw[blue,thick, -&gt;] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {SYN\small{[seq=x]}\\\small{MPC[flags]}};
 \draw[blue,thick, -&gt;] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=left, fill=white] {SYN+ACK\small{[seq=y,ack=x+1]}\\\small{MPC[flags,$Server_{key}$]}};
 \draw[blue,thick, -&gt;] (\c1,\y-2.1) -- (\s1,\y-3) node [midway, align=left, fill=white] {ACK\small{[seq=x+1,ack=y+1]}\\\small{MPC[flags,$Client_{key}$,$Server_{key}$]}};" /></p>
-<p class="caption"><span class="caption-number">Fig. 40 </span><span class="caption-text">Negotiating the utilization of Multipath TCP during the three-way handshake</span></p>
+<p class="caption"><span class="caption-number">Fig. 45 </span><span class="caption-text">Negotiating the utilization of Multipath TCP during the three-way handshake</span></p>
 </div><div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Multipath TCP version 0</p>
-<p>The first version of Multipath TCP used a slightly different handshake <span id="id13">[<a class="reference internal" href="biblio.html#id6658" title="A. Ford, C. Raiciu, M. Handley, and O. Bonaventure. TCP Extensions for Multipath Operation with Multiple Addresses. RFC 6824 (Experimental), January 2013. Obsoleted by RFC 8684. URL: https://www.rfc-editor.org/rfc/rfc6824.txt, doi:10.17487/RFC6824.">9</a>]</span>. The <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option sent by the client contains the 64 bits key chosen by the client. The <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code> segment contains an <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option with 64 bits key chosen by the server. The client echoes the client and server keys in the third <code class="docutils literal notranslate"><span class="pre">ACK</span></code> of the handshake.</p>
-<div class="figure" id="id26">
-<span id="fig-tcp-handshake-mptcp-v0"></span><p><img src="None" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
+<p>The first version of Multipath TCP used a slightly different handshake <span id="id22">[<a class="reference internal" href="biblio.html#id6658" title="A. Ford, C. Raiciu, M. Handley, and O. Bonaventure. TCP Extensions for Multipath Operation with Multiple Addresses. RFC 6824 (Experimental), January 2013. Obsoleted by RFC 8684. URL: https://www.rfc-editor.org/rfc/rfc6824.txt, doi:10.17487/RFC6824.">9</a>]</span>. The <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option sent by the client contains the 64 bits key chosen by the client. The <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code> segment contains an <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option with 64 bits key chosen by the server. The client echoes the client and server keys in the third <code class="docutils literal notranslate"><span class="pre">ACK</span></code> of the handshake.</p>
+<div class="figure" id="id40">
+<span id="fig-tcp-handshake-mptcp-v0"></span><p><img src="_images/tikz-f1babbc1cfb54ffe7bece849effc2ae4227350e2.png" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
 
 \tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
 \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
@@ -602,11 +438,11 @@ Transcript written on tikz-2587abe068e7fb163aa1b5e9b7c1700ba46214c3.log.
 \draw[blue,thick, -&gt;] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {SYN\small{[seq=x]}\\\small{MPC[flags,$Client_{key}$]}};
 \draw[blue,thick, -&gt;] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=left, fill=white] {SYN+ACK\small{[seq=y,ack=x+1]}\\\small{MPC[flags,$Server_{key}$]}};
 \draw[blue,thick, -&gt;] (\c1,\y-2.1) -- (\s1,\y-3) node [midway, align=left, fill=white] {ACK\small{[seq=x+1,ack=y+1]}\\\small{MPC[flags,$Client_{key}$,$Server_{key}$]}};" /></p>
-<p class="caption"><span class="caption-number">Fig. 41 </span><span class="caption-text">Negotiating the utilization of Multipath TCP version 0</span></p>
+<p class="caption"><span class="caption-number">Fig. 46 </span><span class="caption-text">Negotiating the utilization of Multipath TCP version 0</span></p>
 </div></div>
-<p>The 64 bits random keys chosen by the client and the server play three different roles in Multipath TCP. Their first role is to identify the Multipath TCP connection to which an additional connection must be attached. Since a Multipath TCP connection can combine several TCP connections, Multipath TCP cannot use the IP addresses and port numbers to identify a TCP connection. Multipath TCP uses a specific identifier that is called a token. For technical reasons, this token is derived from the 64 bits key as the most significant 32 bits of the SHA-256 <span id="id14">[<a class="reference internal" href="biblio.html#id6083" title="D. Eastlake 3rd and T. Hansen. US Secure Hash Algorithms (SHA and SHA-based HMAC and HKDF). RFC 6234 (Informational), May 2011. URL: https://www.rfc-editor.org/rfc/rfc6234.txt, doi:10.17487/RFC6234.">52</a>]</span> hash of the key. The second role of the 64 bits keys is to authenticate the establishment of additional connections as we will see shortly. Finally, the keys are also used to compute random initial sequence numbers.</p>
+<p>The 64 bits random keys chosen by the client and the server play three different roles in Multipath TCP. Their first role is to identify the Multipath TCP connection to which an additional connection must be attached. Since a Multipath TCP connection can combine several TCP connections, Multipath TCP cannot use the IP addresses and port numbers to identify a TCP connection. Multipath TCP uses a specific identifier that is called a token. For technical reasons, this token is derived from the 64 bits key as the most significant 32 bits of the SHA-256 <span id="id23">[<a class="reference internal" href="biblio.html#id6083" title="D. Eastlake 3rd and T. Hansen. US Secure Hash Algorithms (SHA and SHA-based HMAC and HKDF). RFC 6234 (Informational), May 2011. URL: https://www.rfc-editor.org/rfc/rfc6234.txt, doi:10.17487/RFC6234.">54</a>]</span> hash of the key. The second role of the 64 bits keys is to authenticate the establishment of additional connections as we will see shortly. Finally, the keys are also used to compute random initial sequence numbers.</p>
 <p>The main benefit of Multipath TCP is that a Multipath TCP connection can combine different TCP connections that potentially use different paths. Starting from now on, we will consider a client with two network interfaces and a server with one network interface. This could for example correspond to a client application running on a smartphone that interacts with a server. We explore more complex scenarios later.</p>
-<p>We can know how a Multipath TCP connection can combine different TCP connections. According to the Multipath TCP specification, these connections are called subflows <span id="id15">[<a class="reference internal" href="biblio.html#id8500" title="A. Ford, C. Raiciu, M. Handley, O. Bonaventure, and C. Paasch. TCP Extensions for Multipath Operation with Multiple Addresses. RFC 8684 (Proposed Standard), March 2020. URL: https://www.rfc-editor.org/rfc/rfc8684.txt, doi:10.17487/RFC8684.">48</a>]</span>. We also adopt this terminology in this document. <a class="reference internal" href="#fig-mptcp-join"><span class="std std-numref">Fig. 42</span></a> shows a Multipath TCP that combines two subflows. To establish the Multipath TCP connection, the client initiates the initial subflow by using the <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option during the three-way handshake. At the end of the initial handshake, the client and the server have exchanged their keys. Based on their keys, they have both computed the token that the remote host uses to identify the Multipath TCP connection.</p>
+<p>We can know how a Multipath TCP connection can combine different TCP connections. According to the Multipath TCP specification, these connections are called subflows <span id="id24">[<a class="reference internal" href="biblio.html#id8500" title="A. Ford, C. Raiciu, M. Handley, O. Bonaventure, and C. Paasch. TCP Extensions for Multipath Operation with Multiple Addresses. RFC 8684 (Proposed Standard), March 2020. URL: https://www.rfc-editor.org/rfc/rfc8684.txt, doi:10.17487/RFC8684.">48</a>]</span>. We also adopt this terminology in this document. <a class="reference internal" href="#fig-mptcp-join"><span class="std std-numref">Fig. 47</span></a> shows a Multipath TCP that combines two subflows. To establish the Multipath TCP connection, the client initiates the initial subflow by using the <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option during the three-way handshake. At the end of the initial handshake, the client and the server have exchanged their keys. Based on their keys, they have both computed the token that the remote host uses to identify the Multipath TCP connection.</p>
 <p>To attach a second subflow to this Multipath TCP connection, the client needs to create it. For this, it starts a three-way handshake with the server by sending a <code class="docutils literal notranslate"><span class="pre">SYN</span></code> segment containing the <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option. This option indicates that the client uses Multipath TCP and wishes to attach this new connection to an existing Multipath TCP connection. The <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option contains two important fields:</p>
 <blockquote>
 <div><ul class="simple">
@@ -615,13 +451,13 @@ Transcript written on tikz-2587abe068e7fb163aa1b5e9b7c1700ba46214c3.log.
 </ul>
 </div></blockquote>
 <p>The client has derived the token from the key announced by the server in the <code class="docutils literal notranslate"><span class="pre">MP_CAPABLE</span></code> option of the <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code> segment on the initial subflow. Thanks to this token, the server knows to which Multipath TCP connection the new subflow needs to be attached.</p>
-<div class="admonition-todo admonition" id="id16">
+<div class="admonition-todo admonition" id="id25">
 <p class="admonition-title">Todo</p>
 <p>discuss security concerns</p>
 </div>
 <p>The server uses the random nonce sent by the client and its own random nonce to prove its knowledge of the keys exchanged during the initial handshake. The server computes <span class="math notranslate nohighlight">\(HMAC(Key=(Server_{key}||Client_{key}), Msg=(nonce_{Server}||nonce_{Client}))\)</span>, where <code class="docutils literal notranslate"><span class="pre">||</span></code> denotes the concatenation operation. It then returns the high order 64 bits of this HMAC in the <code class="docutils literal notranslate"><span class="pre">MP_JOIN</span></code> option of the <code class="docutils literal notranslate"><span class="pre">SYN+ACK</span></code> segment together with its 32 bits nonce. The client computes <span class="math notranslate nohighlight">\(HMAC(Key=(Client_{key}||Server_{key}), Msg=(nonce_{Client}||nonce_{Server}))\)</span> and sends the 160 bits HMAC in the <code class="docutils literal notranslate"><span class="pre">ACK</span></code> segment.</p>
-<div class="figure" id="id27">
-<span id="fig-mptcp-join"></span><p><img src="None" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
+<div class="figure" id="id41">
+<span id="fig-mptcp-join"></span><p><img src="_images/tikz-c1a3696955639ac9e16a2e0795586cf2a95c7345.png" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
 
 \tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
 \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
@@ -645,11 +481,12 @@ Transcript written on tikz-2587abe068e7fb163aa1b5e9b7c1700ba46214c3.log.
 \draw[red,thick, -&gt;] (\c2,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {SYN\small{[seq=x]}\\\small{MP\_JOIN[$S_{token}$,$nonce_{C}$]}};
 \draw[red,thick, -&gt;] (\s1,\y-1) -- (\c2,\y-2) node [midway, align=left, fill=white] {SYN+ACK\small{[seq=y,ack=x+1]}\\\small{MP\_JOIN[$HMAC_{S}$,$nonce_{S}$]}};
 \draw[red,thick, -&gt;] (\c2,\y-2.1) -- (\s1,\y-3) node [midway, align=left, fill=white] {ACK\small{[seq=x+1,ack=y+1]}\\\small{MP\_JOIN[$HMAC_{C}$]}};" /></p>
-<p class="caption"><span class="caption-number">Fig. 42 </span><span class="caption-text">MPTCP Join</span></p>
+<p class="caption"><span class="caption-number">Fig. 47 </span><span class="caption-text">MPTCP Join</span></p>
 </div><div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Generating random keys</p>
-<p>Explained in NSDI paper <span id="id17">[<a class="reference internal" href="biblio.html#id8930" title="Costin Raiciu, Christoph Paasch, Sebastien Barre, Alan Ford, Michio Honda, Fabien Duchene, Olivier Bonaventure, and Mark Handley. How hard can it be? Designing and implementing a deployable Multipath TCP. In Proceedings of the 9th USENIX Conference on Networked Systems Design and Implementation, NSDI'12, 29–29. Berkeley, CA, USA, 2012. USENIX Association. URL: http://inl.info.ucl.ac.be/publications/how-hard-can-it-be-designing-and-implementing-deployable-multipath-tcp.">53</a>]</span></p>
+<p>Explained in NSDI paper <span id="id26">[<a class="reference internal" href="biblio.html#id8930" title="Costin Raiciu, Christoph Paasch, Sebastien Barre, Alan Ford, Michio Honda, Fabien Duchene, Olivier Bonaventure, and Mark Handley. How hard can it be? Designing and implementing a deployable Multipath TCP. In Proceedings of the 9th USENIX Conference on Networked Systems Design and Implementation, NSDI'12, 29–29. Berkeley, CA, USA, 2012. USENIX Association. URL: http://inl.info.ucl.ac.be/publications/how-hard-can-it-be-designing-and-implementing-deployable-multipath-tcp.">55</a>]</span></p>
+</div>
 </div>
 </div>
 <div class="section" id="data-transfer">
@@ -657,7 +494,7 @@ Transcript written on tikz-2587abe068e7fb163aa1b5e9b7c1700ba46214c3.log.
 </div>
 <div class="section" id="congestion-control">
 <h2>Congestion control<a class="headerlink" href="#congestion-control" title="Permalink to this headline">¶</a></h2>
-<div class="admonition-todo admonition" id="id18">
+<div class="admonition-todo admonition" id="id27">
 <p class="admonition-title">Todo</p>
 <p>explain basic idea and the problem of having</p>
 </div>
@@ -707,8 +544,8 @@ Transcript written on tikz-2587abe068e7fb163aa1b5e9b7c1700ba46214c3.log.
 <li class="toctree-l1"><a class="reference internal" href="quic.html">QUIC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="principles.html">Principles of multipath transport</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Multipath TCP</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#an-overview-of-multipath-tcp">An overview of Multipath TCP</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#connection-establishment">Connection establishment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-brief-overview-of-multipath-tcp">A brief overview of Multipath TCP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-multipath-tcp-connection">Creating a Multipath TCP connection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#data-transfer">Data transfer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#congestion-control">Congestion control</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#connection-release">Connection release</a></li>
