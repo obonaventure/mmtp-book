@@ -10,7 +10,8 @@ sudo apt-get install latexmk
 sudo apt-get install netpbm
 sudo apt-get install poppler-utils
 sudo apt-get install python3-enchant
-sudo apt-get install python3-sphinxcontrib.spelling
-pip3 install sphinxcontrib-bibtex
-pip3 install sphinxcontrib-tikz
+# sudo apt-get install python3-sphinxcontrib.spelling
+# post sphinx install
+#pip3 install sphinxcontrib-bibtex
+#pip3 install sphinxcontrib-tikz
 
