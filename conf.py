@@ -188,8 +188,8 @@ latex_elements = {
 'preamble': '''
 \\usepackage{tikz}
 \\usepackage{pgfplots}
-%\pgfplotsset{compat=1.16}
-\\usetikzlibrary{arrows.meta,positioning, matrix,backgrounds,shapes,shadows,calc,automata,math}
+\pgfplotsset{compat=1.16}
+\\usetikzlibrary{arrows,arrow.meta,positioning, matrix,backgrounds,shapes,shadows,calc,automata,math}
 '''
 }
 
