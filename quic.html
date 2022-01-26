@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QUIC &#8212; Modern Multipath Transport Protocols 2021 documentation</title>
+    <title>QUIC &#8212; Modern Multipath Transport Protocols 2022 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
@@ -48,7 +48,7 @@
 </div></blockquote>
 <p>From a pure layering viewpoint, QUIC can be illustrated as shown in <a class="reference internal" href="#fig-quic-layers"><span class="std std-numref">Fig. 11</span></a>.</p>
 <div class="figure" id="id37">
-<span id="fig-quic-layers"></span><p><img src="_images/tikz-615b6ed767e7cab1aa4b49b99e92166d525f18d8.png" alt="\begin{tikzpicture}[
+<span id="fig-quic-layers"></span><p><img src="None" alt="\begin{tikzpicture}[
 node distance = 1mm and 0mm,
 box/.style = {draw, text width=#1, inner sep=2mm, align=center},
 box/.default = 38mm,
@@ -73,7 +73,7 @@ FIT/.style = {draw, semithick, dotted, fit=#1,
 <h2>Connection establishment<a class="headerlink" href="#connection-establishment" title="Permalink to this headline">¶</a></h2>
 <p>QUIC uses a four-way handshake to create a QUIC connection. <a class="reference internal" href="#fig-quic-handshake"><span class="std std-numref">Fig. 12</span></a> describes this handshake. This handshake has three main purposes. First, it allows to negotiate the crypto keys required to both encrypt and authenticate the packets that will be sent later on the connection. This is mainly done using TLS 1.3 <span id="id6">[<a class="reference internal" href="biblio.html#id8271" title="E. Rescorla. The Transport Layer Security (TLS) Protocol Version 1.3. RFC 8446 (Proposed Standard), August 2018. URL: https://www.rfc-editor.org/rfc/rfc8446.txt, doi:10.17487/RFC8446.">6</a>]</span>. Second, it allows to negotiate different transport parameters. Third, the server can validate that the client can respond to the address used to send the initial packet. This validation allows to prevent denial of service attacks using spoofed addresses.</p>
 <div class="figure" id="id38">
-<span id="fig-quic-handshake"></span><p><img src="_images/tikz-8bfa7732c93220bf537fb572fc5491b1800a42b8.png" alt="\begin{tikzpicture}
+<span id="fig-quic-handshake"></span><p><img src="None" alt="\begin{tikzpicture}
 \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
 \tikzstyle{every node}=[font=\small]
 \tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
@@ -103,7 +103,7 @@ FIT/.style = {draw, semithick, dotted, fit=#1,
 </div>
 <p>The second mitigation against denial-of-service attacks using spoofed packets operates on the server. When a server receives an initial packet from a client, it may respond with an initial packet as shown in <a class="reference internal" href="#fig-quic-handshake"><span class="std std-numref">Fig. 12</span></a>. This could for example be the case of an enterprise server that receives a request from host of the same enterprise. The server could also want to validate the client and verify that the client can receive the packets that it sends. For this, it returns a Retry frame and a Token. This token is an opaque field that is constructed in a way that makes it easy for the server to validate the subsequent client packets and difficult for the client to predict the token that a server will create. A possible approach is to compute a secure hash of a message that contains the source IP addresses and ports used by the client, a secret value only known by the server and possibly some timing information to enable the server to ignore older tokens. Faced with the same problem, TCP using syn cookies that are encoded using fewer bits and thus inherently less secure. <a class="reference internal" href="#fig-quic-handshake-retry"><span class="std std-numref">Fig. 13</span></a> shows a QUIC handshake that includes a validation of the client address.</p>
 <div class="figure" id="id39">
-<span id="fig-quic-handshake-retry"></span><p><img src="_images/tikz-d01a302eab33e1b062c142379f32eb145193fe6e.png" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
+<span id="fig-quic-handshake-retry"></span><p><img src="None" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
 \tikzstyle{every node}=[font=\small]
 \tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
 \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
@@ -128,7 +128,7 @@ FIT/.style = {draw, semithick, dotted, fit=#1,
 <h3>Identifying QUIC connections<a class="headerlink" href="#identifying-quic-connections" title="Permalink to this headline">¶</a></h3>
 <p>A TCP connection is identified by a four tuple <span class="math notranslate nohighlight">\(IP_{Client},IP_{Server},Port_{Client},Port_{Server}\)</span>. All packets belonging to a given connection carry this information in their IP and TCP headers. As QUIC runs above UDP, a simple approach could have been to use the UDP four tuple to identify each QUIC connection. Although simple, this solution would have severely restricted the flexibility of QUIC and the scalability of QUIC servers. The QUIC designers have opted for locally unique connection identifiers (CID) that are selected by the client and the server. These identifiers are placed in the QUIC packet headers during the handshake. When sending the Initial packet, the client selects a source CID that uniquely identifies the connection on the client and a random destination CID. Upon reception of this packet, the server selects its own connection identifier. It echoes the client selected CID and returns its selected CID. This is illustrated in <a class="reference internal" href="#fig-quic-handshake-cid"><span class="std std-numref">Fig. 14</span></a>.</p>
 <div class="figure" id="id40">
-<span id="fig-quic-handshake-cid"></span><p><img src="_images/tikz-867b4bb0a50b89237f887e5ad6898a2ff4b648a7.png" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=4.5; }
+<span id="fig-quic-handshake-cid"></span><p><img src="None" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=4.5; }
 \tikzstyle{every node}=[font=\small]
 \tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
 \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
@@ -157,7 +157,7 @@ FIT/.style = {draw, semithick, dotted, fit=#1,
 <h3>Security keys<a class="headerlink" href="#security-keys" title="Permalink to this headline">¶</a></h3>
 <p>We can now discuss how QUIC leverages TLS 1.3 to negotiate the security keys that are used to authenticate and encrypt the packets exchanged over a connection. As shown in <a class="reference internal" href="#fig-quic-handshake"><span class="std std-numref">Fig. 12</span></a>, a QUIC connection starts with the exchange of four frames which can be carried in four or more packets. The first packet sent by the client contains the <code class="docutils literal notranslate"><span class="pre">ClientHello</span></code> TLS record. The <code class="docutils literal notranslate"><span class="pre">ClientHello</span></code> contains the information required to derive the session keys using Diffie-Hellman or a similar protocol. TLS 1.3 supports both finite field Diffie-Hellman and Elliptic Curve Diffie-Hellman <span id="id10">[<a class="reference internal" href="biblio.html#id8271" title="E. Rescorla. The Transport Layer Security (TLS) Protocol Version 1.3. RFC 8446 (Proposed Standard), August 2018. URL: https://www.rfc-editor.org/rfc/rfc8446.txt, doi:10.17487/RFC8446.">6</a>]</span>. The <code class="docutils literal notranslate"><span class="pre">ClientHello</span></code> message also contains TLS or QUIC parameters that the client proposes to use during the connection. The <code class="docutils literal notranslate"><span class="pre">TLS</span> <span class="pre">Server</span> <span class="pre">Hello</span></code> returned by the server contains the certificate that enables the client to validate the server’s identity and the information required to determine the Diffie-Hellman keys. Using these keys, the server also encrypts the <code class="docutils literal notranslate"><span class="pre">TLS</span> <span class="pre">Encrypted</span> <span class="pre">Extensions</span></code> message that contains the TLS and QUIC parameters that the server has selected based on the ones proposed in the <code class="docutils literal notranslate"><span class="pre">ClientHello</span></code>. The server also constructs that <code class="docutils literal notranslate"><span class="pre">Finished</span></code> message that contains a message authentication code computed over the entire TLS handshake. This message is encrypted and authenticated using the session keys derived from the Diffie-Hellman keys. The client and the server recompute the hash of the entire handshake and verify both <code class="docutils literal notranslate"><span class="pre">Finished</span></code> message. If one of these messages is incorrect, this indicates that either the key has not been correctly derived or that some of the TLS messages have been tampered. In these situations, the QUIC connection is terminated with an error message. The simplified TLS handshake used by QUIC is illustrated in <a class="reference internal" href="#fig-quic-tls-handshake"><span class="std std-numref">Fig. 15</span></a>. The TLS messages shown in italics are encrypted using the session keys.</p>
 <div class="figure" id="id41">
-<span id="fig-quic-tls-handshake"></span><p><img src="_images/tikz-3adbe5efaa241fa263fb12ffb4d88a5d43021ffb.png" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
+<span id="fig-quic-tls-handshake"></span><p><img src="None" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
 \tikzstyle{every node}=[font=\small]
 \tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
 \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
@@ -294,7 +294,7 @@ FIT/.style = {draw, semithick, dotted, fit=#1,
 </div>
 <p>The main benefit of these <code class="docutils literal notranslate"><span class="pre">0-RTT</span></code> packets is that the client can immediately send encrypted data when sending its <code class="docutils literal notranslate"><span class="pre">Initial</span></code> packet. This is illustrated in <a class="reference internal" href="#fig-quic-handshake-ortt"><span class="std std-numref">Fig. 16</span></a> where the encrypted frames are shown in italics. Note that some of these encrypted frames can span several packets. <code class="docutils literal notranslate"><span class="pre">0-RTT</span></code> packets are only sent by the QUIC client since the server can send encrypted data immediately after having sent its <code class="docutils literal notranslate"><span class="pre">Handshake</span></code> frames.</p>
 <div class="figure" id="id42">
-<span id="fig-quic-handshake-ortt"></span><p><img src="_images/tikz-43c8478d3ae4742e28a2d898e28c586912131ec4.png" alt="\begin{tikzpicture}
+<span id="fig-quic-handshake-ortt"></span><p><img src="None" alt="\begin{tikzpicture}
 \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
 \tikzstyle{every node}=[font=\small]
 \tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
@@ -332,7 +332,7 @@ FIT/.style = {draw, semithick, dotted, fit=#1,
 <p>The second technique to terminate a QUIC connection is to use the <code class="docutils literal notranslate"><span class="pre">CONNECTION_CLOSE</span></code> frame. This frame indicates that this connection has been closed abruptly.  The host that receives the <code class="docutils literal notranslate"><span class="pre">CONNECTION_CLOSE</span></code> may respond with one <code class="docutils literal notranslate"><span class="pre">CONNECTION_CLOSE</span></code> frame. After that, it must stop sending any additional frame. It keeps the connection state for some time, but does not accept any new packet nor retransmit others. The host that sends a <code class="docutils literal notranslate"><span class="pre">CONNECTION_CLOSE</span></code> frame indicates that it will neither send nor accept more data. It keeps a subset of the QUIC connection state to be able to retransmit the <code class="docutils literal notranslate"><span class="pre">CONNECTION_CLOSE</span></code> frame if needed.</p>
 <p>A host also sends a <code class="docutils literal notranslate"><span class="pre">CONNECTION_CLOSE</span></code> frame to abruptly terminate a connection if it receives an invalid frame or detects a protocol error. In this case, the <code class="docutils literal notranslate"><span class="pre">CONNECTION_CLOSE</span></code> frame contains a variable length integer that indicates the reason for the termination, the type of the frame that triggered the error and additional information encoded as a text string.</p>
 <div class="figure" id="id43">
-<span id="fig-quic-connection-close"></span><p><img src="_images/tikz-939264a61b9269f60f8a26ac4a6f7e186b2fd71d.png" alt="\begin{tikzpicture}
+<span id="fig-quic-connection-close"></span><p><img src="None" alt="\begin{tikzpicture}
 \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=4; }
 \tikzstyle{every node}=[font=\small]
 \tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
@@ -430,7 +430,7 @@ During the handshake, each host can announce the maximum number of bytes that it
 <p>These limits restricts the number of streams that a host can create and the amount of bytes that it can send. If a host is blocked by any of these limits, it may sent a control frame to request the remote host to extend the limit. For each type of flow control, there is an associated control frame which can be used to request an extension of the limit.</p>
 <p>A host should send a <code class="docutils literal notranslate"><span class="pre">DATA_BLOCKED</span></code> frame when it reaches the limit on the maximum amount of data set by the <code class="docutils literal notranslate"><span class="pre">initial_max_data</span></code> transport parameter or a previously received <code class="docutils literal notranslate"><span class="pre">MAX_DATA</span></code> frame. The <code class="docutils literal notranslate"><span class="pre">DATA_BLOCKED</span></code> frame contains the connection limit that caused the transmission to be blocked. In practice, a receiving host should increase the connection-level limit by sending <code class="docutils literal notranslate"><span class="pre">MAX_DATA</span></code> frames before reaching the limit. However, since this limit is function of the available memory, a host might not always be able to send a <code class="docutils literal notranslate"><span class="pre">MAX_DATA</span></code> frame. <a class="reference internal" href="#fig-quic-example-max-data"><span class="std std-numref">Fig. 18</span></a> provides an example packet flow with the utilization of these frames. We assume that the <code class="docutils literal notranslate"><span class="pre">initial_max_data</span></code> transport parameter was set to <code class="docutils literal notranslate"><span class="pre">100</span></code> bytes by the client during the handshake and the the server needs to send 900 bytes. The server creates a stream and sends 100 bytes in a <code class="docutils literal notranslate"><span class="pre">1-RTT</span></code> packet carrying a <code class="docutils literal notranslate"><span class="pre">STREAM</span></code> frame. At this point, the server is blocked.</p>
 <div class="figure" id="id44">
-<span id="fig-quic-example-max-data"></span><p><img src="_images/tikz-e56cab4ad889688969fc3079bd4e01dbb1ee13f9.png" alt="\begin{tikzpicture}
+<span id="fig-quic-example-max-data"></span><p><img src="None" alt="\begin{tikzpicture}
 \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=10; }
 \tikzstyle{every node}=[font=\small]
 \tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
@@ -492,7 +492,7 @@ During the handshake, each host can announce the maximum number of bytes that it
 </div>
 </div>
 <div class="figure" id="id45">
-<span id="fig-quic-ack-delay"></span><p><img src="_images/tikz-39e53d0c77b8a4f7e3303a3408bd7b2c4bc656c5.png" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
+<span id="fig-quic-ack-delay"></span><p><img src="None" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
 \tikzstyle{every node}=[font=\small]
 \tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
 \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
@@ -569,7 +569,7 @@ During the handshake, each host can announce the maximum number of bytes that it
 </div></blockquote>
 </div>
 <div class="figure" id="id46">
-<span id="fig-quic-ack-initials"></span><p><img src="_images/tikz-40b479b87f6f0cf6a1a41d49b7e2813aafbe39db.png" alt="\tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
+<span id="fig-quic-ack-initials"></span><p><img src="None" alt="\tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
 
    \tikzmath{
    \c1 = 1;
@@ -595,7 +595,7 @@ During the handshake, each host can announce the maximum number of bytes that it
 <p class="caption"><span class="caption-number">Fig. 20 </span><span class="caption-text">QUIC also acknowledges Initial frames</span></p>
 </div><p>To illustrate how QUIC uses acknowledgments, let us consider a simple QUIC connections. The client starts a QUIC connection with a new server, sends a request, receives a response and then closes the connection. There are no losses in this connection. <a class="reference internal" href="#fig-quic-ack-short"><span class="std std-numref">Fig. 21</span></a> illustrates this connection.</p>
 <div class="figure" id="id47">
-<span id="fig-quic-ack-short"></span><p><img src="_images/tikz-c1a71062cde376cc4ad4fe8a5670594e4819d104.png" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=12; }
+<span id="fig-quic-ack-short"></span><p><img src="None" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=12; }
 \tikzstyle{every node}=[font=\small]
 \tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
 \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
@@ -627,7 +627,7 @@ During the handshake, each host can announce the maximum number of bytes that it
 <p>As explained above, QUIC uses connection identifiers. These connection identifiers are used for different purposes. On the server side, they can be used by load-balancers to spread the packets of different connections to different servers. But QUIC ‘s connection identifiers also enable clients to migrate connections from one path to another or even on the same path.</p>
 <p>QUIC connection migrations occur in two steps. As an example, we consider the client triggered migrations. These are the most important from a deployment viewpoint. A client can decide to migrate its connection for various reasons,including privacy and performance. A common scenario is a smartphone that moves and goes progressively out of reach of the Wi-Fi access point. When the smartphone notices a decrease in the performance of the Wi-Fi network (lower signal to noise ratio, more losses or retransmissions, …), it can decide to migrate the QUIC connections over the cellular interface. A naive solution would be to simply move the QUIC packets from one interface to another using the same connection identifiers. This is illustrated in <a class="reference internal" href="#fig-quic-naive-migration"><span class="std std-numref">Fig. 22</span></a>. The QUIC connection was established from the client IP address, $IP_C$, to the server’s IP address, $IP_S$. The first two packets show a simple exchange over this connection. Before sending its second packet, the client decides to use its second interface to send the subsequent packets. This interface is illustrated in red on the figure and its IP address is $IP_X$. The client sends its second packet over this interface.</p>
 <div class="figure" id="id48">
-<span id="fig-quic-naive-migration"></span><p><img src="_images/tikz-28e0d9d037faa452df30f82c6dddd856d52b69e7.png" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=5; }
+<span id="fig-quic-naive-migration"></span><p><img src="None" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=5; }
 \tikzstyle{every node}=[font=\small]
 \tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
 \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
@@ -647,7 +647,7 @@ During the handshake, each host can announce the maximum number of bytes that it
 </div><p>This naive approach has several problems. Consider the server that receives the first QUIC packet from the smartphone’s cellular interface. This packet originates from a different IP address than the previous one, but still belongs to the same connection. If the server accepts this packet and moves the connection to the cellular path, this creates several security risks. First, consider an attacker who has captured a packet over the Wi-Fi network. By sending again this unmodified packet from another IP address, the attacker could disrupt the ongoing connection by forcing the server to send replies to its own IP address. This also opens a risk of denial of service attack as the server could send a large number of packets to the smartphone’s new IP address. QUIC copes with these problems by using different connection identifiers and using the path validation mechanism.</p>
 <p>To enable a client to migrate a QUIC connection, the server must first advertise at least one different connection identifier. This is done with the <code class="docutils literal notranslate"><span class="pre">NEW_CONNECTION_ID</span></code> frame. The client uses this additional connection identifier to try to move the connection to a new path. The client cannot use a new path before have the guarantee that the server can reply over the new path. To verify that the new path is bidirectional, the client sends a <code class="docutils literal notranslate"><span class="pre">PATH_CHALLENGE</span></code> frame in a QUIC packet that uses the new connection identifier over the new path. This frame mainly contains a 64 bits random nonce must be echoed by the server. Upon reception of this packet, the server detects an attempt to use a new path with the new connection identifier. It replies with a <code class="docutils literal notranslate"><span class="pre">PATH_RESPONSE</span></code> frame that echoes the client nonce. The server may also perform its own path validation by sending a <code class="docutils literal notranslate"><span class="pre">PATH_CHALLENGE</span></code> with a different nonce in the same packet as the <code class="docutils literal notranslate"><span class="pre">PATH_RESPONSE</span></code>. The client considers that the path has been validated upon reception of the valid <code class="docutils literal notranslate"><span class="pre">PATH_RESPONSE</span></code> frame. The packets that contain the <code class="docutils literal notranslate"><span class="pre">PATH_CHALLENGE</span></code> and <code class="docutils literal notranslate"><span class="pre">PATH_RESPONSE</span></code> frames can be padded with <code class="docutils literal notranslate"><span class="pre">PADDING</span></code> frames. At this time, it switches to the new connection identifier and the new path for all the frames that it sends. It may still continue to receive packets over the former path for some time. The server will switch to the new path once it has received a response to its <code class="docutils literal notranslate"><span class="pre">PATH_CHALLENGE</span></code> if it decided to validate the new path. Otherwise, the reception of a QUICK packet that contains other frames than <code class="docutils literal notranslate"><span class="pre">PATH_CHALLENGE</span></code>, <code class="docutils literal notranslate"><span class="pre">PATH_RESPONSE</span></code>, <code class="docutils literal notranslate"><span class="pre">NEW_CONNECTION_ID</span></code> or <code class="docutils literal notranslate"><span class="pre">PADDING</span></code>. The client could send a <code class="docutils literal notranslate"><span class="pre">NEW_CONNECTION_ID</span></code> frame together with the <code class="docutils literal notranslate"><span class="pre">PATH_CHALLENGE</span></code> frame if the client uses a non-null connection identifier and it has not sent a <code class="docutils literal notranslate"><span class="pre">NEW_CONNECTION_ID</span></code> frame before. This is illustrated in <a class="reference internal" href="#fig-quic-client-migration"><span class="std std-numref">Fig. 23</span></a>.</p>
 <div class="figure" id="id49">
-<span id="fig-quic-client-migration"></span><p><img src="_images/tikz-d40032ba7f51bf8d19f0ee4748d5af110174a5ab.png" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
+<span id="fig-quic-client-migration"></span><p><img src="None" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
 \tikzstyle{every node}=[font=\small]
 \tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
 \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
@@ -673,7 +673,7 @@ During the handshake, each host can announce the maximum number of bytes that it
 <p>We have described how QUIC clients can trigger connection migrations. There are situations when connection migration occurs without being triggered by the clients. A classical example is when there is a NAT on the path between the client and the server. The QUIC connection has been idle for some time and the NAT has removed the mapping from the client’s private IP address to a public one. When the client sends the next packet over the connection, the NAT creates a new mapping and thus assigns a different IP address to the client. The server receives a packet that uses the same connection identifier but comes from a different IP address than the initial one. This is illustrated in <a class="reference internal" href="#fig-quic-nat-migration"><span class="std std-numref">Fig. 24</span></a>. Upon reception of the QUIC packet coming from the new IP address (shown in red in <a class="reference internal" href="#fig-quic-nat-migration"><span class="std std-numref">Fig. 24</span></a>, the server triggers a path validation. Once the path has been validated, the QUIC connection can continue.</p>
 </div>
 <div class="figure" id="id50">
-<span id="fig-quic-nat-migration"></span><p><img src="_images/tikz-55749d8b4c71a8f1dd83852ce0c35d31f81cb2ed.png" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=7; }
+<span id="fig-quic-nat-migration"></span><p><img src="None" alt="\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=7; }
 \tikzstyle{every node}=[font=\small]
 \tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
 \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
@@ -951,7 +951,7 @@ During the handshake, each host can announce the maximum number of bytes that it
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2021, Olivier Bonaventure.
+      &copy;2022, Olivier Bonaventure.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
