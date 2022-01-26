@@ -20,13 +20,13 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Modern Multipath Transport Protocols'
-copyright = '2021, Olivier Bonaventure'
+copyright = '2022, Olivier Bonaventure'
 author = 'Olivier Bonaventure'
 
 # The short X.Y version
-version = ''
+version = 'alpha'
 # The full version, including alpha/beta/rc tags
-release = '2021'
+release = '2022'
 
 
 # -- General configuration ---------------------------------------------------
@@ -74,7 +74,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path .
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store','._*rst']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store','._*rst','venv/*']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -187,14 +187,20 @@ latex_documents = [
 latex_elements = {
 'preamble': '''
 \\usepackage{tikz}
+\\usepackage{xcolor}
+\\usepackage{bytefield27}
 \\usepackage{pgfplots}
 \pgfplotsset{compat=1.16}
-\\usetikzlibrary{arrows,arrow.meta,positioning, matrix,backgrounds,shapes,shadows,calc,automata,math}
+\\usetikzlibrary{arrows,arrows.meta,positioning, matrix,backgrounds,shapes,shadows,calc,automata,math}
 '''
 }
 
 # Documents to append as an appendix to all manuals.
 #latex_appendices = []
+
+# latex_additional_files
+
+latex_additional_files= [ '_templates/bytefield27.sty' ]
 
 # If false, no module index is generated.
 #latex_use_modindex = True

@@ -109,7 +109,7 @@ Music and video streaming are another example of a smartphone application that c
 .. todo:: ATSSS
 
 
-	  
+.. 5G :cite:`ding2021understanding`            
 
 Improving bandwidth
 ===================
@@ -144,5 +144,5 @@ Each server is attached to a single ToR switch with a single network interface. 
 
 Although this approach has been widely cited in the scientific literature, it does not seem to have been adopted by datacenter operators. This lack of deployment was probably caused by two main factors. First, the Multipath TCP implementation in the Linux kernel was only distributed as an unofficial patch for many years. Datacenter operators were reluctant to deploy an unofficial patch on their production server. A second factor is that Multipath TCP increases datacenter utilization by using buffers on the servers and on the network switches. With Multipath TCP, servers need to reorder the packets received over different paths. Some datacenter operators have considered that this additional delay could be an issue for request response applications that require shorter response times. Recent work on datacenters have focused more on reducing delays than improving network utilization.
 
-          
+.. todo: deployment :cite:`aschenbrenner2021single`
 
