@@ -567,7 +567,7 @@ The IP address is the main information contained in the ``ADD_ADDR`` option. The
 In addition to these four fields, the ``ADD_ADDR`` option contains an ``Echo`` bit. The ``ADD_ADDR`` option is usually sent inside a TCP acknowledgement. A host can easily send an acknowledgement even if it did not recently receive data. Unfortunately, TCP acknowledgements are, by design, unreliable. As TCP uses cumulative acknowledgements, the loss of an acknowledgement is compensated by the next acknowledgement. This is true for the acknowledgement number, but not for the options that were contained in the loss packet. The first version of Multipath TCP did not try to deal with the loss of ``ADD_ADDR`` options. The current version relies on the ``Echo``. A host advertises an address by sending its ``ADD_ADDR`` option with the ``Echo`` bit set to ``0``. To confirm the reception of this address, the peer simply replies with an acknowledgement containing the same option but with its ``Echo`` bit set to one. A host that sent an ``ADD_ADDR`` option needs to retransmit it if it does not receive it back. This is illustrated in :numref:`fig-mptcp-addaddr`.
 
 .. _fig-mptcp-addaddr:
-.. tikz:: Thanks to the ``Echo`` bit, a Multipath TCP host can retransmit lost ``ADD_ADDR`` options. 
+.. tikz:: Thanks to the Echo bit, a Multipath TCP host can retransmit lost ADD_ADDR options. 
    :libs: positioning, matrix, arrows.meta, math
 
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
@@ -588,7 +588,7 @@ In addition to these four fields, the ``ADD_ADDR`` option contains an ``Echo`` b
   
    \draw[blue,thick, ->] (\c1,\y-3) -- (\s1,\y-4) node [midway, align=left, fill=white] {ACK\small{[ADD\_ADDR(E=0,Id=1,1.2.3.4:10)]}};
 
-   \draw[blue,thick, ->] (\s1,\y-5) -- (\c1,\y-4) node [midway, align=left, fill=white] {ACK\small{[ADD\_ADDR(E=1,Id=1,1.2.3.4:10)]}};
+   \draw[blue,thick, ->] (\s1,\y-4) -- (\c1,\y-5) node [midway, align=left, fill=white] {ACK\small{[ADD\_ADDR(E=1,Id=1,1.2.3.4:10)]}};
 
 
 Thanks to the ``ADD_ADDR`` option, a host can advertise all its addresses at the beginning of a Multipath TCP connection. Since the option can be sent at any time, a mobile host that learns a new address, e.g. a smartphone attached to a new Wi-Fi network, can advertise it immediately. This makes Multipath TCP agile on mobile hosts. A host may also stop being able to use an IP address. This occurs when a mobile hosts goes away from a wireless network. In this case, the host should inform its peer about the loss of the corresponding address. This is the role of the ``REMOVE_ADDR`` option that contains the numeric identifier of the removed address. In contrast with the ``ADD_ADDR`` option, the ``REMOVE_ADDR`` option is not authenticated using a truncated HMAC. The protocol specification suggests that when a host receives a ``REMOVE_ADDR`` option, it should first check whether it is currently used by an active subflow. If no, the address can be removed. If yes, it should send a TCP Keepalive on this subflow to verify whether the address still works. If it does not receive a response to its keepalive, the address can be removed and the associated subflow is reset. Otherwise, the ``REMOVE_ADDR`` option is ignored.   
@@ -730,7 +730,7 @@ The client sends the first byte of the bytestream over the initial subflow. This
    
 .. _fig-mptcp-dss-concept2:
 .. tikz:: Multipath TCP copes with packet losses 
-   :libs: positioning, matrix, arrows, arrows.meta math
+   :libs: positioning, matrix, arrows, arrows.meta, math
 
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=9; }
    
@@ -856,8 +856,8 @@ A TCP connection starts with a three-way handshake and ends with either the exch
    
    \tikzmath{\y=\max-1;}
 
-   \draw[blue,thick,<->] (\c1,\y) -- (\s1,\y) node [midway, fill=white] {Initial subflow};    
-   \draw[red,thick,<->] (\c2,\y-0.5) -- (\s1,\y-0.5) node [midway, fill=white] {Second subflow};
+   \draw[blue,dashed,<->] (\c1,\y) -- (\s1,\y) node [midway, fill=white] {Initial subflow};    
+   \draw[red,dashed,<->] (\c2,\y-0.5) -- (\s1,\y-0.5) node [midway, fill=white] {Second subflow};
     
    \draw[blue,thick, ->] (\c1,\y-2) -- (\s1,\y-3) node [midway, align=left, fill=white] {[seq=x]\small{DS[s=y,DATA\_FIN]} "XYZ"};
    \draw[blue,thick, ->] (\s1,\y-3) -- (\c1,\y-4) node [midway, align=left, fill=white] {ACK [ack=x+3]\small{DS[a=y+4]}};
@@ -950,9 +950,19 @@ Our first middlebox is a firewall. A firewall is a device that receives packets,
 
 It is interesting to explore how such a firewall reacts when it receives a packet containing a TCP option that is not part of its whitelist. There are two possibilities. Some firewalls simply drop the packet, but this blocks a connection that could be totally legitimate. Other firewalls remove the option from the TCP header. This can be done by either removing the bytes that contain the unknown TCP option, adjust the Length field of the IP header, the TCP Header length (and possiblly update the padding) and update the TCP checksum. A simpler approach is to replace the bytes of the option with byte ``1``. This corresponds to the standard No-Operation TCP option :cite:`rfc793`. The advantage of this approach is that the firewall only has to recompute the TCP checksum and does not need to adjust the packet length and move data.
 
+The removal of TCP options by firewalls has influenced the design of Multipath TCP. Multipath TCP uses TCP options to exchange different types of information. The information carried in a ``SYN`` is not the same as the one exchanged in data packets. The selective acknowledgments TCP extension :cite:`rfc2018` defines two different options: a two bytes long ``SACK permitted`` that is used inside ``SYN`` and a variable length ``SACK`` option that carries the selective acknowledgments during the data transfer. The first versions of Multipath TCP used a similar approach with different TCP options kinds. However, the Multipath TCP designers feared that some firewalls could accept some of the Multipath TCP options and drop the others. For example, the Multipath TCP option used in the ``SYN`` could pass a firewall that would later drop the options used in data packets. It would have been very difficult for a Multipath TCP implementation to deal with all the corner cases that could happen since Multipath TCP :cite:`rfc8684` currently defines 9 different options. To prevent such problems, Multipath TCP uses a single TCP option kind and each Multipath TCP option contains a subtype field. This increases the length of the Multipath TCP options, but minimizes the risk of middlebox interference.
 
+.. tikz:: The generic format for Multipath TCP options
 
+   \end{tikzpicture}	  
+   \begin{bytefield}{32}
+   \bitheader{0-31}\\
+   \bitbox{8}{Kind} & \bitbox{8}{Length} & \bitbox{4}{Subtype} & \bitbox[ltr]{12}{}\\
+   \bitbox[blr]{32}{Sub-type specific data}
+   \end{bytefield}
+   \begin{tikzpicture}
 
+   
 
 Before looking at other middleboxes, it is interesting to analyze how a router forwards an IP packet that contains a TCP segment. Consider a router that receives a packet such as the one shown in :numref:`fig-mptcp-ip4tcp`. When a router forwards such a packet, it will read the IP header and may modify the fields highlighted in red:
 
@@ -1017,7 +1027,6 @@ Most NAT deployments, in particular with IPv4, use a pool a public addresses tha
 
 
 .. _fig-mptcp-ftp:
-
 .. code:: console
 
    #ftp -4d ftp.belnet.be
@@ -1118,7 +1127,44 @@ The ``PORT 192,168,0,37,133,67`` indicates that the client listens on IP address
 
 
 As shown by the example above, an ALG can change bytes in the bytestream. It can also remove bytes from the bytestream and also add bytes in the bytestream. This happens notably when the ASCII representation of the public IP address of the NAT is longer than the private IP address of the internal host. This modification of the bytestream had a major impact on the design of Multipath TCP. It mainly affects the Data Sequence Number option that carries the data sequence numbers and acknowledgements. To detect modifications from ALGs and other middleboxes, this option covers a range of sequence numbers in the bytestream and includes an optional checksum that is computed by the Multipath TCP sender and checked by the receiver. If there is a mismatch between the checksum of the option and the data, the receiver stops using Multipath TCP and falls back to regular TCP to preserve the established connection. We discuss this fallback in more details later.  
-   
+
+Our third type of middlebox that splits or coalesces TCP packets. This is not a router that performs IPv4 fragmentation or a host that splits a large IPv6 packets in fragments. In-network fragmentation is mainly disabled in IPv4 network since modern TCP stacks set the ``DF`` flag of the IP header. Those middleboxes do not reside in the middle of the network. They are typically included in the network adapter used by servers and even client hosts. Measurement studies have shown that hosts can reach higher throughputs when sending and receiving large packets. For example, a recent study :cite:`hock2019tcp` reveals that over a 100 Gbps interface, a server was able to reach 25 Gbps with a single TCP connection using 1500 bytes packets. The same connection reached 40 Gbps by using jumbo frames, i.e. 9000 bytes packets. The jumbo frames are supported on modern Gigabit Ethernet networks but they are rarely used outside datacenters because most Internet paths still only supports 1500 bytes packets.
+
+Modern network adapters support TCP Segmentation Offload (TSO) to improve the throughput of TCP connection are reduce the CPU load. In a nutshell, when TSO is enabled, the network adapter exposes a large maximum packet size, e.g. 16 KBytes to more, to the network stack. When the host sends such a large packet, it is automatically segmented in a sequence of small IP packets. On the receiver side, the network adapter performs the reverse operation. It coalesces small received packets into a larger one. :numref:`fig-mptcp-tso` shows a large (2 KBytes long) TCP packet. It is interesting to analyze how the key fields of this packet will be processed by TSO to segment it in the two smaller packets. 
+
+
+.. _fig-mptcp-tso:
+.. tikz:: A large IP packet containing TCP header and data
+
+   \end{tikzpicture}
+   \definecolor{lightcyan}{rgb}{0.84,1,1}
+   \definecolor{lightgray}{gray}{0.8}
+   \definecolor{lightred}{rgb}{1,0.7,0.71}
+   \begin{bytefield}{32}
+   \bitheader{0-31}\\
+   \bitbox{4}{Version} &  \bitbox{4}{IHL} & \bitbox{6}{DSCP} & \bitbox{2}{\tiny ECN} & \bitbox{16}[bgcolor=lightred]{Length=2040}  \\
+   \bitbox{16}[bgcolor=lightred]{Identification} & \bitbox{3}{\tiny Flags} & \bitbox{13}{Offset} \\
+   \bitbox{8}{Time To Live} & \bitbox{8}{Protocol} & \bitbox{16}[bgcolor=lightred]{IP Checksum} \\
+   \bitbox{32}{Source Address} \\
+   \bitbox{32}{Destination Address} \\
+   \bitbox{16}{Source Port} &  \bitbox{16}{Destination Port} \\
+   \bitbox{32}[bgcolor=lightred]{Sequence number} \\
+   \bitbox{32}{Acknowledgment number } \\
+   \bitbox{4}{Offset} & \bitbox{6}{Res} & \bitbox{1}{\tiny U\\R\\G} & \bitbox{1}{\tiny A\\C\\K} & \bitbox{1}{\tiny P\\S\\H} & \bitbox{1}{\tiny R\\S\\T} & \bitbox{1}{\tiny S\\Y\\N} & \bitbox{1}{\tiny F\\I\\N} & \bitbox{16}{Window} \\
+   \bitbox{16}[bgcolor=lightred]{Checksum} &  \bitbox{16}{Urgent Pointer} \\
+   \wordbox{3}[bgcolor=lightred]{TCP options}\\
+   \wordbox[ltr]{2}{Data}\\
+   \skippedwords \\
+   \wordbox[lrb]{2}{2000 bytes}\\
+   \end{bytefield}
+   \begin{tikzpicture}      
+
+
+To segment the packet shown in :numref:`fig-mptcp-tso` in two smaller packets, TSO creates two ``1040`` bytes long IPv4 packets. The two small packets have a different IP Identification than the large one. TSO computes an IP checksum for each small packet. It then copies the TCP header of the large packet in both small ones, but with a fed adjustments. The sequence number of the  first small packet is the same as the large one. The sequence number of the sequence small packet is the one of the first packet increased by 1000.
+Concerning the TCP options, TSO could analyze the contents of the option and handle each option in a specific manner. For example, TSO could adjust the TCP timestamp option of successive packets. In practice, measurements indicate that TSO simplies copies the TCP options field of the large packet in all small packets :cite:`Honda_Extend:2011`. TSO places the first 1000 bytes of the payload of the large packet in the first small one and the last 1000 bytes in the second one. Finally, TSO needs to update the TCP checksum in all the small packets.
+
+The receiver side of these network adapters implement Large Receive Offload (LRO). This basically coalesces the packets that were segmented by TSO. In this case, coalescing packets that carry different TCP options could be problematic since some of the TCP options would be lost in this process. Measurements with different TCP options show that LRO only coalesces packets that have exactly the same set of TCP implementations. 
+
    
 .. tikz:: The TCP header
 
@@ -1141,16 +1187,6 @@ As shown by the example above, an ALG can change bytes in the bytestream. It can
 The protocol details
 ====================
    
-.. tikz:: The generic format for Multipath TCP options
-
-   \end{tikzpicture}	  
-   \begin{bytefield}{32}
-   \bitheader{0-31}\\
-   \bitbox{8}{Kind} & \bitbox{8}{Length} & \bitbox{4}{Subtype} & \bitbox[ltr]{12}{}\\
-   \bitbox[blr]{32}{Sub-type specific data}
-   \end{bytefield}
-   \begin{tikzpicture}
-
 
 
 .. tikz:: The MP_JOIN option in a SYN packet
