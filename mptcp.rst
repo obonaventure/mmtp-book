@@ -5,6 +5,7 @@ Multipath TCP
 Multipath TCP :cite:`rfc8684` is an extension to the TCP protocol :cite:p:`rfc793` that was presented earlier. We start with an overview of Multipath TCP. Then we explain how a Multipath TCP connection can be established. Then we analyze how data is exchanged over different paths and explain the multipath congestion control schemes. Finally, we explain how Multipath TCP connections can be terminated.
 
 
+.. _mptcp-overview:
 
 A brief overview of Multipath TCP
 =================================
@@ -351,6 +352,7 @@ In :numref:`fig-mptcp-data-naive-2`, it is clear that the server cannot simply d
 Thanks to the bytestream sequence number, the server can reorder the data received over the different subflows and preserve the ordering in the bytestream.
 
 
+.. _mptcp-initial-handshake:
 
 Creating a Multipath TCP connection
 ===================================
@@ -434,6 +436,8 @@ Using these two components of the shared secret, the client and the server must 
 
 
 The solution described above meets the requirements of the Internet Engineering Task Force. From a security viewpoint, the :math:`Client_{secret}`, :math:`Server_{secret}` and the random nonces should be as large as possible to prevent attacks where their values are simply guessed. Unfortunately, since Multipath TCP uses TCP options to exchange all this information, we need to ensure that it fits inside the extended header of a TCP ``SYN``. The TCP specification :cite:`rfc793` reserves up to 40 bytes to place the TCP options in a ``SYN``. Today's TCP stacks already consume 4 bytes for the ``MSS`` option :cite:`rfc793`, 3 for the ``Window Scale`` option :cite:`rfc1323`, 2 for ``SACK Permitted`` :cite:`rfc2018` and 10 for the timestamp option :cite:`rfc1323`. This leaves only 20 bytes to encode a Multipath TCP option that must contain an initial sequence number, a token and a secret. Multipath TCP solves this problem by deriving these three values from a single field encoded in a TCP option. Let us now analyze the Multipath TCP handshake in more details.
+
+.. _mptcp-initial-mptcp-handshake:
 
 The Multipath TCP handshake
 ---------------------------
@@ -549,6 +553,8 @@ A Multipath TCP connection combines a number of subflows which can change during
 	  
 The above figure shows how a client adds a subflow to an existing Multipath TCP connection. This is the most common way of adding subflows to a connection. According to the specification, a server could also add subflows to a Multipath TCP connection. For this, the server needs to be able to determine the client addresses. This is the role of the address subflow management parts of Multipath TCP.
 
+.. _mptcp-addr-management:
+
 Address and subflow management
 ==============================
 
@@ -639,7 +645,8 @@ Multipath TCP hosts use the ``ADD_ADDR`` and ``REMOVE_ADDR`` options to maintain
    The previous section has explained how Multipath TCP hosts learn the addresses of their peers by using the ``ADD_ADDR`` and ``REMOVE_ADDR`` options. These options are important for a server that has multiple addresses (e.g. an IPv4 and an IPv6 address) and wants to advertise them to its clients. On the other hand, servers rarely create subflows and thus they do not really need to learn the client addresses. In fact, Apple's implementation of Multipath TCP on the iPhones does not use the ``ADD_ADDR`` option. iPhones simply create subflows over the cellular and Wi-Fi interfaces as when needed and the server relies on the ``MP_JOIN`` option to validate these subflows. It is interesting to note that the ``REMOVE_ADDR`` option remains useful even if the ``ADD_ADDR`` option is not used. Consider a smartphone that has created an initial subflow over its Wi-Fi interface and a second subflow over the cellular one. If the smartphone looses its Wi-Fi interface, it can send a ``REMOVE_ADDR`` option over the subflow that uses the cellular interface to inform the server that it cannot be reached anymore through its Wi-Fi interface. 
 
    
-   
+.. _mptcp-data-transfer:
+
 Data transfer
 =============
 
@@ -801,6 +808,8 @@ Conceptually, a Multipath TCP implementation can be viewed as composed of a set 
 .. todo: explain windows and flow control
 
 
+.. _mptcp-congestion:
+   
 Congestion control
 ==================
 
@@ -828,6 +837,8 @@ MPCC
 :cite:`gilad2020mpcc`
 
 
+.. _mptcp-release:
+      
 Connection release
 ==================
 
@@ -922,7 +933,8 @@ The first solution is to send the ``FAST_CLOSE`` option inside an ``ACK``. Upon 
    \draw[blue,thick, ->] (\c1,\y-2) -- (\s1,\y-3) node [midway, align=left, fill=white] {RST,FAST\_CLOSE[$Server_{key}$]};
    \draw[red,thick, ->] (\c2,\y-2.5) -- (\s1,\y-3.5) node [midway, align=left, fill=white] {RST, FAST\_CLOSE[$Server_{key}$]};
 
-
+   
+.. _mptcp-middlebox:   
 	  
 Coping with middlebox interference
 ==================================
@@ -944,14 +956,16 @@ Our first middlebox is a firewall. A firewall is a device that receives packets,
 
    \end{tikzpicture}	  
    \begin{bytefield}{32}
-   \bitbox{8}{Kind} & \bitbox{8}{Length} & \bitbox{16}{Value ...} 
+   \bitbox{8}{Kind} & \bitbox{8}{Length} & \bitbox{16}{Value ...}\\ 
    \end{bytefield}
    \begin{tikzpicture}   
+
 
 It is interesting to explore how such a firewall reacts when it receives a packet containing a TCP option that is not part of its whitelist. There are two possibilities. Some firewalls simply drop the packet, but this blocks a connection that could be totally legitimate. Other firewalls remove the option from the TCP header. This can be done by either removing the bytes that contain the unknown TCP option, adjust the Length field of the IP header, the TCP Header length (and possiblly update the padding) and update the TCP checksum. A simpler approach is to replace the bytes of the option with byte ``1``. This corresponds to the standard No-Operation TCP option :cite:`rfc793`. The advantage of this approach is that the firewall only has to recompute the TCP checksum and does not need to adjust the packet length and move data.
 
 The removal of TCP options by firewalls has influenced the design of Multipath TCP. Multipath TCP uses TCP options to exchange different types of information. The information carried in a ``SYN`` is not the same as the one exchanged in data packets. The selective acknowledgments TCP extension :cite:`rfc2018` defines two different options: a two bytes long ``SACK permitted`` that is used inside ``SYN`` and a variable length ``SACK`` option that carries the selective acknowledgments during the data transfer. The first versions of Multipath TCP used a similar approach with different TCP options kinds. However, the Multipath TCP designers feared that some firewalls could accept some of the Multipath TCP options and drop the others. For example, the Multipath TCP option used in the ``SYN`` could pass a firewall that would later drop the options used in data packets. It would have been very difficult for a Multipath TCP implementation to deal with all the corner cases that could happen since Multipath TCP :cite:`rfc8684` currently defines 9 different options. To prevent such problems, Multipath TCP uses a single TCP option kind and each Multipath TCP option contains a subtype field. This increases the length of the Multipath TCP options, but minimizes the risk of middlebox interference.
 
+.. _fig-mptcp-tcp-option2:
 .. tikz:: The generic format for Multipath TCP options
 
    \end{tikzpicture}	  
