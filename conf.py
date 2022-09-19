@@ -86,6 +86,8 @@ spelling_show_suggestions=True
 # Private dictionnary
 spelling_word_list_filename=['wordlist.dict']
 
+spelling_exclude_patterns=['biblio.rst']
+
 # bibtex
 
 bibtex_bibfiles = ['bib/rfc.bib',
