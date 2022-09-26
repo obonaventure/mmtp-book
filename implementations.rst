@@ -1,7 +1,7 @@
 Multipath TCP implementations
 *****************************
 
-.. spelling::
+.. spelling:word-list::
 
    Costin
    Raiciu
