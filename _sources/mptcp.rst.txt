@@ -974,7 +974,7 @@ The removal of TCP options by firewalls has influenced the design of Multipath T
    \node (A) at (0,0)  {
    \begin{bytefield}{32}
    \bitheader{0-31}\\
-   \bitbox{8}{Kind} & \bitbox{8}{Length} & \bitbox{4}{Subtype} & \bitbox[ltr]{12}{}\\
+   \bitbox{8}{Kind} & \bitbox{8}{Length} & \bitbox{4}{\tiny{Subtype}} & \bitbox[ltr]{12}{}\\
    \bitbox[blr]{32}{Sub-type specific data}
    \end{bytefield}
    };
@@ -997,9 +997,9 @@ A router will never change any other field of the IP header and will not read th
    \definecolor{lightred}{rgb}{1,0.7,0.71}
    \begin{bytefield}{32}
    \bitheader{0-31} \\
-   \bitbox{4}{Version} &  \bitbox{4}{IHL} & \bitbox{6}[bgcolor=lightred]{DSCP} & \bitbox{2}[bgcolor=lightred]{\tiny ECN} & \bitbox{16}{Length}  \\
+   \bitbox{4}{Ver} &  \bitbox{4}{IHL} & \bitbox{6}[bgcolor=lightred]{DSCP} & \bitbox{2}[bgcolor=lightred]{\tiny ECN} & \bitbox{16}{Length}  \\
    \bitbox{16}{Identification} & \bitbox{3}{\tiny Flags} & \bitbox{13}{Offset} \\
-   \bitbox{8}[bgcolor=lightred]{Time To Live} & \bitbox{8}{Protocol} & \bitbox{16}[bgcolor=lightred]{IP Checksum} \\
+   \bitbox{8}[bgcolor=lightred]{TTL} & \bitbox{8}{Protocol} & \bitbox{16}[bgcolor=lightred]{IP Checksum} \\
    \bitbox{32}{Source Address} \\
    \bitbox{32}{Destination Address} \\
    \bitbox{16}{Source Port} &  \bitbox{16}{Destination Port} \\
@@ -1022,9 +1022,9 @@ Unfortunately, deployed networks also contain Network Address Translators (NAT) 
    \definecolor{lightred}{rgb}{1,0.7,0.71}
    \begin{bytefield}{32}
    \bitheader{0-31}\\
-   \bitbox{4}{Version} &  \bitbox{4}{IHL} & \bitbox{6}[bgcolor=lightred]{DSCP} & \bitbox{2}[bgcolor=lightred]{\tiny ECN} & \bitbox{16}{Length}  \\
+   \bitbox{4}{Ver} &  \bitbox{4}{IHL} & \bitbox{6}[bgcolor=lightred]{DSCP} & \bitbox{2}[bgcolor=lightred]{\tiny ECN} & \bitbox{16}{Length}  \\
    \bitbox{16}{Identification} & \bitbox{3}{\tiny Flags} & \bitbox{13}{Offset} \\
-   \bitbox{8}[bgcolor=lightred]{Time To Live} & \bitbox{8}{Protocol} & \bitbox{16}[bgcolor=lightred]{IP Checksum} \\
+   \bitbox{8}[bgcolor=lightred]{TTL} & \bitbox{8}{Protocol} & \bitbox{16}[bgcolor=lightred]{IP Checksum} \\
    \bitbox{32}[bgcolor=lightred]{Source Address} \\
    \bitbox{32}[bgcolor=lightred]{Destination Address} \\
    \bitbox{16}{Source Port} &  \bitbox{16}{Destination Port} \\
@@ -1084,7 +1084,7 @@ It is interesting to analyze how an ALG modifies a packet that carries such a ``
 
   
 .. _fig-mptcp-ip4tcp-ftp-port: 
-.. tikz:: Packet carrying PORT command sent by a client 
+.. tikz:: Packet carrying a PORT command sent by a client 
 
    \node (A) at (0,0)  {
    \definecolor{lightcyan}{rgb}{0.84,1,1}
@@ -1092,9 +1092,9 @@ It is interesting to analyze how an ALG modifies a packet that carries such a ``
    \definecolor{lightred}{rgb}{1,0.7,0.71}
    \begin{bytefield}{32}
    \bitheader{0-31}\\
-   \bitbox{4}{Version} &  \bitbox{4}{IHL} & \bitbox{6}{DSCP} & \bitbox{2}{\tiny ECN} & \bitbox{16}{len=66}  \\
+   \bitbox{4}{Ver} &  \bitbox{4}{IHL} & \bitbox{6}{DSCP} & \bitbox{2}{\tiny ECN} & \bitbox{16}{len=66}  \\
    \bitbox{16}{Identification} & \bitbox{3}{\tiny Flags} & \bitbox{13}{Offset} \\
-   \bitbox{8}{Time To Live} & \bitbox{8}{Protocol} & \bitbox{16}{IP Checksum} \\
+   \bitbox{8}{TTL} & \bitbox{8}{Protocol} & \bitbox{16}{IP Checksum} \\
    \bitbox{32}[bgcolor=lightcyan]{192.168.0.37} \\
    \bitbox{32}{193.190.198.27} \\
    \bitbox{16}[bgcolor=lightcyan]{57258} &  \bitbox{16}{21} \\
@@ -1117,7 +1117,7 @@ The ``PORT 192,168,0,37,133,67`` indicates that the client listens on IP address
    
 
 .. _fig-mptcp-ip4tcp-ftp-port2: 
-.. tikz:: Packet carrying PORT command modified by the FTP ALG used by a NAT
+.. tikz:: Packet carrying a PORT command modified by the FTP ALG used by a NAT
 
    \node (A) at (0,0)  {
    \definecolor{lightcyan}{rgb}{0.84,1,1}
@@ -1125,9 +1125,9 @@ The ``PORT 192,168,0,37,133,67`` indicates that the client listens on IP address
    \definecolor{lightred}{rgb}{1,0.7,0.71}
    \begin{bytefield}{32}
    \bitheader{0-31}\\
-   \bitbox{4}{Version} &  \bitbox{4}{IHL} & \bitbox{6}{DSCP} & \bitbox{2}{\tiny ECN} & \bitbox{16}[bgcolor=lightred]{len=61}  \\
+   \bitbox{4}{Ver} &  \bitbox{4}{IHL} & \bitbox{6}{DSCP} & \bitbox{2}{\tiny ECN} & \bitbox{16}[bgcolor=lightred]{len=61}  \\
    \bitbox{16}{Identification} & \bitbox{3}{\tiny Flags} & \bitbox{13}{Offset} \\
-   \bitbox{8}[bgcolor=lightred]{Time To Live} & \bitbox{8}{Protocol} & \bitbox{16}[bgcolor=lightred]{IP Checksum} \\
+   \bitbox{8}[bgcolor=lightred]{TTL} & \bitbox{8}{Protocol} & \bitbox{16}[bgcolor=lightred]{IP Checksum} \\
    \bitbox{32}[bgcolor=lightred]{5.6.7.8} \\
    \bitbox{32}{193.190.198.27} \\
    \bitbox{16}[bgcolor=lightred]{57258} &  \bitbox{16}{21} \\
@@ -1161,9 +1161,9 @@ Modern network adapters support TCP Segmentation Offload (TSO) to improve the th
    \definecolor{lightred}{rgb}{1,0.7,0.71}
    \begin{bytefield}{32}
    \bitheader{0-31}\\
-   \bitbox{4}{Version} &  \bitbox{4}{IHL} & \bitbox{6}{DSCP} & \bitbox{2}{\tiny ECN} & \bitbox{16}[bgcolor=lightred]{Length=2040}  \\
+   \bitbox{4}{Ver} &  \bitbox{4}{IHL} & \bitbox{6}{DSCP} & \bitbox{2}{\tiny ECN} & \bitbox{16}[bgcolor=lightred]{Length=2040}  \\
    \bitbox{16}[bgcolor=lightred]{Identification} & \bitbox{3}{\tiny Flags} & \bitbox{13}{Offset} \\
-   \bitbox{8}{Time To Live} & \bitbox{8}{Protocol} & \bitbox{16}[bgcolor=lightred]{IP Checksum} \\
+   \bitbox{8}{TTL} & \bitbox{8}{Protocol} & \bitbox{16}[bgcolor=lightred]{IP Checksum} \\
    \bitbox{32}{Source Address} \\
    \bitbox{32}{Destination Address} \\
    \bitbox{16}{Source Port} &  \bitbox{16}{Destination Port} \\
@@ -1213,7 +1213,7 @@ The protocol details
    \node (A) at (0,0)  {	  
    \begin{bytefield}{32}
    \bitheader{0-31}\\
-   \bitbox{8}{Kind} & \bitbox{8}{Length=12} & \bitbox{4}{Subtype} & \bitbox{3}{rsv} & \bitbox{1}{B} & \bitbox{8}{Address ID} \\
+   \bitbox{8}{Kind} & \bitbox{8}{Length=12} & \bitbox{4}{0x1} & \bitbox{3}{rsv} & \bitbox{1}{B} & \bitbox{8}{Address ID} \\
    \bitbox{32}{Receiver's token} \\
    \bitbox{32}{Sender's random nonce} \\
    \end{bytefield}
@@ -1225,7 +1225,7 @@ The protocol details
    \node (A) at (0,0)  {	  
    \begin{bytefield}{32}
    \bitheader{0-31}\\
-   \bitbox{8}{Kind} & \bitbox{8}{Length=12} & \bitbox{4}{Subtype} & \bitbox{3}{rsv} & \bitbox{1}{B} & \bitbox{8}{Address ID} \\
+   \bitbox{8}{Kind} & \bitbox{8}{Length=12} & \bitbox{4}{0x1} & \bitbox{3}{rsv} & \bitbox{1}{B} & \bitbox{8}{Address ID} \\
    \wordbox{2}{Sender's truncated HMAC\\64 bits} \\
    \bitbox{32}{Sender's random nonce} \\
    \end{bytefield}
@@ -1236,7 +1236,7 @@ The protocol details
    \node (A) at (0,0)  {	  
    \begin{bytefield}{32}
    \bitheader{0-31}\\
-   \bitbox{8}{Kind} & \bitbox{8}{Length=12} & \bitbox{4}{Subtype} & \bitbox{3}{rsv} & \bitbox{1}{B} & \bitbox{8}{Address ID} \\
+   \bitbox{8}{Kind} & \bitbox{8}{Length=12} & \bitbox{4}{0x1} & \bitbox{3}{rsv} & \bitbox{1}{B} & \bitbox{8}{Address ID} \\
    \wordbox{5}{Sender's truncated HMAC\\160 bits} \\
    \end{bytefield}
    };
@@ -1247,7 +1247,7 @@ The protocol details
    \node (A) at (0,0)  {	  
    \begin{bytefield}{32}
    \bitheader{0-31}\\
-   \bitbox{8}{Kind} & \bitbox{8}{Length=12} & \bitbox{4}{Subtype} & \bitbox{7}{reserved} & \bitbox{1}{F} & \bitbox{1}{m} & \bitbox{1}{M} & \bitbox{1}{a} & \bitbox{1}{A} \\
+   \bitbox{8}{Kind} & \bitbox{8}{Length=12} & \bitbox{4}{0x2} & \bitbox{7}{reserved} & \bitbox{1}{\tiny{F}} & \bitbox{1}{\tiny{m}} & \bitbox{1}{\tiny{M}} & \bitbox{1}{\tiny{a}} & \bitbox{1}{\tiny{A}} \\
    \bitbox{32}{Data ACK (4 or 8 bytes)}\\
    \bitbox{32}{Data Sequence Number (4 or 8 bytes)}\\
    \bitbox{32}{Subflow Sequence Number (4 or 8 bytes)}\\
@@ -1260,7 +1260,7 @@ The protocol details
 
    \node (A) at (0,0)  {
    \begin{bytefield}{32}
-   \bitbox{8}{Kind} & \bitbox{8}{Length} & \bitbox{4}{Subtype} & \bitbox{3}{rsv} & \bitbox{1}{B} \\
+   \bitbox{8}{Kind} & \bitbox{8}{Length} & \bitbox{4}{0x5} & \bitbox{3}{rsv} & \bitbox{1}{B} \\
    \end{bytefield}
    };      
 
@@ -1270,7 +1270,7 @@ The protocol details
    \node (A) at (0,0)  {	  
    \begin{bytefield}{32}
    \bitheader{0-31}\\
-   \bitbox{8}{Kind} & \bitbox{8}{Length} & \bitbox{4}{Subtype} & \bitbox{3}{rsv} & \bitbox{1}{E} & \bitbox{8}{Address ID} \\
+   \bitbox{8}{Kind} & \bitbox{8}{Length} & \bitbox{4}{0x3} & \bitbox{3}{rsv} & \bitbox{1}{E} & \bitbox{8}{Address ID} \\
    \bitbox{32}{IP address (16 bytes for IPv6)}\\
    \bitbox{16}{Port (2 bytes, opt.)} & \bitbox[lrt]{16}{} \\
    \bitbox[lr]{32}{Truncated HMAC (64 bits if E=0)}\\
@@ -1283,7 +1283,7 @@ The protocol details
 
    \node (A) at (0,0)  {	  
    \begin{bytefield}{32}
-   \bitbox{8}{Kind} & \bitbox{8}{Length=3+n} & \bitbox{4}{Subtype} & \bitbox{4}{rsv} & \bitbox{8}{Address ID}\bitbox[]{2}{...} \\
+   \bitbox{8}{Kind} & \bitbox{8}{Length=3+n} & \bitbox{4}{0x4} & \bitbox{4}{rsv} & \bitbox{8}{Address ID}\bitbox[]{2}{...} \\
    \end{bytefield}
    };         
    
@@ -1294,7 +1294,7 @@ The protocol details
    \begin{bytefield}{32}
    \bitheader{0-31}\\
    \bitbox{8}{Kind}  
-   \bitbox{8}{Length} & \bitbox{4}{Subtype} & \bitbox{4}{Version} & \bitbox{1}{A} &  \bitbox{1}{B}  &  \bitbox{1}{C}  &  \bitbox{1}{D}  &  \bitbox{1}{E}  &  \bitbox{1}{F}  &  \bitbox{1}{G}  &  \bitbox{1}{H} \\
+   \bitbox{8}{Length} & \bitbox{4}{0x0} & \bitbox{4}{Ver} & \bitbox{1}{\tiny{A}} &  \bitbox{1}{\tiny{B}}  &  \bitbox{1}{\tiny{C}}  &  \bitbox{1}{\tiny{D}}  &  \bitbox{1}{\tiny{E}}  &  \bitbox{1}{\tiny{F}}  &  \bitbox{1}{\tiny{G}}  &  \bitbox{1}{H} \\
    \end{bytefield}
    };
 
@@ -1305,7 +1305,7 @@ The protocol details
    \begin{bytefield}{32}
    \bitheader{0-31}\\
    \bitbox{8}{Kind}  
-   \bitbox{8}{Length} & \bitbox{4}{Subtype} & \bitbox{4}{Version} & \bitbox{1}{A} &  \bitbox{1}{B}  &  \bitbox{1}{C}  &  \bitbox{1}{D}  &  \bitbox{1}{E}  &  \bitbox{1}{F}  &  \bitbox{1}{G}  &  \bitbox{1}{H} \\
+   \bitbox{8}{Length} & \bitbox{4}{0x0} & \bitbox{4}{Ver} & \bitbox{1}{\tiny{A}} &  \bitbox{1}{\tiny{B}}  &  \bitbox{1}{\tiny{C}}  &  \bitbox{1}{\tiny{D}}  &  \bitbox{1}{\tiny{E}}  &  \bitbox{1}{\tiny{F}}  &  \bitbox{1}{\tiny{G}}  &  \bitbox{1}{H} \\
    \wordbox{2}{Sender's key (key) (64 bits)} \\
    \end{bytefield}
    };
@@ -1316,7 +1316,7 @@ The protocol details
    \begin{bytefield}{32}
    \bitheader{0-31}\\
    \bitbox{8}{Kind}  
-   \bitbox{8}{Length} & \bitbox{4}{Subtype} & \bitbox{4}{Version} & \bitbox{1}{A} &  \bitbox{1}{B}  &  \bitbox{1}{C}  &  \bitbox{1}{D}  &  \bitbox{1}{E}  &  \bitbox{1}{F}  &  \bitbox{1}{G}  &  \bitbox{1}{H} \\
+   \bitbox{8}{Length} & \bitbox{4}{0x0} & \bitbox{4}{Ver} & \bitbox{1}{\tiny{A}} &  \bitbox{1}{\tiny{B}}  &  \bitbox{1}{\tiny{C}}  &  \bitbox{1}{\tiny{D}}  &  \bitbox{1}{\tiny{E}}  &  \bitbox{1}{\tiny{F}}  &  \bitbox{1}{\tiny{G}}  &  \bitbox{1}{H} \\
    \wordbox{2}{Sender's key (key) (64 bits)} \\
    \wordbox{2}{Receiver's key (key) (64 bits)} \\
    \end{bytefield}
@@ -1329,7 +1329,7 @@ The protocol details
    \begin{bytefield}{32}
    \bitheader{0-31}\\
    \bitbox{8}{Kind}  
-   \bitbox{8}{Length} & \bitbox{4}{Subtype} & \bitbox{4}{Version} & \bitbox{1}{A} &  \bitbox{1}{B}  &  \bitbox{1}{C}  &  \bitbox{1}{D}  &  \bitbox{1}{E}  &  \bitbox{1}{F}  &  \bitbox{1}{G}  &  \bitbox{1}{H} \\
+   \bitbox{8}{Length} & \bitbox{4}{0x0} & \bitbox{4}{Ver} & \bitbox{1}{\tiny{A}} &  \bitbox{1}{\tiny{B}}  &  \bitbox{1}{\tiny{C}}  &  \bitbox{1}{\tiny{D}}  &  \bitbox{1}{\tiny{E}}  &  \bitbox{1}{\tiny{F}}  &  \bitbox{1}{\tiny{G}}  &  \bitbox{1}{H} \\
    \wordbox{2}{Sender's key (key) (64 bits)} \\
    \wordbox{2}{Receiver's key (key) (64 bits)} \\
    \bitbox{16}{Data-level length} & \bitbox{16}{Checksum (optional)}
@@ -1345,7 +1345,7 @@ The protocol details
    \node (A) at (0,0)  {
    \begin{bytefield}{32}
    \bitheader{0-31}\\
-   \bitbox{8}{Kind} & \bitbox{8}{Length} & \bitbox{4}{Subtype} & \bitbox{1}{U} & \bitbox{1}{V} \bitbox{1}{W} \bitbox{1}{T} & \bitbox{8}{Reason} \\
+   \bitbox{8}{Kind} & \bitbox{8}{Length} & \bitbox{4}{0x8} & \bitbox{1}{\tiny{U}} & \bitbox{1}{\tiny{V}} \bitbox{1}{\tiny{W}} \bitbox{1}{\tiny{T}} & \bitbox{8}{Reason} \\
    \wordbox{2}{Receiver's key \\ 64 bits} \\
    \end{bytefield}
    };   
@@ -1356,7 +1356,7 @@ The protocol details
    \node (A) at (0,0)  {	  
    \begin{bytefield}{32}
    \bitheader{0-31}\\
-   \bitbox{8}{Kind} & \bitbox{8}{Length} & \bitbox{4}{Subtype} & \bitbox{12}{reserved} \\
+   \bitbox{8}{Kind} & \bitbox{8}{Length} & \bitbox{4}{0x7} & \bitbox{12}{reserved} \\
    \wordbox{2}{Receiver's key \\ 64 bits} \\
    \end{bytefield}
    }; 
