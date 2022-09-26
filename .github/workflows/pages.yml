@@ -13,7 +13,7 @@ jobs:
     - name: Install enchant
       run: sudo apt-get install python3-enchant
     - name: Sphinx contrib
-      run: sudo pip3 install sphinxcontrib-spelling sphinxcontrib-bibtex sphinxcontrib-tikz matplotlib==3.4.0 sphinx==3.5.4
+      run: sudo pip3 install sphinxcontrib-spelling sphinxcontrib-bibtex sphinxcontrib-tikz matplotlib==3.4.0 sphinx==4.3.2
     - name: Checkout
       uses: actions/checkout@master
       with:
