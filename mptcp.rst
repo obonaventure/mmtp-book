@@ -767,7 +767,7 @@ The example of :numref:`fig-mptcp-dss-concept2` showed how Multipath TCP copes w
 
 .. _fig-mptcp-dss-concept3:
 .. tikz:: Multipath TCP copes with subflow failures 
-   :libs: positioning, matrix, arrows.meta math
+   :libs: positioning, matrix, arrows.meta, math
 
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=11; }
    
