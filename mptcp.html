@@ -223,96 +223,14 @@
 <span id="fig-mptcp-dss-concept2"></span><p><img  src="_images/tikz-0f068d2388a2e1a4998a4b84dc6cbcde58016c5a.png" alt="Figure made with TikZ" /></p>
 <p class="caption"><span class="caption-number">Fig. 52 </span><span class="caption-text">Multipath TCP copes with packet losses</span></p>
 </div><p>The example of <a class="reference internal" href="#fig-mptcp-dss-concept2"><span class="std std-numref">Fig. 52</span></a> showed how Multipath TCP copes with packet losses. These are frequent events on a TCP connection. A Multipath TCP only needs to cope with the loss of an entire subflow. Consider the same example as above, but the initial subflow was established over a Wi-Fi interface that stops shortly after the reception of the acknowledgment for the second data packet. The client detects the problem and sends a <code class="docutils literal notranslate"><span class="pre">REMOVE_ADDR</span></code> over the second subflow. It also retransmits the first packet that had not been acknowledged, but this time over the second subflow.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=11; }
-
-\tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
-\tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-\node [black, fill=white] at (\c1,\max+0.5) {Client};
-\node [black, fill=white] at (\s1,\max+0.5) {Server};
-
-\draw[blue,very thick,-&gt;] (\c1,\max-0.5) -- (\c1,0.5);
-\draw[black,very thick,-&gt;] (\s1,\max-0.5) -- (\s1,0.5);
-\draw[red,very thick,-&gt;] (\c2,\max-0.5) -- (\c2,0.5);
-
-
-\tikzmath{\y=\max-1;}
-
-
-\draw[blue,thick, -Circle] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {[seq=x+1]\small{DS[s=0]} &quot;A&quot;};
-
-\draw[red,thick, -&gt;] (\c2,\y-2) -- (\s1,\y-3) node [midway, align=left, fill=white] {[seq=w+1]\small{DS[s=1]} &quot;B&quot;};
-\draw[red,thick, -&gt;] (\s1,\y-3) -- (\c2,\y-4) node [midway, align=left, fill=white] {ACK [ack=w+2]\small{DS[a=0]}};
-\draw[blue,thick, -&gt;] (\c1,\y-4) -- (\s1,\y-5) node [midway, align=left, fill=white] {[seq=x+2]\small{DS[s=2]} &quot;C&quot;};
-\draw[blue,thick, -&gt;] (\s1,\y-5) -- (\c1,\y-6) node [midway, align=left, fill=white] {ACK [ack=x+1]\small{DS[a=0]}};
-
-\draw[red,thick, -&gt;] (\c2,\y-6.5) -- (\s1,\y-7.5) node [midway, align=left, fill=white] {\small{REMODE\_ADDR[id=0]}};
-
-\draw[red,thick, -&gt;] (\c2,\y-7) -- (\s1,\y-8) node [midway, align=left, fill=white] {[seq=w+2]\small{DS[s=0]} &quot;A&quot;};
-\draw[red,thick, -&gt;] (\s1,\y-8) -- (\c2,\y-9) node [midway, align=left, fill=white] {ACK [ack=w+3]\small{DS[a=3]}};</span>)</p>
-<p>! Package tikz Error: I did not find the tikz library 'arrows.metamath'. I look
-ed for files named tikzlibraryarrows.metamath.code.tex and pgflibraryarrows.met
-amath.code.tex, but neither could be found in the current texmf trees..
-
-See the tikz package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.6 ...library{positioning,matrix,arrows.metamath}
-                                                  
-(/usr/share/texlive/texmf-dist/tex/generic/ulem/ulem.sty)
-(/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdfmode.def)
-No file tikz-98ba3d103ab55e0db634c83e95ba913bbf854245.aux.
-ABD: EveryShipout initializing macros
-(/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
-[Loading MPS to PDF converter (version 2006.09.02).]
-) (/usr/share/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
-(/usr/share/texlive/texmf-dist/tex/generic/infwarerr/infwarerr.sty)
-(/usr/share/texlive/texmf-dist/tex/latex/grfext/grfext.sty
-(/usr/share/texlive/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty))
-(/usr/share/texlive/texmf-dist/tex/latex/kvoptions/kvoptions.sty
-(/usr/share/texlive/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty)
-(/usr/share/texlive/texmf-dist/tex/generic/kvsetkeys/kvsetkeys.sty))
-(/usr/share/texlive/texmf-dist/tex/latex/pdftexcmds/pdftexcmds.sty)
-(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg))
-
-Package pgfplots Warning: running in backwards compatibility mode (unsuitable t
-ick labels; missing features). Consider writing \\pgfplotsset{compat=1.16} into 
-your preamble.
- on input line 19.
-
-! Undefined control sequence.
-&lt;recently read&gt; \\tikzmath 
-                          
-l.21 \\tikzmath
-              {\\c1=1;\\c2=1.5; \\s1=8; \\s2=8.5; \\max=11; }
-! Undefined control sequence.
-l.21 \\tikzmath{\\c1=1;\\c2=1.5; \\s
-                                1=8; \\s2=8.5; \\max=11; }
-! Undefined control sequence.
-l.21 \\tikzmath{\\c1=1;\\c2=1.5; \\s1=8; \\s
-                                       2=8.5; \\max=11; }
-! Missing $ inserted.
-&lt;inserted text&gt; 
-                $
-l.21 \\tikzmath{\\c1=1;\\c2=1.5; \\s1=8; \\s2=8.5; \\max
-                                                  =11; }
-! Extra }, or forgotten $.
-l.21 ...{\\c1=1;\\c2=1.5; \\s1=8; \\s2=8.5; \\max=11; }
-                                                  
-! TeX capacity exceeded, sorry [input stack size=5000].
-\\&#64;spaces -&gt;\\space 
-                  \\space \\space \\space 
-l.24 \
-ode [black, fill=white] at (\\c1,\\max+0.5)
-                                                 {Client};
-!  ==&gt; Fatal error occurred, no output PDF file produced!
-Transcript written on tikz-98ba3d103ab55e0db634c83e95ba913bbf854245.log.
-&quot;</p>
-</div>
+<div class="figure" id="id70" style="text-align: center">
+<span id="fig-mptcp-dss-concept3"></span><p><img  src="_images/tikz-98ba3d103ab55e0db634c83e95ba913bbf854245.png" alt="Figure made with TikZ" /></p>
 <p class="caption"><span class="caption-number">Fig. 53 </span><span class="caption-text">Multipath TCP copes with subflow failures</span></p>
 </div><p>Conceptually, a Multipath TCP implementation can be viewed as composed of a set of queues. On the sender side, the bytestream is pushed in a queue that keeps the data until it has been acknowledged at the connection level. A packet scheduler extracts blocks of data from this queue and places them with the associated date sequence numbers in the per-subflow queues that represent the sending buffers associated to each subflow. TCP uses these per-subflow queues to send the data and perform the retransmission when required. On the receiver side, there is one queue associated with each subflow. This queue corresponds to the TCP receive buffer. TCP uses this queue to reorder the received data based on their TCP sequence numbers, but does not deal with the data sequence numbers that are contained in TCP options. Once data is in-order in a subflow receive buffer, it goes in the connection-level reorder queue that uses the data sequence numbers contained in TCP options to recover the bytestream. Multipath TCP creates the data sequence acknowledgments from the data contained in this buffer. Once data is in-sequence inside this buffer, it is passed to the application through a <code class="docutils literal notranslate"><span class="pre">recv</span></code> system call.</p>
-<div class="figure" id="id71" style="text-align: center"><p><img  src="None" alt="Figure made with TikZ" /></p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">figure from slide</span>)</p>
+<p>'</p>
+</div>
 <p class="caption"><span class="caption-number">Fig. 54 </span><span class="caption-text">Architecture of a Multipath TCP implementation</span></p>
 </div></div>
 <div class="section" id="congestion-control">
