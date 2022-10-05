@@ -1,3 +1,6 @@
+.. meta::
+   :github_url: github.com/obonaventure/mmtp-book
+
 Multipath TCP
 *************
 
@@ -800,9 +803,11 @@ The example of :numref:`fig-mptcp-dss-concept2` showed how Multipath TCP copes w
 Conceptually, a Multipath TCP implementation can be viewed as composed of a set of queues. On the sender side, the bytestream is pushed in a queue that keeps the data until it has been acknowledged at the connection level. A packet scheduler extracts blocks of data from this queue and places them with the associated date sequence numbers in the per-subflow queues that represent the sending buffers associated to each subflow. TCP uses these per-subflow queues to send the data and perform the retransmission when required. On the receiver side, there is one queue associated with each subflow. This queue corresponds to the TCP receive buffer. TCP uses this queue to reorder the received data based on their TCP sequence numbers, but does not deal with the data sequence numbers that are contained in TCP options. Once data is in-order in a subflow receive buffer, it goes in the connection-level reorder queue that uses the data sequence numbers contained in TCP options to recover the bytestream. Multipath TCP creates the data sequence acknowledgments from the data contained in this buffer. Once data is in-sequence inside this buffer, it is passed to the application through a ``recv`` system call.   
 
 .. tikz:: Architecture of a Multipath TCP implementation
+   :libs: positioning, matrix, arrows.meta, math
 
+   \node (A) at (0,0)  {	  	  
    figure from slide
-
+   };
 
    
 .. todo: explain windows and flow control
