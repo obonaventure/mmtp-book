@@ -1,62 +1,46 @@
-
 <!DOCTYPE html>
-
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Multipath QUIC &#8212; Modern Multipath Transport Protocols 2022 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Multipath QUIC &mdash; Modern Multipath Transport Protocols 2022 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="SCTP" href="sctp.html" />
-    <link rel="prev" title="Multipath TCP" href="mptcp.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+    <link rel="prev" title="Multipath TCP" href="mptcp.html" /> 
+</head>
 
-  </head><body>
-  
-
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          
-
-          <div class="body" role="main">
-            
-  <div class="section" id="multipath-quic">
-<h1>Multipath QUIC<a class="headerlink" href="#multipath-quic" title="Permalink to this headline">¶</a></h1>
-<p>As the development of QUIC progressed within the IETF, academic researchers have started to explore how QUIC could be extended with multipath capabilities. The first approaches built upon Google’s version of QUIC. The first prototype was implemented inside <code class="docutils literal notranslate"><span class="pre">quic-go</span></code> <span id="id1">[<a class="reference internal" href="biblio.html#id8889" title="Quentin De Coninck and Olivier Bonaventure. Multipath quic: design and evaluation. In Proceedings of the 13th international conference on emerging networking experiments and technologies, 160–166. 2017.">69</a>]</span>. A second version of the protocol which can be easily extended using plugins was then proposed inside <code class="docutils literal notranslate"><span class="pre">picoquic</span></code> <span id="id2">[<a class="reference internal" href="biblio.html#id8897" title="Quentin De Coninck, François Michel, Maxime Piraux, Florentin Rochet, Thomas Given-Wilson, Axel Legay, Olivier Pereira, and Olivier Bonaventure. Pluginizing quic. In Proceedings of the ACM Special Interest Group on Data Communication, pages 59–74. 2019.">32</a>]</span>. An alternative approach was proposed in <span id="id3">[<a class="reference internal" href="biblio.html#id8890" title="Tobias Viernickel, Alexander Froemmgen, Amr Rizk, Boris Koldehofe, and Ralf Steinmetz. Multipath quic: a deployable multipath transport protocol. In 2018 IEEE International Conference on Communications (ICC), 1–7. IEEE, 2018.">70</a>]</span>. The most recent solutions <span id="id4">[<a class="reference internal" href="biblio.html#id8891" title="Quentin De Coninck and Olivier Bonaventure. Multiflow quic: a generic multipath transport protocol. IEEE Communications Magazine, 59(5):108–113, 2021.">71</a>, <a class="reference internal" href="biblio.html#id8898" title="Zhilong Zheng, Yunfei Ma, Yanmei Liu, Furong Yang, Zhenyu Li, Yuanbo Zhang, Jiuhai Zhang, Wei Shi, Wentao Chen, Ding Li, and others. Xlink: qoe-driven multi-path quic transport in large-scale video services. In Proceedings of the 2021 ACM SIGCOMM 2021 Conference, 418–432. 2021.">72</a>]</span> leverage the most recent QUIC specification as described in this document.</p>
-<p>Discussions within the IETF took some time to start, despite early proposals <span id="id5">[<a class="reference internal" href="biblio.html#id8896" title="Quentin De Coninck and Olivier Bonaventure. Multipath Extension for QUIC. Internet-Draft draft-deconinck-multipath-quic-00, Internet Engineering Task Force, October 2017. Work in Progress. URL: https://datatracker.ietf.org/doc/html/draft-deconinck-multipath-quic-00.">73</a>]</span>. Recently, the QUIC working group adopted <span id="id6">[<a class="reference internal" href="biblio.html#id8892" title="Yanmei Liu, Yunfei Ma, Quentin De Coninck, Olivier Bonaventure, Christian Huitema, and Mirja Kühlewind. Multipath Extension for QUIC. Internet-Draft draft-lmbdhk-quic-multipath-00, Internet Engineering Task Force, October 2021. Work in Progress. URL: https://datatracker.ietf.org/doc/html/draft-lmbdhk-quic-multipath-00.">74</a>]</span> as a starting point for the development of an IETF specification for multipath QUIC. It combines the ideas initially proposed in three different drafts <span id="id7">[<a class="reference internal" href="biblio.html#id8895" title="Yanmei Liu, Yunfei Ma, Christian Huitema, Qing An, and Zhenyu Li. Multipath Extension for QUIC. Internet-Draft draft-liu-multipath-quic-04, Internet Engineering Task Force, September 2021. Work in Progress. URL: https://datatracker.ietf.org/doc/html/draft-liu-multipath-quic-04.">75</a>, <a class="reference internal" href="biblio.html#id8893" title="Quentin De Coninck and Olivier Bonaventure. Multipath Extensions for QUIC (MP-QUIC). Internet-Draft draft-deconinck-quic-multipath-07, Internet Engineering Task Force, May 2021. Work in Progress. URL: https://datatracker.ietf.org/doc/html/draft-deconinck-quic-multipath-07.">76</a>, <a class="reference internal" href="biblio.html#id8894" title="Christian Huitema. QUIC Multipath Negotiation Option. Internet-Draft draft-huitema-quic-mpath-option-01, Internet Engineering Task Force, September 2021. Work in Progress. URL: https://datatracker.ietf.org/doc/html/draft-huitema-quic-mpath-option-01.">77</a>]</span>.</p>
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: white" >
+            <a href="index.html" class="icon icon-home"> Modern Multipath Transport Protocols
+          </a>
+              <div class="version">
+                alpha
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
-
-
-          </div>
-          
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">Modern Multipath Transport Protocols</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usecases.html">Use cases</a></li>
@@ -72,51 +56,65 @@
 <li class="toctree-l1"><a class="reference internal" href="biblio.html">Bibliography</a></li>
 </ul>
 
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="mptcp.html" title="previous chapter">Multipath TCP</a></li>
-      <li>Next: <a href="sctp.html" title="next chapter">SCTP</a></li>
-  </ul></li>
-</ul>
-</div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>$('#searchbox').show(0);</script>
-
-
-
-
-
-
-
-
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="footer">
-      &copy;2022, Olivier Bonaventure.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
-      
-      |
-      <a href="_sources/mpquic.rst.txt"
-          rel="nofollow">Page source</a>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: white" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Modern Multipath Transport Protocols</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Multipath QUIC</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/obonaventure/mmtp-book/blob/mastermpquic.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="multipath-quic">
+<h1>Multipath QUIC<a class="headerlink" href="#multipath-quic" title="Permalink to this headline"></a></h1>
+<p>As the development of QUIC progressed within the IETF, academic researchers have started to explore how QUIC could be extended with multipath capabilities. The first approaches built upon Google’s version of QUIC. The first prototype was implemented inside <code class="docutils literal notranslate"><span class="pre">quic-go</span></code> <span id="id1">[<a class="reference internal" href="biblio.html#id8889" title="Quentin De Coninck and Olivier Bonaventure. Multipath quic: design and evaluation. In Proceedings of the 13th international conference on emerging networking experiments and technologies, 160–166. 2017.">70</a>]</span>. A second version of the protocol which can be easily extended using plugins was then proposed inside <code class="docutils literal notranslate"><span class="pre">picoquic</span></code> <span id="id2">[<a class="reference internal" href="biblio.html#id8897" title="Quentin De Coninck, François Michel, Maxime Piraux, Florentin Rochet, Thomas Given-Wilson, Axel Legay, Olivier Pereira, and Olivier Bonaventure. Pluginizing quic. In Proceedings of the ACM Special Interest Group on Data Communication, pages 59–74. 2019.">33</a>]</span>. An alternative approach was proposed in <span id="id3">[<a class="reference internal" href="biblio.html#id8890" title="Tobias Viernickel, Alexander Froemmgen, Amr Rizk, Boris Koldehofe, and Ralf Steinmetz. Multipath quic: a deployable multipath transport protocol. In 2018 IEEE International Conference on Communications (ICC), 1–7. IEEE, 2018.">71</a>]</span>. The most recent solutions <span id="id4">[<a class="reference internal" href="biblio.html#id8891" title="Quentin De Coninck and Olivier Bonaventure. Multiflow quic: a generic multipath transport protocol. IEEE Communications Magazine, 59(5):108–113, 2021.">72</a>, <a class="reference internal" href="biblio.html#id8898" title="Zhilong Zheng, Yunfei Ma, Yanmei Liu, Furong Yang, Zhenyu Li, Yuanbo Zhang, Jiuhai Zhang, Wei Shi, Wentao Chen, Ding Li, and others. Xlink: qoe-driven multi-path quic transport in large-scale video services. In Proceedings of the 2021 ACM SIGCOMM 2021 Conference, 418–432. 2021.">73</a>]</span> leverage the most recent QUIC specification as described in this document.</p>
+<p>Discussions within the IETF took some time to start, despite early proposals <span id="id5">[<a class="reference internal" href="biblio.html#id8896" title="Quentin De Coninck and Olivier Bonaventure. Multipath Extension for QUIC. Internet-Draft draft-deconinck-multipath-quic-00, Internet Engineering Task Force, October 2017. Work in Progress. URL: https://datatracker.ietf.org/doc/html/draft-deconinck-multipath-quic-00.">74</a>]</span>. Recently, the QUIC working group adopted <span id="id6">[<a class="reference internal" href="biblio.html#id8892" title="Yanmei Liu, Yunfei Ma, Quentin De Coninck, Olivier Bonaventure, Christian Huitema, and Mirja Kühlewind. Multipath Extension for QUIC. Internet-Draft draft-lmbdhk-quic-multipath-00, Internet Engineering Task Force, October 2021. Work in Progress. URL: https://datatracker.ietf.org/doc/html/draft-lmbdhk-quic-multipath-00.">75</a>]</span> as a starting point for the development of an IETF specification for multipath QUIC. It combines the ideas initially proposed in three different drafts <span id="id7">[<a class="reference internal" href="biblio.html#id8895" title="Yanmei Liu, Yunfei Ma, Christian Huitema, Qing An, and Zhenyu Li. Multipath Extension for QUIC. Internet-Draft draft-liu-multipath-quic-04, Internet Engineering Task Force, September 2021. Work in Progress. URL: https://datatracker.ietf.org/doc/html/draft-liu-multipath-quic-04.">76</a>, <a class="reference internal" href="biblio.html#id8893" title="Quentin De Coninck and Olivier Bonaventure. Multipath Extensions for QUIC (MP-QUIC). Internet-Draft draft-deconinck-quic-multipath-07, Internet Engineering Task Force, May 2021. Work in Progress. URL: https://datatracker.ietf.org/doc/html/draft-deconinck-quic-multipath-07.">77</a>, <a class="reference internal" href="biblio.html#id8894" title="Christian Huitema. QUIC Multipath Negotiation Option. Internet-Draft draft-huitema-quic-mpath-option-01, Internet Engineering Task Force, September 2021. Work in Progress. URL: https://datatracker.ietf.org/doc/html/draft-huitema-quic-mpath-option-01.">78</a>]</span>.</p>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mptcp.html" class="btn btn-neutral float-left" title="Multipath TCP" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sctp.html" class="btn btn-neutral float-right" title="SCTP" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
-    
+  <hr/>
 
-    
-  </body>
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Olivier Bonaventure.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
 </html>

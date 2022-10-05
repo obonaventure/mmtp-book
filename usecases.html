@@ -1,40 +1,92 @@
-
 <!DOCTYPE html>
-
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Use cases &#8212; Modern Multipath Transport Protocols 2022 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Use cases &mdash; Modern Multipath Transport Protocols 2022 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Single path transport protocols" href="singlepath.html" />
-    <link rel="prev" title="Introduction" href="intro.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+    <link rel="prev" title="Introduction" href="intro.html" /> 
+</head>
 
-  </head><body>
-  
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: white" >
+            <a href="index.html" class="icon icon-home"> Modern Multipath Transport Protocols
+          </a>
+              <div class="version">
+                alpha
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Use cases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#improving-resilience">Improving resilience</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#improving-quality-of-experience">Improving quality of experience</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#improving-bandwidth">Improving bandwidth</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="singlepath.html">Single path transport protocols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quic.html">QUIC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="principles.html">Principles of multipath transport</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mptcp.html">Multipath TCP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpquic.html">Multipath QUIC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sctp.html">SCTP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementations.html">Multipath TCP implementations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mptcp-linux.html">Multipath TCP on recent Linux kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comparison.html">Alternatives</a></li>
+<li class="toctree-l1"><a class="reference internal" href="biblio.html">Bibliography</a></li>
+</ul>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          
+        </div>
+      </div>
+    </nav>
 
-          <div class="body" role="main">
-            
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: white" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Modern Multipath Transport Protocols</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Use cases</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/obonaventure/mmtp-book/blob/masterusecases.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
   <div class="section" id="use-cases">
-<h1>Use cases<a class="headerlink" href="#use-cases" title="Permalink to this headline">¶</a></h1>
+<h1>Use cases<a class="headerlink" href="#use-cases" title="Permalink to this headline"></a></h1>
 <div class="admonition-todo admonition" id="id1">
 <p class="admonition-title">Todo</p>
 <p>start with use cases for the transport layer</p>
@@ -81,7 +133,7 @@ The Transmission Control Protocol (TCP) <span id="id5">Postel [<a class="referen
 <p>simplified and high level model, we have two or more underlying TCP connections that use different paths and we used them to meet specific application needs</p>
 </div>
 <div class="section" id="improving-resilience">
-<h2>Improving resilience<a class="headerlink" href="#improving-resilience" title="Permalink to this headline">¶</a></h2>
+<h2>Improving resilience<a class="headerlink" href="#improving-resilience" title="Permalink to this headline"></a></h2>
 <p>One of the first large scale deployment of Multipath TCP was done by Apple.
 Shortly after the publication of the Multipath TCP specification <span id="id13">[<a class="reference internal" href="biblio.html#id6658" title="A. Ford, C. Raiciu, M. Handley, and O. Bonaventure. TCP Extensions for Multipath Operation with Multiple Addresses. RFC 6824 (Experimental), January 2013. Obsoleted by RFC 8684. URL: https://www.rfc-editor.org/rfc/rfc6824.txt, doi:10.17487/RFC6824.">9</a>]</span>, Apple launched iOS13. This new version added Multipath TCP support for the Siri application. Siri is Apple’s voice assistant. Siri enables users to speak to their phone. In a nutshell, Siri detects that the user is talking to it using a special word, then it simply records the sound and sends it to a server managed by Apple over HTTPS. The server analyzes the received
 voice samples, extracts the command and return a response to the smartphone. Initially, this service was running over regular TCP, but Apple noticed that
@@ -104,7 +156,7 @@ This path manager implements a <cite>make before break</cite> approach to handov
 </div>
 </div>
 <div class="section" id="improving-quality-of-experience">
-<h2>Improving quality of experience<a class="headerlink" href="#improving-quality-of-experience" title="Permalink to this headline">¶</a></h2>
+<h2>Improving quality of experience<a class="headerlink" href="#improving-quality-of-experience" title="Permalink to this headline"></a></h2>
 <p>Another important use case for Multipath TCP on smartphones is to improve quality of experience. Smartphones can use either Wi-Fi or cellular. There are conditions where cellular provides better performance than Wi-Fi and the opposite is true. Initially, the smartphones preferred Wi-Fi over cellular because Wi-Fi was usually faster and cheaper. The situation changed as cellular network operators deployed 4G and now 5G and offered unlimited data plans. For many users, prioritizing Wi-Fi over cellular is not a requirement anymore. Given that there is no monetary incentive, when should a smartphone use Wi-Fi or cellular ? The answer depends on the current performance of the cellular or Wi-Fi network. There are many situations where a smartphone can use both Wi-Fi or cellular and they provide different performance. Here are a few classical examples. Consider a smartphone who is attached to a Wi-Fi network in a pub that is attached to a low bandwidth ADSL Internet access. While the Wi-Fi signal can be perfect from a radio viewpoint, the end-to-end performance can be very weak due to congestion on the ADSL link. In this case, the smartphone should provide use the cellular network to provide a good user experience. Another example is a smartphone in a company meeting room. The enterprise buildings are far from the cellular base station but the enterprise Wi-Fi is strong. In this case, the smartphone should probably use the Wi-Fi network. Between these two extremes, there are many situations where one network provides better performance than the other, possibly during short periods of time, e.g. due to congestion with other users, due to user mobility, …</p>
 <p>A typical use case are interactive applications such as a map. When a user interacts with such an application, she expects that her gestures will immediately move the map shown on the screen and that any request for a path will be answered immediately. For such an application, the path manager would establish a connection over both networks. The two connections will always be active. TCP’s congestion control scheme automatically measures the performance of the two connections (delay, bandwidth, …) every time they are used to send data. The packet scheduler would then prefer the connection having the smallest delay and would switch from one connection to another if data needs to be retransmitted or delay becomes too high. As an example, Apple’s interactive policy prefers the Wi-Fi network as long as its delay is lower than 250 msec. If the delay increases too much, it switches automatically to cellular.</p>
 <p>Music and video streaming are another example of a smartphone application that can leverage Multipath TCP when the quality of the Wi-Fi and cellular connections varies. These applications require a regular throughput to stream the music or the video from a server. When a user moves, the quality of the radio signal changes as she moves away from the antenna. In parallel, congestion caused by traffic from other users in the same network can decrease the available throughput. A path manager would support such an application by establishing a connection over both networks. The packet scheduler could initially prefer the Wi-Fi connection that is supposed to be cheaper, but it would monitor the average throughput. If the throughput drops below the bandwidth required to stream the music or the video, then it would start to use the other connection to transmit additional data.</p>
@@ -114,7 +166,7 @@ This path manager implements a <cite>make before break</cite> approach to handov
 </div>
 </div>
 <div class="section" id="improving-bandwidth">
-<h2>Improving bandwidth<a class="headerlink" href="#improving-bandwidth" title="Permalink to this headline">¶</a></h2>
+<h2>Improving bandwidth<a class="headerlink" href="#improving-bandwidth" title="Permalink to this headline"></a></h2>
 <p>The previous sections have described use cases where Multipath TCP manages the utilization of networks that have enough capacity to support the applications. However, there are situations where a single network connection is not sufficient.</p>
 <p>A first example concerns Internet access in rural areas. Several Internet access technologies are used to provide Internet access to home users and small enterprise networks: fiber, cable, xDSL, fixed wireless access and even satellite. Optical fiber provides the highest throughput, but its deployment cost increases with the distance. Today, it becomes economically feasible to deploy optical fibers in cities. However, the economic factors prevent a wide deployment of optical fibers in rural areas where the distance that needs to be covered to connect a single household is too high. Cable is a bit cheaper than fiber, but usually mainly deployed in cities. xDSL is already deployed in many rural areas since it relies on the telephone lines that have been installed decades ago. Unfortunately, these telephone lines are long and the bandwidth of an xDSL link decreases with the distance. Many users in rural areas are left with bandwidth of 10 Mbps or less. Satellites provided an alternative for isolated rural areas. However, the first deployment were based on geostationary satellites that cover a wide geographical area, but suffer from a high delay. Recently, companies such as Starlink started to deploy LEO satellites to serve rural areas. These satellites provide much lower delays compared to the geostationary ones.</p>
 <p>Wireless is another option to server rural areas. Some operators have started to deploy Fixed Wireless Access networks. These rely on 4G, 5G or other technologies to serve all the households in the geographical area covered by the antennas. Depending on the population density, this typically requires to increase the capacity of the cellular network since the a household uses much more data than the average mobile user. To cope with this problem, some operators combine xDSL and cellular. In this case, the xDSL network is preferred and the cellular network is used when there is not enough capacity on the fixed network. Different hybrid network solutions have been deployed. One approach leverages Multipath TCP. In this case, two Multipath TCP proxies are used: one in the hybrid CPE and one in a server called the Hybrid Access Gateway (HAG) that is managed by the network provider. The interactions between the enduser device, the HCPE, the HAG and the final server are described in the figure below.</p>
@@ -135,88 +187,34 @@ This path manager implements a <cite>make before break</cite> approach to handov
 </div>
 
 
+           </div>
           </div>
-          
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="intro.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="singlepath.html" class="btn btn-neutral float-right" title="Single path transport protocols" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Olivier Bonaventure.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">Modern Multipath Transport Protocols</a></h1>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
 
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Use cases</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#improving-resilience">Improving resilience</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#improving-quality-of-experience">Improving quality of experience</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#improving-bandwidth">Improving bandwidth</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="singlepath.html">Single path transport protocols</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quic.html">QUIC</a></li>
-<li class="toctree-l1"><a class="reference internal" href="principles.html">Principles of multipath transport</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mptcp.html">Multipath TCP</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mpquic.html">Multipath QUIC</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sctp.html">SCTP</a></li>
-<li class="toctree-l1"><a class="reference internal" href="implementations.html">Multipath TCP implementations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mptcp-linux.html">Multipath TCP on recent Linux kernels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="comparison.html">Alternatives</a></li>
-<li class="toctree-l1"><a class="reference internal" href="biblio.html">Bibliography</a></li>
-</ul>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="intro.html" title="previous chapter">Introduction</a></li>
-      <li>Next: <a href="singlepath.html" title="next chapter">Single path transport protocols</a></li>
-  </ul></li>
-</ul>
-</div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>$('#searchbox').show(0);</script>
-
-
-
-
-
-
-
-
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="footer">
-      &copy;2022, Olivier Bonaventure.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
-      
-      |
-      <a href="_sources/usecases.rst.txt"
-          rel="nofollow">Page source</a>
-    </div>
-
-    
-
-    
-  </body>
+</body>
 </html>
