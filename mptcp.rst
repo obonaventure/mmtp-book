@@ -856,7 +856,7 @@ A TCP connection starts with a three-way handshake and ends with either the exch
 
 .. _fig-mptcp-close:
 .. tikz:: Graceful termination of a Multipath TCP connection 
-   :libs: positioning, matrix, arrows, arrows.meta math
+   :libs: positioning, matrix, arrows, arrows.meta, math
 
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
    
@@ -890,7 +890,7 @@ The first solution is to send the ``FAST_CLOSE`` option inside an ``ACK``. Upon 
 
 .. _fig-mptcp-fastclose-a:
 .. tikz:: Abrupt release of a Multipath TCP connection by sending FAST_CLOSE inside an ACK
-   :libs: positioning, matrix, arrows, arrows.meta math
+   :libs: positioning, matrix, arrows, arrows.meta, math
 
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
    
@@ -916,7 +916,7 @@ The first solution is to send the ``FAST_CLOSE`` option inside an ``ACK``. Upon 
 
 .. _fig-mptcp-fastclose-b:
 .. tikz:: Abrupt release of a Multipath TCP connection by sending a RST with FAST_CLOSE on all subflows
-   :libs: positioning, matrix, arrows, arrows.meta math
+   :libs: positioning, matrix, arrows, arrows.meta, math
 
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
    

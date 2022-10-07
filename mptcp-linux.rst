@@ -9,7 +9,7 @@ To illustrate Multipath TCP, we use a very simple setup with a Linux client usin
 
 .. todo add figure
 
-.. spelling::
+.. spelling:word-list::
    netcat
    Netcat
    
@@ -49,7 +49,7 @@ Netcat allows to easily launch clients and servers. We start the server using: `
 
 There are several ways to check that Multipath TCP is used for this connection. First, the ``ss`` command provides information about the status of the different sockets.
 
-.. spelling::
+.. spelling:word-list::
 
    snd_una
    rcv
@@ -173,7 +173,7 @@ By default, Linux creates the two following default routes.
    
 We need to configure the routing tables to be able to use the two interfaces simultaneously. For this, we need to ensure that packets with source address ``192.168.0.37`` are sent over the ``enp2s0`` interface while packets with source address ``192.168.0.43`` are sent over the ``wlp3s0`` interface. This can be achieved using two different routing tables.
 
-.. spelling::
+.. spelling:word-list::
 
    ip
 
@@ -381,7 +381,7 @@ Remember that if you want to create subflows using IPv6 addresses, you also need
 Analyzing the output of ss
 --------------------------
 
-.. spelling::
+.. spelling:word-list::
 
    ss 
 
@@ -390,6 +390,6 @@ Analyzing the output of nstat
 -----------------------------
 
 
-.. spelling::
+.. spelling:word-list::
 
    nstat
