@@ -10,10 +10,8 @@ jobs:
       run: sudo apt-get install latexmk
     - name: Install netpbm
       run: sudo apt-get  install netpbm poppler-utils imagemagick
-    - name: Install enchant
-      run: sudo apt-get install python3-enchant
     - name: Sphinx contrib
-      run: sudo pip3 install sphinxcontrib-spelling sphinxcontrib-bibtex sphinxcontrib-tikz matplotlib==3.4.0 sphinx==4.3.2 sphinx_rtd_theme
+      run: sudo pip3 install pyenchant docutils==0.18 sphinxcontrib-spelling sphinxcontrib-bibtex sphinxcontrib-tikz matplotlib==3.4.0 sphinx==4.3.2 sphinx_rtd_theme
     - name: Checkout
       uses: actions/checkout@master
       with:
