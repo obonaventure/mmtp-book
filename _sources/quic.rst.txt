@@ -248,20 +248,21 @@ Internet protocol specifications usually contain figures to represent the format
    TCP Header Packet {
      Source Port (16),
      Destination Port (16),
-	 Sequence Number (32),
+     Sequence Number (32),
      Acknowledgment Number (32),
-	 Offset (4),
-	 Reserved (6),
-	 Urgent Flag (1),
-	 ACK Flag (1),
-	 Push Flag (1),
-	 RST Flag (1),
-	 SYN Flag (1),
-	 FIN Flag(1),
-	 Window (16),
-	 TCP Checksum (16),
-	 Urgent Pointer (16)
-	 }
+     Offset (4),
+     Reserved (6),
+     Urgent Flag (1),
+     ACK Flag (1),
+     Push Flag (1),
+     RST Flag (1),
+     SYN Flag (1),
+     FIN Flag(1),
+     Window (16),
+     TCP Checksum (16),
+     Urgent Pointer (16),
+     TCP Options (..)
+   }
    
 The attentive reader will easily understand the correspondence between the two formats. When explaining QUIC, we use the textual representation while we stick to the graphical one for TCP.
 	 
@@ -274,29 +275,29 @@ The attentive reader will easily understand the correspondence between the two f
    :name: fig-quic-long-header
 
    Long Header Packet {
-     Header Form (1) = 1,                  # high order bit of the first byte
-     Fixed Bit (1) = 1,                    # second order bit of the first byte
-     Long Packet Type (2),                 # third and fourth high order bits of the first byte
-     Type-Specific Bits (4),               # low order four bits of the first byte
-     Version (32),                         # 32 bits version number
-     Destination Connection ID Length (8), # 8 bits 
-     Destination Connection ID (0..160),   # variable number from 0 up to 160 bits
+     Header Form (1) = 1,                  /* high order bit of the first byte */
+     Fixed Bit (1) = 1,                    /* second order bit of the first byte */
+     Long Packet Type (2),                 /* third and fourth high order bits of the first byte */
+     Type-Specific Bits (4),               /* low order four bits of the first byte */
+     Version (32),                         /* 32 bits version number */
+     Destination Connection ID Length (8), /* 8 bits */
+     Destination Connection ID (0..160),   /* variable number from 0 up to 160 bits */
      Source Connection ID Length (8),
      Source Connection ID (0..160),
-     Type-Specific Payload (..),           # variable length
+     Type-Specific Payload (..),           /* variable length */
    }
 
 
 .. note:: Encoding packet numbers
 
-   Most transport protocols use fixed fields to encode packet numbers or byte offsets. The size of this field is always a trade-off. On one hand, a small packet number field limits the per packet overhead. On the other hand, a large packet number space is required to ensure that two packets carrying different data don't use the same packet number. TCP uses a 32 bits sequence number field that indicates the position of the first byte of the payload in the bytestream. This 32 bits field became a concern as bandwidth increased to Gbps and beyond. Modern TCP implementations use the timestamp option :cite:`rfc1323` to enable a receiver to detect duplicates.
+   Most transport protocols use fixed fields to encode packet numbers or byte offsets. The size of this field is always a trade-off. On one hand, a small packet number field limits the per packet overhead. On the other hand, a large packet number space is required to ensure that two packets carrying different data do not use the same packet number. TCP uses a 32 bits sequence number field that indicates the position of the first byte of the payload in the bytestream. This 32 bits field became a concern as bandwidth increased to Gbps and beyond :cite:`rfc7323`.
 
-   QUIC takes a different approach to sequence numbers. Each packet contains a per-packet sequence number. This number is encoded as a variable-length integer (``varint``). Such a ``varint`` has a length encoded in the two most significant bits of the first byte. If these bits are set to ``00``, then the ``varint`` is encoded in one byte and can contain values between :math:`0` and :math:`2^{6}-1`.  If the two most significant bits are set to ``01``, the ``varint`` can encode values :math:`0` and :math:`2^{14}-1` within two bytes. When the two high order bits are set to ``11`` the ``varint`` can encode values :math:`0` and :math:`2^{62}-1` within four bytes.
+   QUIC takes a different approach to sequence numbers. Each packet contains a per-packet sequence number. This number is encoded as a variable-length integer (``varint``). Such a ``varint`` has a length encoded in the two most significant bits of the first byte. If these bits are set to ``00``, then the ``varint`` is encoded in one byte and can contain values between :math:`0` and :math:`2^{6}-1`.  If the two most significant bits are set to ``01``, the ``varint`` can encode values between :math:`0` and :math:`2^{14}-1` within two bytes. When the two high order bits are set to ``11`` the ``varint`` can encode values between :math:`0` and :math:`2^{62}-1` within four bytes.
 
-   There are two order important between QUIC and other transport protocols when considering packet numbers. First, a QUIC sender can *never* reuse the same packet number for two different packets sent over a QUIC connection. If data needs to be retransmitted, it will be resent as a frame inside a new packet. Furthermore, since the largest possible packet number is :math:`2^{62}-1`, a QUIC sender must close the corresponding connection once it has sent a QUIC packet carrying this packet number. This puts a restriction on the duration of QUIC connections. They cannot last forever in contrast to TCP connections such as those used to support BGP sessions between routers. An application that uses QUIC must be ready to restart a connection that has failed.
+   There are other important differences between QUIC and other transport protocols when considering packet numbers. First, a QUIC sender must *never* reuse the same packet number for two different packets sent over a QUIC connection. If data needs to be retransmitted, it will be resent as a frame inside a new packet. Furthermore, since the largest possible packet number is :math:`2^{62}-1`, a QUIC sender must close the corresponding connection once it has sent a QUIC packet carrying this packet number. This puts a restriction on the duration of QUIC connections. They cannot last forever in contrast to TCP connections such as those used to support BGP sessions between routers. An application that uses QUIC must be ready to restart a connection from time to time.
 
    
-This long header is used for the ``Initial``, ``Handhsake`` and ``Retry`` packets. Some of these packet types add new flags in the first byte and additional information after the connection identifiers. :numref:`fig-quic-initial-header` shown the long header of the ``Initial`` packet. It contains two bits in the first byte that indicate the length of the packet number field. The packet specific part contains an option token, a length field, a packet number and a payload. The token length, length and and packet number are encoded using variable length integers. 
+This long header is used for the ``Initial``, ``Handhsake`` and ``Retry`` packets. Some of these packet types add new flags in the first byte and additional information after the connection identifiers. :numref:`fig-quic-initial-header` shows the long header of the ``Initial`` packet. It contains two bits in the first byte that indicate the length of the packet number field. The packet specific part contains an option token, a length field, a packet number and a payload. The token length, length and packet number are encoded using variable length integers. 
 
 
 
@@ -305,11 +306,11 @@ This long header is used for the ``Initial``, ``Handhsake`` and ``Retry`` packet
    :name: fig-quic-initial-header
 		
    Initial Packet {
-     Header Form (1) = 1,
+     Header Form (1) = 1,                   /* High order bit first byte */
      Fixed Bit (1) = 1,
      Long Packet Type (2) = 0,
      Reserved Bits (2),
-     Packet Number Length (2),
+     Packet Number Length (2),              /* Low order 2 bits of first byte */
      Version (32),
      Destination Connection ID Length (8),
      Destination Connection ID (0..160),
@@ -323,7 +324,7 @@ This long header is used for the ``Initial``, ``Handhsake`` and ``Retry`` packet
    }
 		
 
-The QUIC short header contains fewer fields. The most significant bit of the first byte indicates that the packet carries a short header. The other flags will be discussed later. The two least significant bits of this byte contain the length of the packet number field. It is interesting to note that in contrast with the long header, there is no explicit indication of the length of the destination connection identifier. This connection identifier has been assigned by the host that receives this packet and it already knows the length of the connection identifiers that it uses.  
+The QUIC short header contains fewer fields. The most significant bit of the first byte is set to 1 to indicate that the packet carries a short header. The other flags will be discussed later. The two least significant bits of this byte contain the length of the packet number field. It is interesting to note that in contrast with the long header, there is no explicit indication of the length of the destination connection identifier. This connection identifier has been assigned by the host that receives this packet and it already knows the length of the connection identifiers that it uses.  
 
 
 .. code-block:: console
@@ -331,31 +332,31 @@ The QUIC short header contains fewer fields. The most significant bit of the fir
    :name: fig-quic-short-header
 	  
    1-RTT Packet {
-      Header Form (1) = 0,
+      Header Form (1) = 0,                /* High order bit of first byte */
       Fixed Bit (1) = 1,
       Spin Bit (1),
       Reserved Bits (2),
       Key Phase (1),
-      Packet Number Length (2),
+      Packet Number Length (2),           /* Low order bits of first byte */
       Destination Connection ID (0..160),
       Packet Number (8..32),
       Packet Payload (8..),
    }
    
 
-The short header format depicted in :numref:`fig-quic-short-header` is used by all QUIC packets once the session keys have been derived. This usually happens after one round-trip-time. They packets are called the 1-RTT packets in the QUIC specification. This notation is used to emphasize the fact that QUIC also supports 0-RTT packets, i.e. packets that carry data and can be exchanged in parallel with the TLS handshake.
+The short header format, depicted in :numref:`fig-quic-short-header`, is used by all QUIC packets once the session keys have been derived. This usually happens after one round-trip-time. These packets are called the 1-RTT packets in the QUIC specification :cite:`rfc9000`. This notation is used to emphasize the fact that QUIC also supports 0-RTT packets, i.e. packets that carry data and can be exchanged in parallel with the TLS handshake.
 
 
 .. note:: Coalescing packets
 
-   Besides the connection identifiers, another difference between the short and the long headers is the presence of the ``Packet Length`` field in the long header. This field might surprise the reader who is familiar with UDP since UDP also contains a Length field. As QUIC packet are placed inside UDP messages, the QUIC Length field could seem redundant. This Length field was included in the QUIC long header to allow a QUIC sender to coalesce several consecutive and small packets inside a single UDP message. Some of the frames exchanged during the handshake are rather small. Sending a UDP message for each of these frames would be a waste of resources. Furthermore, a mix of ``Initial``, ``Handshake`` and ``0-RTT`` packets are exchanged when creating a QUIC connection. It would not be wise to require the utilization of one UDP message to send each of these packets.
+   Besides the connection identifiers, another difference between the short and the long headers is the presence of the ``Packet Length`` field in the long header. This field might surprise the reader who is familiar with UDP since UDP also contains a Length field. As each QUIC packet is placed inside a UDP message, the QUIC Length field could seem redundant. This Length field was included in the QUIC long header to allow a QUIC sender to coalesce several consecutive and small packets inside a single UDP message. Some of the frames exchanged during the handshake are rather small. Sending a UDP message for each of these frames would be a waste of resources. Furthermore, a mix of ``Initial``, ``Handshake`` and ``0-RTT`` packets are exchanged when creating a QUIC connection. It would not be wise to require the utilization of one UDP message to send each of these packets. You might observe this optimization when analyzing packet traces collected on QUIC servers.
    	  
 
 
 0-RTT data
 ----------
 
-Latency is a key concern for transport protocols. The QUIC/TLS handshake that we have described until now allows the client and the server to agree on security keys within one round-trip-time. However, one round-trip-time can be a long delay for some applications. To minimize the impact of the connection setup time, QUIC allows applications to exchange data during the QUIC/TLS handshake. This data is called the 0-RTT data. To ensure that 0-RTT data is exchanged securely, the client and the server must have previously agreed on a key which can be used to encrypt and authenticate the 0-RTT data. Such a 0-RTT key could either be a pre-shared key that the client and the server have shared without using the QUIC protocol or, and this is the most frequent solution, the key that they negotiated during a previous connection. In practice, the server enables 0-RTT by sending a TLS session ticket to the client. This session ticket is an encrypted record that contains information that enables the server to recover information about the session such as its session keys. It is also linked to the client's address to enable the server to verify that a given client reuses the tickets that it has received earlier. Usually, these tickets also contain an expiration date. The client places the received ticket in the ``TLS CLient Hello`` that it sends in the first ``Initial`` packet. It uses the pre-shared key corresponding to this ticket to encrypt data and place it in one or more ``0-RTT`` packets. The server uses the information contained in the ticket to recover the key and decrypt the data of the ``0-RTT`` packet. :numref:`fig-quic-0-rtt-packet` shows the format of QUIC's 0-RTT packet. 
+Latency is a key concern for transport protocols. The QUIC/TLS handshake that we have described until now allows the client and the server to agree on security keys within one round-trip-time. However, one round-trip-time can be a long delay for some applications. To minimize the impact of the connection setup time, QUIC allows applications to exchange data during the QUIC/TLS handshake. Such data is called 0-RTT data. To ensure that 0-RTT data is exchanged securely, the client and the server must have previously agreed on a key which can be used to encrypt and authenticate the 0-RTT data. Such a 0-RTT key could either be a pre-shared key that the client and the server have shared without using the QUIC protocol or, and this is the most frequent solution, the key that they negotiated during a previous connection. In practice, the server enables 0-RTT by sending a TLS session ticket to the client :cite:`rfc8446`. A session ticket is an encrypted record that contains information that enables the server to recover all the state information about a session including its session keys. It is also linked to the client's address to enable the server to verify that a given client reuses the tickets that it has received earlier. Usually, these tickets also contain an expiration date. The client places the received ticket in the ``TLS CLient Hello`` that it sends in the first ``Initial`` packet. It uses the pre-shared key corresponding to this ticket to encrypt data and place it in one or more ``0-RTT`` packets. The server uses the information contained in the ticket to recover the key and decrypt the data of the ``0-RTT`` packet. :numref:`fig-quic-0-rtt-packet` shows the format of QUIC's 0-RTT packet. 
    
    
 
@@ -364,11 +365,11 @@ Latency is a key concern for transport protocols. The QUIC/TLS handshake that we
    :name: fig-quic-0-rtt-packet
 
    0-RTT Packet {
-     Header Form (1) = 1,
+     Header Form (1) = 1,                  /* High order bit of the first byte */
      Fixed Bit (1) = 1,
      Long Packet Type (2) = 1,
      Reserved Bits (2),
-     Packet Number Length (2),
+     Packet Number Length (2),            /* Low order bits of the first byte */
      Version (32),
      Destination Connection ID Length (8),
      Destination Connection ID (0..160),
@@ -380,7 +381,7 @@ Latency is a key concern for transport protocols. The QUIC/TLS handshake that we
    }
 
 
-The main benefit of these ``0-RTT`` packets is that the client can immediately send encrypted data when sending its ``Initial`` packet. This is illustrated in :numref:`fig-quic-handshake-Ortt` where the encrypted frames are shown in italics. Note that some of these encrypted frames can span several packets. ``0-RTT`` packets are only sent by the QUIC client since the server can send encrypted data immediately after having sent its ``Handshake`` frames.  
+The main benefit of these ``0-RTT`` packets is that the client can immediately send encrypted data while sending its ``Initial`` packet. This is illustrated in :numref:`fig-quic-handshake-Ortt` where the frames encrypted with the 0-RTT keys are shown in italics. Note that some of these frames can span several packets. ``0-RTT`` packets are only sent by the QUIC client since the server can send encrypted data immediately after having sent its ``Handshake`` frames. As explained earlier, the Initial packets are also encrypted but using keys derived from the connection identifiers. 
 
 .. _fig-quic-handshake-Ortt:
 .. tikz:: Simplified QUIC Handshake with 0-RTT data
@@ -412,22 +413,31 @@ The main benefit of these ``0-RTT`` packets is that the client can immediately s
 
 .. note:: Replay attacks and 0-RTT packets
 
-   Thanks to the 0-RTT packets, the client can send encrypted data to the server before waiting for the secure handshake. This reduces the latency of the data transfer, but with one important caveat. QUIC does not provide any guarantee that 0-RTT data will not be replayed. QUIC's 0-RTT data exchanged is intended for idempotent operations. A detailed discussion of the impact of replay attacks may be found in :cite:`tls13-0rtt`.
+   Thanks to the 0-RTT packets, a client can send encrypted data to the server before waiting for the secure handshake. This reduces the latency of the data transfer, but with one important caveat. QUIC does not provide any guarantee that 0-RTT data will not be replayed. QUIC's 0-RTT data exchanged is intended for idempotent operations. A detailed discussion of the impact of replay attacks may be found in :cite:`tls13-0rtt`.
 
-   To understand the importance of these replay attacks, let us consider a simple HTTP GET request. Such a request could easily fit inside the 0-RTT packet and thus have lower latency. If a web browser uses it to request a static ``index.html`` file, there is no harm if the request is received twice by the server. However, if the GET request is part of a REST API and has side effects, then problems could occur depending on the type of side effect. Consider a REST API that allows a user to switch off the lights using his or her smartphone. Replaying this request two or three times will always result in the light being switched off. However, if the user request to increase the room temperature by one °C, then multiple replays will obviously have inconvenient consequences.
+   To understand the importance of these replay attacks, let us consider a simple HTTP GET request. Such a request could easily fit inside the 0-RTT packet and thus have lower latency. If a web browser uses it to request a static ``index.html`` file, there is no harm if the request is received twice by the server. However, if the GET request is part of a REST API and has side effects, then problems could occur depending on the type of side effect. Consider a REST API that allows a user to switch off the lights using his or her smartphone. Replaying this request two or three times will always result in the light being switched off. However, if the user requests to increase the room temperature by one °C, then multiple replays will obviously have different consequences.
 
 
 Closing a QUIC connection
 =========================
 
 
-Before exploring how data can be exchanged over a QUIC connection, let us now analyze how the connection can terminate. QUIC supports three different methods to close a QUIC connection. QUIC's approach to terminating connection is very different from the solutions used by traditional transport protocol.
+Before exploring how data can be exchanged over a QUIC connection, let us now analyze how a QUIC connection can terminate. QUIC supports three different methods to close a QUIC connection. QUIC's approach to terminating connection is very different from the approaches used by traditional transport protocol. Before looking at these techniques, it is important to understand how QUIC interacts with Network Address Translation.
 
-QUIC runs above UDP and the design of QUIC was heavily influenced by the presence of NATs. NATs, like other middleboxes, maintain per-flow state. For TCP connections, many NATs rely on the ``SYN``, ``FIN`` and ``RST`` flags to determine when state must be created or removed for a TCP connection. For UDP, this stateful approach is not possible and NATs create a new mapping when they observe the first packet of a flow and remove the mapping once the flow has been idle for sometime. The IETF recommends to maintain NAT mappings during at least two minutes :cite:`rfc4787`, but measurements show that deployed NATs use shorter timeouts :cite:`richter2016multi,hatonen2010experimental`. In practice, UDP flows should probably send a packet every 30 seconds to ensure that the on-path NATs preserve their state.
+.. note:: QUIC and Network Address Translation
 
-To prevent NATs from changing the mapping associated to the IP addresses and ports used for a QUIC connection, QUIC hosts will need to regularly send data over each established QUIC connection. QUIC defines a ``PING`` frame that allows any QUIC endpoint to send a frame that will trigger a response from the other peer. The ``PING`` frame does not carry data, but the receiver of a ``PING`` frame needs to acknowledge the packet containing this frame. This creates a bidirectional communication and can prevent NATs from discarding the mapping associated to the QUIC connection.
 
-Each QUIC implementation keeps in the connection state the timestamp of the last QUIC packet received over this connection. During the connection establishment, the QUIC hosts can also exchange the ``max_idle_timeout`` parameter that indicates how long (in seconds) a QUIC connection can remain idle before being automatically closed. The first way to close a QUIC connection is make idle for this period of time.
+   QUIC runs above UDP and the design of QUIC was heavily influenced by the presence of NATs. NATs, like other middleboxes, maintain per-flow state. For TCP connections, many NATs rely on the ``SYN``, ``FIN`` and ``RST`` flags to determine when state must be created or removed for a TCP connection. For UDP, this stateful approach is not possible and NATs create a new mapping when they observe the first packet of a flow and remove the mapping once the flow has been idle for sometime. The IETF recommends to maintain NAT mappings during at least two minutes :cite:`rfc4787`, but measurements show that some deployed NATs use shorter timeouts :cite:`richter2016multi,hatonen2010experimental`. In practice, UDP flows should probably send a packet every 30 seconds to ensure that the on-path NATs preserve their state.
+
+   To prevent NATs from changing the mapping associated to the IP addresses and ports used for a QUIC connection, QUIC hosts will need to regularly send data over each established QUIC connection. QUIC defines a ``PING`` frame that allows any QUIC endpoint to send a frame that will trigger a response from the other peer. The ``PING`` frame does not carry data, but the receiver of a ``PING`` frame needs to acknowledge the packet containing this frame. This creates a bidirectional communication and can prevent NATs from discarding the mapping associated to the QUIC connection.
+
+Implicit termination of QUIC connections
+----------------------------------------
+   
+Each QUIC implementation keeps in its connection state the timestamp of the last QUIC packet received over this connection. During the connection establishment, the QUIC hosts can also exchange the ``max_idle_timeout`` parameter that indicates how long (in seconds) a QUIC connection can remain idle before being automatically closed. The first way to close a QUIC connection is to keep it idle for this period of time.
+
+Explicit termination of a QUIC connection
+-----------------------------------------
 
 The second technique to terminate a QUIC connection is to use the ``CONNECTION_CLOSE`` frame. This frame indicates that this connection has been closed abruptly.  The host that receives the ``CONNECTION_CLOSE`` may respond with one ``CONNECTION_CLOSE`` frame. After that, it must stop sending any additional frame. It keeps the connection state for some time, but does not accept any new packet nor retransmit others. The host that sends a ``CONNECTION_CLOSE`` frame indicates that it will neither send nor accept more data. It keeps a subset of the QUIC connection state to be able to retransmit the ``CONNECTION_CLOSE`` frame if needed.
 
@@ -459,7 +469,7 @@ A host also sends a ``CONNECTION_CLOSE`` frame to abruptly terminate a connectio
    \end{tikzpicture}
 
 
-The QUIC specification also defines a third technique called `stateless reset` to cope with hosts that have lost connection state after a crash or outage. It relies on 16 bytes stateless token announced together with the connection identifier. See :cite:`rfc9000` for all the details.
+The QUIC specification also defines a third technique called `stateless reset` to cope with hosts that have lost connection state after a crash or outage. It relies on a 16 bytes stateless token announced together with the connection identifier. See :cite:`rfc9000` for all the details.
 
 
 Exchanging data over a QUIC connection
@@ -491,9 +501,9 @@ QUIC places all data inside ``STREAM`` frames that are then placed inside QUIC p
    }
 
 
-The ``STREAM`` frame carries data, but it can also terminate the corresponding stream. The lowest order bit of the Type field acts as a ``FIN``` bit. When set to zero, it indicates that subsequent data will be sent over this stream. When set to one, it indicates that the ``STREAM`` frame contains the last bytes sent over that stream. The stream is closed once the last byte of the stream has been delivered to the user application. Once a QUIC stream has been closed, it cannot be reused again over this connection.
+The ``STREAM`` frame carries data, but it can also terminate the corresponding stream. The lowest order bit of the Type field acts as a ``FIN`` bit. When set to zero, it indicates that subsequent data will be sent over this stream. When set to one, it indicates that the ``STREAM`` frame contains the last bytes sent over that stream. The stream is closed once the last byte of the stream has been delivered to the user application. Once a QUIC stream has been closed, it cannot be reused again over this connection.
    
-Using this information, the receiver can easily reassemble the data received over the different streams. As an illustration, let us consider an application that a server has created two streams (stream ``1`` and ``5``). The server sends ``ABCD..`` over stream ``1`` and ``123`` over stream ``5`` and closes it after the third digit. The data from these streams could be encoded as shown in :numref:`fig-quic-streams-example`.
+Using this information, the receiver can easily reassemble the data received over the different streams. As an illustration, let us consider a server that has created two streams (stream ``1`` and ``5``). The server sends ``ABCD..`` over stream ``1`` and ``123`` over stream ``5`` and closes it after having sent the third digit. The data from these streams could be encoded as shown in :numref:`fig-quic-streams-example`.
 
 
 .. code-block:: console
@@ -522,7 +532,7 @@ Using this information, the receiver can easily reassemble the data received ove
       Stream Data = C
    }
    STREAM Frame {
-      Type (i) = 0x0f,
+      Type (i) = 0x0f,   /* FIN bit is set, end of stream */
       Stream ID = 5,
       Offset = 1
       Length = 2
@@ -537,7 +547,9 @@ Using this information, the receiver can easily reassemble the data received ove
    }
    
 
-The penultimate frame shown in :numref:`fig-quic-streams-example` has the ``FIN`` flag set. It marks the end of stream ``1`` that has transport three bytes in total. The ``FIN`` flag is the normal way to gracefully close a QUIC stream. There are however cases where an application might need to cancel a stream abruptly without closing the connection. First, the sending side of a stream can decide to reset the stream. For this, it sends a ``RESET_STREAM`` frame that indicates the identifier of the stream that is canceled. The receiving side of a stream might also need to stop receiving data over a given stream. Consider for example a web browser that has started to download the different images that compose a web while the user has already clicked on another page from the same server. The streams that corresponds to these images become useless. In this case, our browser can send a ``STOP_SENDING`` frame to indicate that it discards the incoming data over the corresponding streams. Upon reception of this frame, the server sends a ``RESET_STREAM`` frame to indicate that the corresponding stream has been closed.
+The penultimate frame shown in :numref:`fig-quic-streams-example` has the ``FIN`` flag set. It marks the end of stream ``1`` that has transported three bytes in total. The ``FIN`` flag is the normal way to gracefully close a QUIC stream.
+
+There are however cases where an application might need to cancel a stream abruptly without closing the corresponding connection. First, the sending side of a stream can decide to reset the stream. For this, it sends a ``RESET_STREAM`` frame that carries the identifier of the stream that is canceled. The receiving side of a stream might also need to stop receiving data over a given stream. Consider for example a web browser that has started to download the different images that compose a web while the user has already clicked on another page from the same server. The streams that correspond to these images become useless. In this case, our browser can send a ``STOP_SENDING`` frame to indicate that it discards the incoming data over the corresponding streams. Upon reception of this frame, the server sends a ``RESET_STREAM`` frame to indicate that the corresponding stream has been closed.
 
 .. exemple stop sending et reset stream ?
 
@@ -545,7 +557,7 @@ The penultimate frame shown in :numref:`fig-quic-streams-example` has the ``FIN`
 Flow control in QUIC
 --------------------
 
-Transport protocols usually allocate some resources to each established connection. Each QUIC connection requires memory to store its state, but also buffers to store the packets arrived out-of-order. In practice, the memory available for QUIC implementations is not unlimited and a QUIC receiver must control the amount of packets that the remote host can send at any time. QUIC supports flow control techniques that operate at different level.
+Transport protocols usually allocate some resources to each established connection. Each QUIC connection requires memory to store its state, but also buffers to store the packets arrived out-of-order. In practice, the memory available for QUIC implementations is not unlimited and a QUIC receiver must control the amount of packets that the remote host can send at any time. QUIC supports flow control techniques that operate at different levels.
 
 
 The first level is the connection level.
@@ -553,14 +565,14 @@ During the handshake, each host can announce the maximum number of bytes that it
 
 .. limits utilisées aujourd'hui ?
 
-The utilization of different streams also consume resources on a QUIC host. A receiver can also restrict the number of streams that the remote host can create. During the handshake, the ``initial_max_streams_bidi`` and ``initial_max_streams_uni`` contain the maximum number of bidirectional and unidirectional streams that the receiving host can host. This limit can be modified during the connection by sending a ``MAX_STREAMS`` frame that updates the limit.
+The utilization of different streams also consumes resources on a QUIC host. A receiver can also restrict the number of streams that the remote host can create. During the handshake, the ``initial_max_streams_bidi`` and ``initial_max_streams_uni`` transport parameters announce the maximum number of bidirectional and unidirectional streams that the receiving host can accept. This limit can be modified during the connection by sending a ``MAX_STREAMS`` frame that updates the limit.
 
 .. limits utilisées aujourd'hui ?
 
 Flow control can also take place at the stream level. During the handshake, several transport parameters allow the hosts to advertise the maximum number of bytes that they agree to receive on each stream. Different transport parameters are used to specify the limits that apply to the local/remote and unidirectional/bidirectional streams. These limits can be updated during the connection by sending ``MAX_STREAM_DATA`` frames. Each of these frames indicates the maximum amount of stream data that can be accepted on a given stream.
 
 
-These limits restricts the number of streams that a host can create and the amount of bytes that it can send. If a host is blocked by any of these limits, it may sent a control frame to request the remote host to extend the limit. For each type of flow control, there is an associated control frame which can be used to request an extension of the limit.
+These limits restrict the number of streams that a host can create and the amount of bytes that it can send. If a host is blocked by any of these limits, it may sent a control frame to request the remote host to extend the limit. For each type of flow control, there is an associated control frame which can be used to request an extension of the limit.
 
 A host should send a ``DATA_BLOCKED`` frame when it reaches the limit on the maximum amount of data set by the ``initial_max_data`` transport parameter or a previously received ``MAX_DATA`` frame. The ``DATA_BLOCKED`` frame contains the connection limit that caused the transmission to be blocked. In practice, a receiving host should increase the connection-level limit by sending ``MAX_DATA`` frames before reaching the limit. However, since this limit is function of the available memory, a host might not always be able to send a ``MAX_DATA`` frame. :numref:`fig-quic-example-max_data` provides an example packet flow with the utilization of these frames. We assume that the ``initial_max_data`` transport parameter was set to ``100`` bytes by the client during the handshake and the the server needs to send 900 bytes. The server creates a stream and sends 100 bytes in a ``1-RTT`` packet carrying a ``STREAM`` frame. At this point, the server is blocked. 
 
@@ -601,7 +613,7 @@ The same applies with the ``STREAM_DATA_BLOCKED`` frame that is sent when a host
 
    A measurement study :cite:`marx2020same` revealed that QUIC implementations used different strategies for flow control. They identified three main types of behaviors :
 
-     - Static Flow Control: the receive buffer size stays unchanged and the receiver simply increase the maximum allowance linearly
+     - Static Flow Control: the receive buffer size stays unchanged and the receiver simply increases the maximum allowance linearly
      - Growing Flow Control: the size of the receive buffer increases over time as the connection progresses
      - Auto-tuning: the size of the receive buffer is adjusted dynamically based on the estimated bandwidth and round-trip times
 
@@ -612,7 +624,9 @@ The same applies with the ``STREAM_DATA_BLOCKED`` frame that is sent when a host
 QUIC Loss Detection
 -------------------
 
-As other transport protocols, QUIC includes mechanisms to detect transmission errors and losses. The transmission errors can be detected at two different levels. First, the UDP header contains a checksum that allows to detect various transmission errors. Second, since QUIC used AEAD encryption schemes, all QUIC packets are authenticated and a receiver can easily detect transmission errors when the AEAD tag does not validate. In these two cases, the corresponding UDP packet is discarded by the receiver.
+As other transport protocols, QUIC includes mechanisms to detect transmission errors and packet losses. The transmission errors are usually detected by using the UDP checksum or at the datalink layer with the Wi-Fi or Ethernet CRCs. When a transmission error occurs, the corresponding packet is discarded and QUIC considers this error as a packet loss. Researchers have analyzed the performance of checksums and CRCs on real data :cite:`stone1998performance`.
+
+Second, since QUIC used AEAD encryption schemes, all QUIC packets are authenticated and a receiver can leverage this AEAD to detect transmission errors that were undetected by the UDP checksum of the CRC of the lower layers. However, these undetected transmission errors are assumed to be rare and if QUIC a detects an invalid AEAD, it will consider that this error was caused by an attack and will stop the connection using a TLS alert :cite:`rfc8446`.
 
 
 There are several important differences between the loss detection and retransmission mechanisms used by QUIC and other transport protocols. First, QUIC packet numbers always increase monotonically over a QUIC connection. A QUIC sender never sends twice a packet with the same packet number over a given connection. QUIC encodes the packet numbers as variable length integers and it does not support wrap around in contrast with other transport protocols. The QUIC frames contain the valuable information that needs to be delivered reliably. If a QUIC packet is lost, the frames that it contained will be retransmitted in another QUIC packet that uses a different packet number. Thus, the QUIC packet number serves as a unique identifier of a packet. This simplifies some operations such as measuring the round-trip-time which is more difficult in protocols such as TCP when packets are transmitted :cite:`karn1987improving`.
@@ -622,9 +636,9 @@ Second, QUIC's acknowledgments carry more information than the cumulative or sel
 Third, a QUIC sender autonomously decides which frames it sends inside each packet. A QUIC packet may contain both data and control frames, or only data or only control information. If a QUIC packet is lost, the frames that it contained could be retransmitted in different packets. A QUIC implementation thus needs to buffer the frames and mark the in-flight ones to be able to retransmit them if the corresponding packet was lost.
 
 
-Fourth, most QUIC packets are explicitly acknowledged. The only exception are the packets that only contain ``ACK``, ``PADDING`` or ``CONNECTION_CLOSE``. A packet that contains any other QUIC frame is called an ack-eliciting packet because its delivery will be confirmed by the transmission of an acknowledgment. A QUIC packet that carries both an ``ACK`` and a ``STREAM`` frame will thus be acknowledged.
+Fourth, most QUIC packets are explicitly acknowledged. The only exception are the packets that only contain ``ACK``, ``PADDING`` or ``CONNECTION_CLOSE`` frames. A packet that contains any other QUIC frame is called an ack-eliciting packet because its delivery will be confirmed by the transmission of an acknowledgment. A QUIC packet that carries both an ``ACK`` and a ``STREAM`` frame will thus be acknowledged.
 
-With this in mind, it is interesting to look at the format of the QUIC acknowledgments and then analyze how they can be used. :numref:`fig-quic-ack-frame` provides the format of an ACK frame. It can be sent at any time in a QUIC packet. Two types are used to distinguish between the acknowledgments that contain information about the received ECN flags (type ``0x03``) or only regular acknowledgments (type ``0x02``). The first information contained in the ACK frame is the largest packet number that is acknowledged by this ACK frame. This is usually the highest packet number received. The second information is the ACK delay. This is the delay in microseconds between the reception of the packet having the largest acknowledged number by the receiver and the transmission of the acknowledgments. This information is important to ensure that round-trip-times are accurately measured, even if a receiver delays acknowledgments. This is illustrated in :numref:`fig-quic-ack-delay`. The ``ACK Range Count`` contains the number of ``ACK ranges`` that are included in the QUIC ACK frame. This number can be set to zero if all packets were received in sequence without any gap. In this case, the ``First ACK Range`` field contains the number of packets that arrived before the ``Largest Acknowledged`` packet number. 
+With this in mind, it is interesting to look at the format of the QUIC acknowledgments and then analyze how they can be used. :numref:`fig-quic-ack-frame` provides the format of an ACK frame. It can be sent at any time in a QUIC packet. Two types are used to distinguish between the acknowledgments that contain information about the received ECN flags (type ``0x03``) or only regular acknowledgments (type ``0x02``). The first information contained in the ACK frame is the largest packet number that is acknowledged by this ACK frame. This is usually the highest packet number received. The second information is the ACK delay. This is the delay in microseconds between the reception of the packet having the largest acknowledged number by the receiver and the transmission of the acknowledgment. This information is important to ensure that round-trip-times are accurately measured, even if a receiver delays acknowledgments. This is illustrated in :numref:`fig-quic-ack-delay`. The ``ACK Range Count`` field contains the number of ``ACK ranges`` that are included in the QUIC ACK frame. This number can be set to zero if all packets were received in sequence without any gap. In this case, the ``First ACK Range`` field contains the number of the packet that arrived before the ``Largest Acknowledged`` packet number. 
 
 .. code-block:: console
    :caption: The QUIC ACK Frame
@@ -661,7 +675,7 @@ With this in mind, it is interesting to look at the format of the QUIC acknowled
    \draw[black,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=center, fill=white] {Packet(pn=$x$,\ldots)};
    \draw[black,thick, ->] (\s1,\y-3) -- (\c1,\y-4) node [midway, fill=white]  {Packet(pn=$y$,ACK[delay=$\delta$,largest=$x$]};
 
-   \draw[red,dashed, thick, <->] (\s1+0.5,\y-1) -- (\s1+0.5,\y-3) node [midway, fill=white, align=center]  {$\delta$};
+   \draw[red,dashed, thick, <->] (\s1+0.5,\y-1) -- (\s1+0.5,\y-3) node [midway, fill=white, align=center]  {$\delta$ (server delay)};
 
 An ``ACK`` frame contains 0 or more ``ACK Ranges``. The format of an ``ACK range`` is shown in :numref:`fig-quic-ack-range`. Each range indicates first the number of unacknowledged packets since the smallest acknowledged packet in the preceding range (or the first ACK range). The next field indicates the number of consecutive acknowledged packets.
 
@@ -675,7 +689,7 @@ An ``ACK`` frame contains 0 or more ``ACK Ranges``. The format of an ``ACK range
       ACK Range Length (i),
    }	  
 
-As an example, consider a host that received the following QUIC packets: ``3,4,6,7,8,9,11,14,16,18``. To report all the received packets, it will generate the following ``ACK`` frame.
+As an example, consider a host that received the following QUIC packets: ``3,4,6,7,8,9,11,14,16,18``. To report all the received packets, it will generate the ``ACK`` frame shown in :numref:`fig-quic-sample-ack-frame`.
 
 
 .. code-block:: console
@@ -734,10 +748,10 @@ The QUIC specification recommends to send one ``ACK`` frame after having receive
 
 
 
-It is interesting to observe that since the ``ACK`` frames are sent inside QUIC packets, they can also be acknowledged. Sending an ``ACK`` in response to another ``ACK`` could result in an infinite exchange of ``ACK`` frames. To prevent this problem, a QUIC sender cannot send an ``ACK`` frame in response to a non-eliciting QUIC packet and the ``ACK`` are one of the non-eliciting frame types. Note that if a receiver that receives many ``STREAM`` frames and thus sends many ``ACK`` frames wants to obtain information about the reception of its ``ACK`` frame, it can simply send one ``ACK`` frame inside a packet that contains an eliciting frame, e.g. a ``PING`` frame. This frame will trigger the receiver to acknowledge it and the previously sent ``ACK`` frames. 
+It is interesting to observe that since the ``ACK`` frames are sent inside QUIC packets, they can also be acknowledged. Sending an ``ACK`` in response to another ``ACK`` could result in an infinite exchange of ``ACK`` frames. To prevent this problem, a QUIC sender cannot send an ``ACK`` frame in response to a non-eliciting QUIC packet and the ``ACK`` frames are one of the non-eliciting frame types. Note that if a receiver that receives many ``STREAM`` frames and thus sends many ``ACK`` frames wants to obtain information about the reception of its ``ACK`` frame, it can simply send one ``ACK`` frame inside a packet that contains an eliciting frame, e.g. a ``PING`` frame. This frame will trigger the receiver to acknowledge it and the previously sent ``ACK`` frames. 
 
 
-In contrast with other reliable transport protocols, QUIC does not use cumulative acknowledgments. As explained earlier, QUIC never retransmits a packet with the same packet number. When a packet is lost, it creates a gap that the receiver reports using an ``ACK Range``. Such a gap will never be filled by retransmissions and obviously should not be reported by the receiver forever. In practice, a receiver will send the acknowledgment that corresponds to a given packet number several times and then will assume that the acknowledgment has been received. A receiver can also rely on other heuristics to determine that a given ``ACK Range`` should not be reported anymore. This is the case if the ``ACK`` frame was included in a packet that has been acknowledged by the other peer, but also when the gap was noticed several round-trip times ago.
+In contrast with other reliable transport protocols, QUIC does not use cumulative acknowledgments. As explained earlier, QUIC never retransmits a packet with the same packet number. When a packet is lost, this creates a gap that the receiver reports using an ``ACK Range``. Such a gap will never be filled by retransmissions and obviously should not be reported by the receiver forever. In practice, a receiver will send the acknowledgment that corresponds to a given packet number several times and then will assume that the acknowledgment has been received. A receiver can also rely on other heuristics to determine that a given ``ACK Range`` should not be reported anymore. This is the case if the ``ACK`` frame was included in a packet that has been acknowledged by the other peer, but also when the gap was noticed several round-trip times ago.
 
 
 
