@@ -329,105 +329,70 @@
 </div>
 <p>A TCP connection starts with a three-way handshake and ends with either the exchange of <code class="docutils literal notranslate"><span class="pre">FIN</span></code> packets to gracefully terminate the connection or when one of the hosts sends a <code class="docutils literal notranslate"><span class="pre">RST</span></code> packet. The main benefit of the graceful termination is that both hosts receive the confirmation that all the data that they have sent over the connection has been correctly received. Multipath also supports a graceful termination of the connection. As in regular TCP, this graceful termination is implemented by using a flag that indicates the end of the bytestream. This flag is included in the Data Sequence Number option.</p>
 <p><a class="reference internal" href="#fig-mptcp-close"><span class="std std-numref">Fig. 56</span></a> illustrates a graceful Multipath TCP connection release. We assume that the connection has two active subflows. The client sends <code class="docutils literal notranslate"><span class="pre">XYZ</span></code> over the initial subflow. Since this is the last byte sent over the bytestream, it adds the <code class="docutils literal notranslate"><span class="pre">DATA_FIN</span></code> flag to the data sequence option. This flag consumes one data sequence number as the <code class="docutils literal notranslate"><span class="pre">FIN</span></code> flag in the TCP header. The server returns an acknowledgment that confirms the reception of the three bytes at the subflow level (<code class="docutils literal notranslate"><span class="pre">ack=x+3</span></code>). At the connection level, four sequence numbers are acknowledged (<code class="docutils literal notranslate"><span class="pre">a=y+4</span></code>) since the <code class="docutils literal notranslate"><span class="pre">DATA_FIN</span></code> flag consumes one sequence number. The server decides to close its bytestream by sending its last byte, <code class="docutils literal notranslate"><span class="pre">M</span></code>, over the second subflow with the <code class="docutils literal notranslate"><span class="pre">DATA_FIN</span></code> flag set. At this point, the Multipath TCP has been gracefully closed. No data will be exchanged over the different subflows. The client and/or the server can terminate the subflows by using packets with either the <code class="docutils literal notranslate"><span class="pre">FIN</span></code> or the <code class="docutils literal notranslate"><span class="pre">RST</span></code> flag in the TCP header.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
-
-\tikzstyle{arrow} = [thick,-&gt;,&gt;=stealth]
-\tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-\node [black, fill=white] at (\c1,\max+0.5) {Client};
-\node [black, fill=white] at (\s1,\max+0.5) {Server};
-
-\draw[blue,very thick,-&gt;] (\c1,\max-0.5) -- (\c1,0.5);
-\draw[black,very thick,-&gt;] (\s1,\max-0.5) -- (\s1,0.5);
-\draw[red,very thick,-&gt;] (\c2,\max-0.5) -- (\c2,0.5);
-
-
-\tikzmath{\y=\max-1;}
-
-\draw[blue,dashed,&lt;-&gt;] (\c1,\y) -- (\s1,\y) node [midway, fill=white] {Initial subflow};
-\draw[red,dashed,&lt;-&gt;] (\c2,\y-0.5) -- (\s1,\y-0.5) node [midway, fill=white] {Second subflow};
-
-\draw[blue,thick, -&gt;] (\c1,\y-2) -- (\s1,\y-3) node [midway, align=left, fill=white] {[seq=x]\small{DS[s=y,DATA\_FIN]} &quot;XYZ&quot;};
-\draw[blue,thick, -&gt;] (\s1,\y-3) -- (\c1,\y-4) node [midway, align=left, fill=white] {ACK [ack=x+3]\small{DS[a=y+4]}};
-\draw[red,thick, -&gt;] (\s1,\y-4.5) -- (\c2,\y-5.5) node [midway, align=left, fill=white] {[seq=w]\small{DS[s=z,DATA\_FIN]} &quot;M&quot;};
-\draw[red,thick, -&gt;] (\c2,\y-5.5) -- (\s1,\y-6.5) node [midway, align=left, fill=white] {ACK [ack=w+1]\small{DS[a=z+2]}};</span>)</p>
-<p>! Package tikz Error: I did not find the tikz library 'arrows.metamath'. I look
-ed for files named tikzlibraryarrows.metamath.code.tex and pgflibraryarrows.met
-amath.code.tex, but neither could be found in the current texmf trees..
-
-See the tikz package documentation for explanation.
-Type  H &lt;return&gt;  for immediate help.
- ...                                              
-                                                  
-l.6 ...{positioning,matrix,arrows,arrows.metamath}
-                                                  
-(/usr/share/texlive/texmf-dist/tex/generic/ulem/ulem.sty)
-(/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdfmode.def)
-No file tikz-e1aa954ffc52c3a3eef6eb5eeed11451d2fd9daf.aux.
-ABD: EveryShipout initializing macros
-(/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
-[Loading MPS to PDF converter (version 2006.09.02).]
-) (/usr/share/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
-(/usr/share/texlive/texmf-dist/tex/generic/infwarerr/infwarerr.sty)
-(/usr/share/texlive/texmf-dist/tex/latex/grfext/grfext.sty
-(/usr/share/texlive/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty))
-(/usr/share/texlive/texmf-dist/tex/latex/kvoptions/kvoptions.sty
-(/usr/share/texlive/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty)
-(/usr/share/texlive/texmf-dist/tex/generic/kvsetkeys/kvsetkeys.sty))
-(/usr/share/texlive/texmf-dist/tex/latex/pdftexcmds/pdftexcmds.sty)
-(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg))
-
-Package pgfplots Warning: running in backwards compatibility mode (unsuitable t
-ick labels; missing features). Consider writing \\pgfplotsset{compat=1.16} into 
-your preamble.
- on input line 19.
-
-! Undefined control sequence.
-&lt;recently read&gt; \\tikzmath 
-                          
-l.21 \\tikzmath
-              {\\c1=1;\\c2=1.5; \\s1=8; \\s2=8.5; \\max=8; }
-! Undefined control sequence.
-l.21 \\tikzmath{\\c1=1;\\c2=1.5; \\s
-                                1=8; \\s2=8.5; \\max=8; }
-! Undefined control sequence.
-l.21 \\tikzmath{\\c1=1;\\c2=1.5; \\s1=8; \\s
-                                       2=8.5; \\max=8; }
-! Missing $ inserted.
-&lt;inserted text&gt; 
-                $
-l.21 \\tikzmath{\\c1=1;\\c2=1.5; \\s1=8; \\s2=8.5; \\max
-                                                  =8; }
-! Extra }, or forgotten $.
-l.21 ...h{\\c1=1;\\c2=1.5; \\s1=8; \\s2=8.5; \\max=8; }
-                                                  
-! TeX capacity exceeded, sorry [input stack size=5000].
-\\&#64;spaces -&gt;\\space 
-                  \\space \\space \\space 
-l.24 \
-ode [black, fill=white] at (\\c1,\\max+0.5)
-                                                 {Client};
-!  ==&gt; Fatal error occurred, no output PDF file produced!
-Transcript written on tikz-e1aa954ffc52c3a3eef6eb5eeed11451d2fd9daf.log.
-&quot;</p>
-</div>
+<div class="figure" id="id72" style="text-align: center">
+<span id="fig-mptcp-close"></span><p><img  src="_images/tikz-e1aa954ffc52c3a3eef6eb5eeed11451d2fd9daf.png" alt="Figure made with TikZ" /></p>
 <p><span class="caption-number">Fig. 56 </span><span class="caption-text">Graceful termination of a Multipath TCP connection</span></p>
 </div><p>The main drawback of exchanging <code class="docutils literal notranslate"><span class="pre">DATA_FINs</span></code> to terminate a Multipath TCP is that this takes time. Busy servers might not be willing to spend a long time waiting for the exchange of all these packets if the application already guarantees the correct delivery of the data. A regular TCP server would send a <code class="docutils literal notranslate"><span class="pre">RST</span></code> packet to quickly terminate such a connection. However, such <code class="docutils literal notranslate"><span class="pre">RST</span></code> packets can lead to denial of service attacks <span id="id33">[<a class="reference internal" href="biblio.html#id5818" title="A. Ramaiah, R. Stewart, and M. Dalal. Improving TCP's Robustness to Blind In-Window Attacks. RFC 5961 (Proposed Standard), August 2010. URL: https://www.rfc-editor.org/rfc/rfc5961.txt, doi:10.17487/RFC5961.">63</a>]</span>. A regular TCP receiver mitigates these attacks by checking the sequence number of the <code class="docutils literal notranslate"><span class="pre">RST</span></code> packet <span id="id34">[<a class="reference internal" href="biblio.html#id5558" title="F. de Bont, S. Doehla, M. Schmidt, and R. Sperschneider. RTP Payload Format for Elementary Streams with MPEG Surround Multi-Channel Audio. RFC 5691 (Proposed Standard), October 2009. URL: https://www.rfc-editor.org/rfc/rfc5691.txt, doi:10.17487/RFC5691.">64</a>]</span>. The Multipath TCP designers did not consider this approach to be safe since an attacker who is able to observe the packets on one path could send a <code class="docutils literal notranslate"><span class="pre">RST</span></code> packet that would terminate all the subflows used by the connection.</p>
 <p>To still allow a host to quickly terminate a Multipath TCP connection, Multipath TCP must be able to verify the validity of a packet that terminates a connection. For this, Multipath TCP defines the <code class="docutils literal notranslate"><span class="pre">FAST_CLOSE</span></code> option that includes a 64 bits security key. These keys are exchanged during the initial handshake and included in the state associated to a Multipath TCP connection. To quickly close a connection, a host simply needs to send the key of the remote host in a <code class="docutils literal notranslate"><span class="pre">FAST_CLOSE</span></code> option sent over one of the active subflows. The Multipath TCP specification defines two different methods to use the <code class="docutils literal notranslate"><span class="pre">FAST_CLOSE</span></code> option.</p>
 <p>The first solution is to send the <code class="docutils literal notranslate"><span class="pre">FAST_CLOSE</span></code> option inside an <code class="docutils literal notranslate"><span class="pre">ACK</span></code>. Upon reception of such a packet, a host sends a <code class="docutils literal notranslate"><span class="pre">RST</span></code> over all active subflows. This is illustrated in <a class="reference internal" href="#fig-mptcp-fastclose-a"><span class="std std-numref">Fig. 57</span></a>.</p>
 <div class="figure" id="id73" style="text-align: center">
-<span id="fig-mptcp-fastclose-a"></span><p><img  src="None" alt="Figure made with TikZ" /></p>
+<span id="fig-mptcp-fastclose-a"></span><p><img  src="_images/tikz-db6ce5d9471040be1e3c3bbcbabf7a62484897dd.png" alt="Figure made with TikZ" /></p>
 <p><span class="caption-number">Fig. 57 </span><span class="caption-text">Abrupt release of a Multipath TCP connection by sending FAST_CLOSE inside an ACK</span></p>
 </div><div class="figure" id="id74" style="text-align: center">
-<span id="fig-mptcp-fastclose-b"></span><p><img  src="None" alt="Figure made with TikZ" /></p>
+<span id="fig-mptcp-fastclose-b"></span><p><img  src="_images/tikz-6d7781f661d13edd2f57434295660d4707ed537c.png" alt="Figure made with TikZ" /></p>
 <p><span class="caption-number">Fig. 58 </span><span class="caption-text">Abrupt release of a Multipath TCP connection by sending a RST with FAST_CLOSE on all subflows</span></p>
 </div></section>
 <section id="coping-with-middlebox-interference">
 <span id="mptcp-middlebox"></span><h2>Coping with middlebox interference<a class="headerlink" href="#coping-with-middlebox-interference" title="Permalink to this headline"></a></h2>
 <p>The previous sections have explained how Multipath TCP operates at a high level. They assume a simple network that is mainly composed of hosts, switches and routers. TCP and Multipath TCP are used by the hosts. They rely on IP packets that contain the TCP segments. These packets are forwarded by IP routers and possibly switches at layer-2 before reaching their final destination. In a network that uses layered protocols, the switches only inspect the layer-2 headers, the routers only read and change the layer-2 and layer-3 headers. Neither the switches nor the routers read or modify the payload of the packets that they forward. Unfortunately, this assumption is not true on the global Internet and in enterprise networks. Besides switches and routers, these networks contains other types of equipment that process packets <span id="id35">[<a class="reference internal" href="biblio.html#id8911" title="Justine Sherry, Shaddi Hasan, Colin Scott, Arvind Krishnamurthy, Sylvia Ratnasamy, and Vyas Sekar. Making middleboxes someone else's problem: network processing as a cloud service. ACM SIGCOMM Computer Communication Review, 42(4):13–24, 2012.">36</a>]</span>. These devices are usually called middleboxes because they reside in the middle of the network and process packets in different ways. A detailed survey of all the different types of middleboxes is outside the scope of this document. We discuss below some of the popular middleboxes and analyze how they have influenced the design of Multipath TCP.</p>
 <p>Our first middlebox is a firewall. A firewall is a device that receives packets, analyzes their contents and then forwards or blocks the packet. The simplest firewalls are the stateless firewalls that accept or reject each individual packet. Such a firewall can accept packet based on the source or destination addresses or port numbers. Some firewalls also check the flags or the IP header or reassemble the received packet fragments. Others analyze the TCP header and verify the utilization of the TCP options. A firewall can be configured using a white list or a black list. A white list specifies all the packet fields that are valid and all the others are invalid. On the other hand, a black list specifies the packets that must be rejected by the firewall and all the others are accepted. Many firewalls use a small white list that defines the TCP options that the firewall accepts. This list typically includes the widely deployed options such as MSS <span id="id36">[<a class="reference internal" href="biblio.html#id729" title="J. Postel. Transmission Control Protocol. RFC 793 (Internet Standard), September 1981. Updated by RFCs 1122, 3168, 6093, 6528. URL: https://www.rfc-editor.org/rfc/rfc793.txt, doi:10.17487/RFC0793.">5</a>]</span>, timestamps <span id="id37">[<a class="reference internal" href="biblio.html#id7140" title="K. Patel, E. Chen, and B. Venkatachalapathy. Enhanced Route Refresh Capability for BGP-4. RFC 7313 (Proposed Standard), July 2014. URL: https://www.rfc-editor.org/rfc/rfc7313.txt, doi:10.17487/RFC7313.">65</a>]</span>, windows scale <span id="id38">[<a class="reference internal" href="biblio.html#id1245" title="C. Partridge. Today's Programming for KRFC AM 1313 Internet Talk Radio. RFC 1313 (Informational), April 1992. URL: https://www.rfc-editor.org/rfc/rfc1313.txt, doi:10.17487/RFC1313.">66</a>]</span> and selective acknowledgments <span id="id39">[<a class="reference internal" href="biblio.html#id1948" title="M. Mathis, J. Mahdavi, S. Floyd, and A. Romanow. TCP Selective Acknowledgment Options. RFC 2018 (Proposed Standard), October 1996. URL: https://www.rfc-editor.org/rfc/rfc2018.txt, doi:10.17487/RFC2018.">13</a>]</span>. TCP options are encoded using the Kind, Length, Value format shown in <a class="reference internal" href="#fig-mptcp-tcp-option"><span class="std std-numref">Fig. 59</span></a>.</p>
-<div class="figure" id="id75" style="text-align: center">
-<span id="fig-mptcp-tcp-option"></span><p><img  src="None" alt="Figure made with TikZ" /></p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">\node (A) at (0,0) {
+\begin{bytefield}{32}
+\bitbox{8}{Kind} &amp; \bitbox{8}{Length} &amp; \bitbox{16}{Value ...}
+\end{bytefield}
+};</span>)</p>
+<p>! LaTeX Error: Environment bytefield undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.22 \\begin{bytefield}
+                      {32}
+! Undefined control sequence.
+l.23 \\bitbox
+            {8}{Kind} &amp; \\bitbox{8}{Length} &amp; \\bitbox{16}{Value ...}
+! Misplaced alignment tab character &amp;.
+l.23 \\bitbox{8}{Kind} &amp;
+                        \\bitbox{8}{Length} &amp; \\bitbox{16}{Value ...}
+! Undefined control sequence.
+l.23 \\bitbox{8}{Kind} &amp; \\bitbox
+                               {8}{Length} &amp; \\bitbox{16}{Value ...}
+! Misplaced alignment tab character &amp;.
+l.23 \\bitbox{8}{Kind} &amp; \\bitbox{8}{Length} &amp;
+                                             \\bitbox{16}{Value ...}
+! Undefined control sequence.
+l.23 ...ox{8}{Kind} &amp; \\bitbox{8}{Length} &amp; \\bitbox
+                                                  {16}{Value ...}
+
+! LaTeX Error: \\begin{tikzpicture} on input line 20 ended by \\end{bytefield}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H &lt;return&gt;  for immediate help.
+ ...                                              
+                                                  
+l.24 \\end{bytefield}
+                    
+[1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
+(./tikz-7e583f2eaf9dcf5ccebd7849fa9433f52e106cb9.aux) )
+(see the transcript file for additional information)&lt;/usr/share/texlive/texmf-d
+ist/fonts/type1/public/amsfonts/cm/cmr12.pfb&gt;
+Output written on tikz-7e583f2eaf9dcf5ccebd7849fa9433f52e106cb9.pdf (1 page, 11
+915 bytes).
+Transcript written on tikz-7e583f2eaf9dcf5ccebd7849fa9433f52e106cb9.log.
+&quot;</p>
+</div>
 <p><span class="caption-number">Fig. 59 </span><span class="caption-text">Generic format for TCP options</span></p>
 </div><p>It is interesting to explore how such a firewall reacts when it receives a packet containing a TCP option that is not part of its whitelist. There are two possibilities. Some firewalls simply drop the packet, but this blocks a connection that could be totally legitimate. Other firewalls remove the option from the TCP header. This can be done by either removing the bytes that contain the unknown TCP option, adjust the Length field of the IP header, the TCP Header length (and possibly update the padding) and update the TCP checksum. A simpler approach is to replace the bytes of the option with byte <code class="docutils literal notranslate"><span class="pre">1</span></code>. This corresponds to the standard No-Operation TCP option <span id="id40">[<a class="reference internal" href="biblio.html#id729" title="J. Postel. Transmission Control Protocol. RFC 793 (Internet Standard), September 1981. Updated by RFCs 1122, 3168, 6093, 6528. URL: https://www.rfc-editor.org/rfc/rfc793.txt, doi:10.17487/RFC0793.">5</a>]</span>. The advantage of this approach is that the firewall only has to recompute the TCP checksum and does not need to adjust the packet length and move data.</p>
 <p>The removal of TCP options by firewalls has influenced the design of Multipath TCP. Multipath TCP uses TCP options to exchange different types of information. The information carried in a <code class="docutils literal notranslate"><span class="pre">SYN</span></code> is not the same as the one exchanged in data packets. The selective acknowledgments TCP extension <span id="id41">[<a class="reference internal" href="biblio.html#id1948" title="M. Mathis, J. Mahdavi, S. Floyd, and A. Romanow. TCP Selective Acknowledgment Options. RFC 2018 (Proposed Standard), October 1996. URL: https://www.rfc-editor.org/rfc/rfc2018.txt, doi:10.17487/RFC2018.">13</a>]</span> defines two different options: a two bytes long <code class="docutils literal notranslate"><span class="pre">SACK</span> <span class="pre">permitted</span></code> that is used inside <code class="docutils literal notranslate"><span class="pre">SYN</span></code> and a variable length <code class="docutils literal notranslate"><span class="pre">SACK</span></code> option that carries the selective acknowledgments during the data transfer. The first versions of Multipath TCP used a similar approach with different TCP options kinds. However, the Multipath TCP designers feared that some firewalls could accept some of the Multipath TCP options and drop the others. For example, the Multipath TCP option used in the <code class="docutils literal notranslate"><span class="pre">SYN</span></code> could pass a firewall that would later drop the options used in data packets. It would have been very difficult for a Multipath TCP implementation to deal with all the corner cases that could happen since Multipath TCP <span id="id42">[<a class="reference internal" href="biblio.html#id8500" title="A. Ford, C. Raiciu, M. Handley, O. Bonaventure, and C. Paasch. TCP Extensions for Multipath Operation with Multiple Addresses. RFC 8684 (Proposed Standard), March 2020. URL: https://www.rfc-editor.org/rfc/rfc8684.txt, doi:10.17487/RFC8684.">49</a>]</span> currently defines 9 different options. To prevent such problems, Multipath TCP uses a single TCP option kind and each Multipath TCP option contains a subtype field. This increases the length of the Multipath TCP options, but minimizes the risk of middlebox interference.</p>
