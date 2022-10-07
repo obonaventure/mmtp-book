@@ -158,7 +158,7 @@ html_context = {
   'display_github': True,
   'github_user': 'obonaventure',
   'github_repo': 'mmtp-book',
-  'github_version': 'master',
+  'github_version': 'main',
 }
 
 #github_url = '

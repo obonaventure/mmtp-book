@@ -39,15 +39,19 @@ From a pure layering viewpoint, QUIC can be illustrated as shown in :numref:`fig
 
 It is unusual to layer a transport protocol above another one. QUIC opted for this solution for two main reasons. First, on most operating systems, any application can directly use UDP without requiring special privileges. This implies that QUIC can be implemented as a library which can be included directly inside applications. This contrasts with TCP, SCTP or DCCP whose implementations are either part of the operating system kernel or need special privileges to send `raw` packets. The second motivation is that UDP (as well as TCP and ICMP) is supported by most middleboxes while many of them block transport protocols that were not defined when they were designed :cite:`barik2020usability`.
 
-It is useful to note that by using UDP, QUIC slightly increases its overhead. Each QUIC packet carries 8 bytes of headers containing the source and destination ports, the length field and a checksum. UDP also comes with a performance penalty. During the last decades, operating system kernels have been optimized to provide high bandwidth using TCP with techniques such as TCP Segmentation Offload (TSO) and Generic Receive Offload (GRO). In parallel, the UDP implementation has not changed significantly and most of the optimizations focused on request-response services such as DNS servers. The situation has changed recently with some effort, notably on Linux, to improve UDP's raw throughput :cite:`de2018optimizing`.
+It is useful to note that by using UDP, QUIC slightly increases its overhead. Each QUIC packet carries 8 bytes of headers containing the source and destination ports, the length field and a checksum. UDP also comes with a performance penalty compared to TCP. During the last decades, operating system kernels have been optimized to provide high bandwidth using TCP with techniques such as TCP Segmentation Offload (TSO) and Generic Receive Offload (GRO). In parallel, the UDP implementation has not changed significantly and most of the optimizations focused on request-response services such as DNS servers. The situation has changed recently with some effort, notably on Linux, to improve UDP's raw throughput :cite:`de2018optimizing`.
 
+Frames and packets
+==================
 
+.. todo:: check RFC 9000 and be more precise
 
+There is an important difference between QUIC and classical protocols like TCP or UDP. TCP and UDP send segments that are composed of a header followed by a sequence of bytes that constitute the payload. In contrast and like SCTP, a QUIC packet contains a header followed by one or more frames. The QUIC header is much simpler and shorter than the TCP header. It only carries the information which is required in all QUIC packets. QUIC defines different types of frames that we will discuss in this chapter. Some types of QUIC frames carry user data. Other types of QUIC frames carry control information. Some of these frames are used during the handshake only while others such as acknowledgments can be sent at any time. An important point to note is that a QUIC packet can mix both data and control frames in any order. 
 
 Connection establishment
 ========================
 
-QUIC uses a four-way handshake to create a QUIC connection. :numref:`fig-quic-handshake` describes this handshake. This handshake has three main purposes. First, it allows to negotiate the crypto keys required to both encrypt and authenticate the packets that will be sent later on the connection. This is mainly done using TLS 1.3 :cite:`rfc8446`. Second, it allows to negotiate different transport parameters. Third, the server can validate that the client can respond to the address used to send the initial packet. This validation allows to prevent denial of service attacks using spoofed addresses.
+QUIC uses a four-way handshake to create a QUIC connection. :numref:`fig-quic-handshake` describes this handshake. The QUIC handshake has three main purposes. First, it allows to negotiate the crypto keys required to both encrypt and authenticate the packets that will be sent later on the connection. This is mainly done using TLS 1.3 :cite:`rfc8446`. Second, it allows to negotiate different options using transport parameters. Third, the server can validate that the client can respond to the address used to send the initial packet. This validation allows to prevent denial of service attacks using spoofed addresses.
 
 
 
@@ -80,16 +84,16 @@ QUIC uses a four-way handshake to create a QUIC connection. :numref:`fig-quic-ha
 The client sends an ``Initial`` packet containing a ``CRYPTO`` frame. This packet carries the ``TLS Client Hello`` and the transport parameters proposed by the client for this connection. The server replies with an ``Initial`` packet containing also a ``CRYPTO`` frame. This one contains the ``TLS Server Hello``. It is immediately followed by one or more ``Handshake`` packets containing also a ``CRYPTO`` frame with the ``TLS Encrypted Extensions``. The contents of this frame is encrypted using the session key derived from the information contained in the ``TLS Client Hello`` and the ``TLS Server Hello``. It mainly contains the certificate and the transport parameters of the server. This frame can be spread over several QUIC packets. The client replies with a ``Handshake`` packet that contains a ``CRYPTO`` frame with the ``TLS Finished`` message. The server later confirms the end of the TLS handshake by sending a ``Handshake_Done`` frame.
    
    
-Before looking at the details of the negotiation of the cryptographic parameters, it is interesting to see how QUIC counters denial of service attacks that use spoofed addresses. During such attack, host `x` sends packets using the address of host `y` as their source. The main risk of such attacks is that the server could send a large number of packets towards address `y` although this address did not try to establish a QUIC connection with the server. QUIC prevents such attacks using two distinct techniques. First, and this is unusual for transport protocols, the Initial QUIC packet sent by the client is large. The first packet sent to create a QUIC connection must contain a UDP payload of at least 1200 bytes :cite:`rfc9000`. Such a packet contains a CRYPTO frame has shown in the figure, but also padding frames to fill the packet. If an attacker wants to send spoofed packets to initiate a connection with a server, it needs to send more than one KByte for each connection attempt. By sending a large initial packet, the client can also perform Path MTU discovery and detect routers that could fragment the QUIC packets.
+Before looking at the details of the negotiation of the cryptographic parameters, it is interesting to see how QUIC counters denial of service attacks that use spoofed addresses. During such attack, host `x` sends packets using the address of host `y` as their source. The main risk of such attacks is that the server could send a large number of packets towards address `y` although the host owning this address did not try to establish a QUIC connection with the server. QUIC prevents such attacks by using two distinct techniques. First, and this is unusual for transport protocols, the Initial QUIC packet sent by the client is large. The first packet sent to create a QUIC connection must contain a UDP payload of at least 1200 bytes :cite:`rfc9000`. Such a packet contains a CRYPTO frame has shown in the figure, but also padding frames to fill the packet. If an attacker wants to send spoofed packets to initiate a connection with a server, it needs to send more than one KByte for each connection attempt. This should be compared with the 40 bytes of the TCP and IPv4 headers that must be sent to initiate a TCP connection. Another advantage of sending a large initial packet, the client can also perform Path MTU discovery and detect routers that could fragment the QUIC packets.
 
 .. note:: Address spoofing
 
-   In theory, an Internet host should only send packets using its IPv4 and IPv6 source addresses. In practice, incorrectly configured hosts can use other addresses than their assigned one. Furthermore, attackers often change their source address to hide some of their activities. A frequent situation are the denial of service (DoS) attacks. A simple DoS attack is when a host sends a large volume of packets to a victim. If the attacker sends these packets using another address than its official IP address, it makes it more difficult for the victim to identify the source of the attack.
+   In theory, an Internet host should only send packets using its IPv4 and IPv6 source addresses. In practice, incorrectly configured hosts can use other addresses than their assigned one. Furthermore, attackers often change their source address to hide some of their activities. A frequent situation are denial of service (DoS) attacks. A simple DoS attack is when a host sends a large volume of packets to a victim. If the attacker sends these packets using another address than its official IP address, it makes it more difficult for the victim to identify the source of the attack.
 
    But there is another category of DoS attack that is more worrisome. If an attacker can send a packets using the source address of the victim to a server, the server would return a response to the victim. These attackers use Internet servers that send a large response, possibly using multiple packets to a single request packet. They have exploited protocols such as DNS, NTP or applications such as `memcached <https://www.memcached.org/>`_ . The main problem with such attacks is that the server amplifies the volume of the attack generated by the clients. As there are very powerful servers on the Internet, this can be a huge problem and such attacks have reached volumes of hundreds of Gbps. The IETF and network operators have published recommendations to configure access networks to block spoofed packets :cite:`rfc2827`. Unfortunately, there are still portions of the Internet where attackers can send spoofed packets :cite:`luckie2019network`. 
 
 
-The second mitigation against denial-of-service attacks using spoofed packets operates on the server. When a server receives an initial packet from a client, it may respond with an initial packet as shown in :numref:`fig-quic-handshake`. This could for example be the case of an enterprise server that receives a request from host of the same enterprise. The server could also want to validate the client and verify that the client can receive the packets that it sends. For this, it returns a Retry frame and a Token. This token is an opaque field that is constructed in a way that makes it easy for the server to validate the subsequent client packets and difficult for the client to predict the token that a server will create. A possible approach is to compute a secure hash of a message that contains the source IP addresses and ports used by the client, a secret value only known by the server and possibly some timing information to enable the server to ignore older tokens. Faced with the same problem, TCP using syn cookies that are encoded using fewer bits and thus inherently less secure. :numref:`fig-quic-handshake-retry` shows a QUIC handshake that includes a validation of the client address. 
+The second mitigation against denial-of-service attacks using spoofed packets operates on the server. When a server receives an initial packet from a client, it may respond with an initial packet as shown in :numref:`fig-quic-handshake`. This could for example be the case of an enterprise server that receives a request from a host of a known enterprise subnet. The server could also want to validate the client and verify that the client can receive the packets that it sends. For this, it returns a Retry frame and a Token. This token is an opaque field that is constructed in a way that makes it easy for the server to validate the subsequent client packets and difficult for the client to predict the token that a server will create. A possible approach is to compute a secure hash of a message that contains the source IP addresses and ports used by the client, a secret value only known by the server and possibly some timing information to enable the server to ignore older tokens. Faced with the same problem, TCP `syn cookies` are encoded using fewer bits and thus inherently less secure. :numref:`fig-quic-handshake-retry` shows a QUIC handshake that includes a validation of the client address. 
 
 
 
@@ -149,13 +153,13 @@ The connection identifiers selected by the client and the server uniquely identi
 
 .. note:: Variable length CIDs
 
-   Most transport protocols rely on fixed-length fields because this simplifies the parsing of packet headers. For example, the TCP and UDP port numbers are encoded as as 16 bits field. However, using fixed-length fields also limits the extensibility of the protocol. A TCP server cannot listen to more than :math:`2^{16}` different ports.
+   Most transport protocols rely on fixed-length fields because this simplifies the parsing of packet headers. For example, the TCP and UDP port numbers are encoded as a 16 bits field. However, using fixed-length fields also limits the extensibility of the protocol. A TCP server cannot listen to more than :math:`2^{16}` different ports.
 
-   QUIC has opted for variable length CIDs to support very different use cases. On the server side, the length of the selected connection identifiers will depend on the architecture of the server. Large sites use a load-balancer that distributes the connections to different physical servers. They plan to read the CID on the load-balancer to direct the packet to the server that handles this connection. A simple CID would be composed of a server identifier chosen by the load balancer, e.g. in the high order bits of the CID, followed by a connection identifier selected by the physical server. Other designs are possible, e.g. by encrypting the CID to prevent attacks where malicious clients try to target a specific server.
+   QUIC has opted for variable length CIDs to support very different use cases. On the server side, the length of the selected connection identifiers will depend on the architecture of the server. Large sites might use a load-balancer that distributes the connections to different physical servers. Such a load-balancer can leverage the CID to direct each incoming packet to the server that handles this connection. A simple CID would be composed of a server identifier chosen by the load balancer, e.g. in the high order bits of the CID, followed by a connection identifier selected by the physical server. Other designs are possible, e.g. by encrypting the CID to prevent attacks where malicious clients try to target a specific server.
 
    One the client side, variable lengths CIDs bring another benefit. As clients typically manage a small number of QUIC connections, they can simply rely on the destination port of the packets that they receive to identify the corresponding QUIC connection. This corresponds to a zero-length connection identifier. Such a CID is never sent by the server after the handshake. This limits the byte overhead of the packets that clients receive. 
 
-   A last point to note about these CIDs is their encoding inside the QUIC packets. The Initial packet contains the length and the value of both connection identifiers. The maximum length for a CID is 20 bytes. However, after the handshake, the packets that are exchanged over the QUIC connection only contain the destination CID without any field indicating its length. The host that has allocated the CID knows the length of the CIDs that it uses and can thus parse the packets that it receives. 
+   A last point to note about these CIDs is their encoding inside the QUIC packets. The Initial packet contains the length and the value of both connection identifiers. The maximum length for a CID is 20 bytes. However, after the handshake, the packets that are exchanged over the QUIC connection only contain the destination CID without any field indicating its length. The host that has allocated the CID knows the length of the CIDs that it uses and can thus parse the packets that it receives without an explicit length information. 
    	  
 	  
 .. crypto part
@@ -163,7 +167,7 @@ The connection identifiers selected by the client and the server uniquely identi
 Security keys
 -------------
    
-We can now discuss how QUIC leverages TLS 1.3 to negotiate the security keys that are used to authenticate and encrypt the packets exchanged over a connection. As shown in :numref:`fig-quic-handshake`, a QUIC connection starts with the exchange of four frames which can be carried in four or more packets. The first packet sent by the client contains the ``ClientHello`` TLS record. The ``ClientHello`` contains the information required to derive the session keys using Diffie-Hellman or a similar protocol. TLS 1.3 supports both finite field Diffie-Hellman and Elliptic Curve Diffie-Hellman :cite:`rfc8446`. The ``ClientHello`` message also contains TLS or QUIC parameters that the client proposes to use during the connection. The ``TLS Server Hello`` returned by the server contains the certificate that enables the client to validate the server's identity and the information required to determine the Diffie-Hellman keys. Using these keys, the server also encrypts the ``TLS Encrypted Extensions`` message that contains the TLS and QUIC parameters that the server has selected based on the ones proposed in the ``ClientHello``. The server also constructs that ``Finished`` message that contains a message authentication code computed over the entire TLS handshake. This message is encrypted and authenticated using the session keys derived from the Diffie-Hellman keys. The client and the server recompute the hash of the entire handshake and verify both ``Finished`` message. If one of these messages is incorrect, this indicates that either the key has not been correctly derived or that some of the TLS messages have been tampered. In these situations, the QUIC connection is terminated with an error message. The simplified TLS handshake used by QUIC is illustrated in :numref:`fig-quic-tls-handshake`. The TLS messages shown in italics are encrypted using the session keys.
+We can now discuss how QUIC leverages TLS 1.3 to negotiate the security keys that are used to authenticate and encrypt the packets exchanged over a connection. As shown in :numref:`fig-quic-handshake`, a QUIC connection starts with the exchange of four frames which can be carried in four or more packets. The first packet sent by the client contains the ``ClientHello`` TLS record. The ``ClientHello`` contains the information required to derive the session keys using Diffie-Hellman or a similar protocol. TLS 1.3 supports both finite field Diffie-Hellman and Elliptic Curve Diffie-Hellman :cite:`rfc8446`. The ``ClientHello`` message also contains TLS or QUIC parameters that the client proposes to use during the connection. The ``TLS Server Hello`` returned by the server contains the certificate that enables the client to validate the server's identity and the information required to determine the Diffie-Hellman keys. Using these keys, the server also encrypts the ``TLS Encrypted Extensions`` message that contains the TLS and QUIC parameters that the server has selected based on the ones proposed in the ``ClientHello``. The server also constructs the ``Finished`` message that contains a message authentication code computed over the entire TLS handshake. This message is encrypted and authenticated using the session keys derived from the Diffie-Hellman keys. The client and the server recompute the hash of the entire handshake and verify both ``Finished`` messages. If one of these messages is incorrect, this indicates that either the key has not been correctly derived or that some of the TLS messages have been tampered. In these situations, the QUIC connection is terminated with an error message. The simplified TLS handshake used by QUIC is illustrated in :numref:`fig-quic-tls-handshake`. The TLS messages shown in italics are encrypted using the session keys.
 
 
 .. _fig-quic-tls-handshake:
@@ -191,7 +195,7 @@ We can now discuss how QUIC leverages TLS 1.3 to negotiate the security keys tha
 
 .. note:: Encrypting ``TLS Client Hello`` and ``TLS Server Hello``
 
-   When TLS 1.3 is used above TCP, the ``TLS Client Hello`` and ``TLS Server Hello`` messages are sent in clear because the client and the server have not yet exchanged the session keys. A similar approach could have been used for QUIC, but there was a fear that middleboxes could analyze the contents of these initial QUIC messages and try to interfere with them. To add some burden on such middleboxes, QUIC encrypts the Initial packets using a secret that is derived from the destination connection ID of the client's first Initial packet. The pseudocode below, extracted from :cite:`rfc9001`, shows how the client and the server keys are derived:
+   When TLS 1.3 is used above TCP, the ``TLS Client Hello`` and ``TLS Server Hello`` messages are sent in clear because the client and the server have not yet exchanged the session keys. A similar approach could have been used for QUIC, but there was a fear that middleboxes could analyze the contents of these initial QUIC messages and try to interfere with them. To add some burden on these middleboxes, QUIC encrypts the Initial packets using a secret that is derived from the destination connection ID of the client's first Initial packet. The pseudocode below, extracted from :cite:`rfc9001`, shows how the client and the server keys are derived:
 
    .. code-block:: python
 
@@ -207,9 +211,9 @@ We can now discuss how QUIC leverages TLS 1.3 to negotiate the security keys tha
    Since the keys used to protect the Initial packets are derived from the destination connection ID, any QUIC implementation, including those used on middleboxes, can decrypt the contents of the Initial packets.
 
     
-As mentioned above, the client and the server can also use the TLS handshake to agree on specific QUIC parameters. These parameters are called `transport parameters` in :cite:`rfc9000`. 17 different transport parameters are defined in :cite:`rfc9000` and implementations can define their own transport parameters. We will discuss some of them in different sections of this document. A first example is the ``max_udp_payload_size`` parameter that indicates the largest UDP payload that an implementation is willing to receive. The minimum value for this parameter is 1200 bytes. QUIC implementations used in a datacenter could use a much larger ``max_udp_payload_size`` without risking packet fragmentation.
+As mentioned earlier, the client and the server can also use the TLS handshake to agree on specific QUIC parameters. These parameters are called `transport parameters` in QUIC :cite:`rfc9000`. 17 different transport parameters are defined in QUIC version 1 :cite:`rfc9000` and implementations can define their own transport parameters. We will discuss some of them in different sections of this document. A first example is the ``max_udp_payload_size`` parameter that indicates the largest UDP payload that an implementation is willing to receive. The minimum value for this parameter is 1200 bytes. QUIC implementations used in a datacenter supporting jumbo Ethernet frames could agree on a much larger ``max_udp_payload_size`` without risking packet fragmentation.
 
-Another example of QUIC transport parameters are the ``initial_source_connection_id`` and the ``original_destination_connection_id`` transport parameters. As explained above, thanks to the ``Finished`` messages in the TLS handshake, the client and the servers can verify that their messages have not been tampered. Unfortunately, the authentication code included in the ``Finished`` messages is only computed based on the contents of the TLS messages (i.e. ``ClientHello``, ``ServerHello``, ``EncryptedExtensions`` and ``Finished``). During the handshake, the client and the servers also propose the source and destination connection identifiers that they plan to use to identify the QUIC session. These identifiers are placed in the packet header and not inside the TLS messages. They are thus not covered by the authentication code included in the ``Finished`` message. To still authenticate these identifiers, QUIC encodes them as transport parameters that are included in the ``ClientHello`` and the ``EncryptedExtensions`` messages. The client copies the source connection identifier in the ``initial_source_connection_id`` transport parameter in its ``ClientHello``. The server does the same when sending the ``ServerHello``. It also copies in the ``original_destination_connection_id`` the destination identifier used by the client to send the packet containing the ``ClientHello``.
+Another example of QUIC transport parameters are the ``initial_source_connection_id`` and the ``original_destination_connection_id`` transport parameters. As explained above, thanks to the ``Finished`` messages in the TLS handshake, the client and the servers can verify that their messages have not been tampered. Unfortunately, the authentication code included in the ``Finished`` messages is only computed based on the contents of the TLS messages (i.e. ``ClientHello``, ``ServerHello``, ``EncryptedExtensions`` and ``Finished``). During the handshake, the client and the servers also propose the source and destination connection identifiers that they plan to use to identify the QUIC session. These identifiers are placed in the packet header and not inside the TLS messages. They are thus not covered by the authentication code included in the ``Finished`` message. To still authenticate these identifiers, QUIC encodes them as transport parameters that are included in the ``ClientHello`` and the ``EncryptedExtensions`` messages. The client copies the source connection identifier in the ``initial_source_connection_id`` transport parameter in its ``ClientHello``. The server does the same when sending the ``ServerHello``. It also copies in the ``original_destination_connection_id`` transport parameter the destination identifier used by the client to send the packet containing the ``ClientHello``.
 
 
 .. exercice: figure 8 de rfc9000
@@ -217,8 +221,51 @@ Another example of QUIC transport parameters are the ``initial_source_connection
 The QUIC packet headers
 -----------------------
    
-At this point, the QUIC session and the TLS security keys are known by the client and the server. They can start to exchange data. Before looking at how data is carried inside QUIC packets, it is interesting to explore in more details the packet headers that are placed inside each packet. QUIC uses variable length packet headers and two different header formats exist. The first header format is the long header. This is the header used for the first packets of a QUIC connection.
+At this point, the QUIC session and the TLS security keys are known by the client and the server. They can start to exchange data. Before looking at how data is carried inside QUIC packets, it is interesting to explore in more details the packet headers that are placed inside each packet. QUIC uses variable length packet headers. Two different header formats exist. The first header format is the long header. This is the header used for the first packets of a QUIC connection.
 
+Internet protocol specifications usually contain figures to represent the format of the packet headers. This graphical format is useful to get a quick grasp at a header containing fixed size fields. However, when a header contains several variable length fields, the graphical representation can become difficult to follow. The QUIC specification :cite:`rfc9000` uses the textual representation that was also used for the TLS protocol. As an example, let us consider the well-known TCP header. This header is graphically represented as shown in :numref:`fig-quic-tcp-header`. 
+
+
+.. _fig-quic-tcp-header: 
+.. tikz:: Graphical representation of the TCP header 
+
+   \node (A) at (0,0)  {
+   \definecolor{lightred}{rgb}{1,0.7,0.71}
+   \begin{bytefield}{32}
+   \bitheader{0-31} \\
+   \bitbox{16}{Source Port} &  \bitbox{16}{Destination Port} \\
+   \bitbox{32}{Sequence number} \\
+   \bitbox{32}{Acknowledgment number } \\   
+   \bitbox{4}{Offset} & \bitbox{6}{Res} & \bitbox{1}{\tiny U\\R\\G} & \bitbox{1}{\tiny A\\C\\K} & \bitbox{1}{\tiny P\\S\\H} & \bitbox{1}{\tiny R\\S\\T} & \bitbox{1}{\tiny S\\Y\\N} & \bitbox{1}{\tiny F\\I\\N} & \bitbox{16}{Window} \\
+   \bitbox{16}{TCP Checksum} &  \bitbox{16}{Urgent Pointer} \\
+   \end{bytefield}
+   };
+   
+.. code-block:: console
+   :caption: Textual representation of the TCP header
+   :name: fig-quic-tcp-text-header
+
+   TCP Header Packet {
+     Source Port (16),
+     Destination Port (16),
+	 Sequence Number (32),
+     Acknowledgment Number (32),
+	 Offset (4),
+	 Reserved (6),
+	 Urgent Flag (1),
+	 ACK Flag (1),
+	 Push Flag (1),
+	 RST Flag (1),
+	 SYN Flag (1),
+	 FIN Flag(1),
+	 Window (16),
+	 TCP Checksum (16),
+	 Urgent Pointer (16)
+	 }
+   
+The attentive reader will easily understand the correspondence between the two formats. When explaining QUIC, we use the textual representation while we stick to the graphical one for TCP.
+	 
+	 
 :numref:`fig-quic-long-header` shows the QUIC long header. It starts with one byte containing the header type in the most significant bit, two bits indicating the packet type and four bits that are specific to each packet packet. Then, 32 bits carry the QUIC version number. The current version of QUIC, defined in :cite:`rfc9000`, corresponds to version ``0x00000001``. The header then contains the destination and source connection identifiers that were described previously and then a payload that is specific to each type. 
 
 
@@ -227,16 +274,16 @@ At this point, the QUIC session and the TLS security keys are known by the clien
    :name: fig-quic-long-header
 
    Long Header Packet {
-     Header Form (1) = 1,
-     Fixed Bit (1) = 1,
-     Long Packet Type (2),
-     Type-Specific Bits (4),
-     Version (32),
-     Destination Connection ID Length (8),
-     Destination Connection ID (0..160),
+     Header Form (1) = 1,                  # high order bit of the first byte
+     Fixed Bit (1) = 1,                    # second order bit of the first byte
+     Long Packet Type (2),                 # third and fourth high order bits of the first byte
+     Type-Specific Bits (4),               # low order four bits of the first byte
+     Version (32),                         # 32 bits version number
+     Destination Connection ID Length (8), # 8 bits 
+     Destination Connection ID (0..160),   # variable number from 0 up to 160 bits
      Source Connection ID Length (8),
      Source Connection ID (0..160),
-     Type-Specific Payload (..),
+     Type-Specific Payload (..),           # variable length
    }
 
 
