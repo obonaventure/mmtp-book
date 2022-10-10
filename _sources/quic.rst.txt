@@ -719,7 +719,7 @@ The QUIC specification recommends to send one ``ACK`` frame after having receive
 
 	  
    .. plot::
-
+      :caption: Acknwoledgement frequencies for different QUIC servers
 
       import matplotlib.pyplot as plt
       import numpy as np
@@ -778,7 +778,7 @@ QUIC also allows a receiver to send information about the ECN flags in the recei
 
    :numref:`fig-quic-ack-initials` illustrates the beginning of a QUIC connection with the exchange of the ``Initial`` packets and the corresponding acknowledgments. The client sends its ``TLS Client Hello`` inside a ``CRYPTO`` frame in an ``Initial`` packet. This is the first packet sent by the client and thus its packet number is 0. The server replies with a ``TLS Server Hello`` inside a ``CRYPTO`` frame in an ``Initial`` packet. Since this is the first packet sent by the server, its packet number is also 0. The packet also contains an ``ACK`` frame that acknowledges the reception of the packet containing the ``TLS Client Hello``.
 
-    The ``Handshake``, ``0-RTT`` and ``1-RTT`` packets are acknowledged similarly using ``ACK`` frames. ``Handshake`` packets are acknowledged in other ``Handshake`` packets while ``0-RTT`` and ``1-RTT`` packets are acknowledged inside ``1-RTT`` packets.
+   The ``Handshake``, ``0-RTT`` and ``1-RTT`` packets are acknowledged similarly using ``ACK`` frames. ``Handshake`` packets are acknowledged in other ``Handshake`` packets while ``0-RTT`` and ``1-RTT`` packets are acknowledged inside ``1-RTT`` packets.
 	   
 .. _fig-quic-ack-initials:
 .. tikz:: QUIC also acknowledges Initial frames
@@ -805,22 +805,19 @@ QUIC also allows a receiver to send information about the ECN flags in the recei
       \draw[black,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
       \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
 	 
-      \draw[blue,thick, ->] (\s1,\y) -- (\c1,\y-1) node [midway, fill=white]  {Initial(CRYPTO),$pn=0$};
-      \draw[blue,thick, ->] (\c1,\y-1) -- (\s1,\y-2) node [midway, align=center, fill=white] {Initial(CRYPTO,ACK),$pn=0$};
-      \draw[blue,thick, ->] (\s1,\y-2) -- (\c1,\y-3) node [midway, fill=white]  {Initial(ACK),$pn=1$};
+      \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, fill=white]  {Initial(CRYPTO),$pn=0$};
+      \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=center, fill=white] {Initial(CRYPTO,ACK),$pn=0$};
+      \draw[blue,thick, ->] (\c1,\y-2) -- (\s1,\y-3) node [midway, fill=white]  {Initial(ACK),$pn=1$};
    
-
-
 
     
       
 To illustrate how QUIC uses acknowledgments, let us consider a simple QUIC connections. The client starts a QUIC connection with a new server, sends a request, receives a response and then closes the connection. There are no losses in this connection. :numref:`fig-quic-ack-short` illustrates this connection.
 
+
 .. _fig-quic-ack-short:
 .. tikz:: Acknowledgments in a short QUIC connection
    :libs: positioning, matrix, arrows, math
-
-      
 	  
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=12; }
    \tikzstyle{every node}=[font=\small]
@@ -848,126 +845,24 @@ To illustrate how QUIC uses acknowledgments, let us consider a simple QUIC conne
    
 
 
-The connection starts when the client sends an ``Initial`` packet containing a ``CRYPTO`` frame with the ``TLS Client Hello``. The server replies with an ``Initial`` packet that contains an acknowledgment and a ``CRYPTO`` frame with the ``TLS Server Hello``. The server then sends an ``Initial`` packet containing the ``TLS Encrypted Extensions``. Since this is the first ``Initial`` packet, its packet number is set to 0. In practice, it is likely that the server will need to send several packets to carry the certificates contained in this packet. Note that the server cannot send more than 3 packets in response to the client's ``Initial`` packet. If the ``CRYPTO`` frame containing the certificates is too long, the server might need to wait for acknowledgments from the client before sending its last ``Handshake`` packets. The client confirms the reception of the server's ``Initial`` packet by sending its last ``Initial`` packet that contains an ``ACK`` frame. This is the second ``Initial`` packet sent by the client and its packet number is thus 0. Since this packet only contains an ``ACK`` frame, the server does not return an acknowledgment to confirm its reception.
+The connection starts when the client sends an ``Initial`` packet containing a ``CRYPTO`` frame with the ``TLS Client Hello``. The server replies with an ``Initial`` packet that contains an acknowledgment and a ``CRYPTO`` frame with the ``TLS Server Hello``. The server then sends an ``Initial`` packet containing the ``TLS Encrypted Extensions``. Since this is the first ``Initial`` packet, its packet number is set to 0. In practice, it is likely that the server will need to send several packets to carry the certificates contained in this packet. Note that the server cannot send more than 3 packets in response to the client's ``Initial`` packet. This limit was introduced in the QUIC specification to restrict the ability of attackers to trigger DDoS attacks by sending spoofed packets to QUIC servers :cite:`rfc9000`. If the ``CRYPTO`` frame containing the certificates is too long, the server might need to wait for acknowledgments from the client before sending its last ``Handshake`` packets. The client confirms the reception of the server's ``Initial`` packet by sending its last ``Initial`` packet that contains an ``ACK`` frame. This is the second ``Initial`` packet sent by the client and its packet number is thus 1. Since this packet only contains an ``ACK`` frame, the server does not return an acknowledgment to confirm its reception.
 
 
 The client replies to the ``Handshake`` packet with another ``Handshake`` packet that contains a ``CRYPTO`` frame and acknowledges the ``Handshake`` packets sent by the server. The client's ``Handshake`` packet is acknowledged by the server. The server starts the data exchange by sending a ``1-RTT`` packet carrying one or more stream frames to create the required streams. Since this is the first ``1-RTT`` packet sent by the server, its packet number is set to 0. The client then sends its request in a ``STREAM`` frame. The server replies with a ``1-RTT`` packet that contains a ``STREAM`` frame with its response. The client ends the connection by sending a ``CONNECTION_CLOSE`` frame. In the example, the server replies with a ``CONNECTION_CLOSE`` frame, but the QUIC specification :cite:`rfc9000` only indicates that a host may respond with a ``CONNECTION_CLOSE`` in this case.
 
 
-   
 
-Migrating QUIC connections   
+Observing QUIC connections
 --------------------------
 
+We have now reviewed the main components of the QUIC specification. To illustrate it, let us consider a simple scenario where a client opens a QUIC connection with a server. We leverage Maxime Piraux's QUIC tracker :cite:`piraux2018observing`. In this example, we use the packet trace collected using the ``nghttp2.org`` server on November 22, 2021 at 18:04:52 CET. This trace is available from `https://quic-tracker.info.ucl.ac.be/traces/20211122/148 <https://quic-tracker.info.ucl.ac.be/traces/20211122/148>`_. You can see the contents of the packets, download it as a ``.pcap`` trace or visualize it using QLog/QViz :cite:`marx2020debugging` from this web site.
 
-.. connection migration as a multipath features, discuss its limitations
-
-As explained above, QUIC uses connection identifiers. These connection identifiers are used for different purposes. On the server side, they can be used by load-balancers to spread the packets of different connections to different servers. But QUIC 's connection identifiers also enable clients to migrate connections from one path to another or even on the same path.
-
-
-QUIC connection migrations occur in two steps. As an example, we consider the client triggered migrations. These are the most important from a deployment viewpoint. A client can decide to migrate its connection for various reasons,including privacy and performance. A common scenario is a smartphone that moves and goes progressively out of reach of the Wi-Fi access point. When the smartphone notices a decrease in the performance of the Wi-Fi network (lower signal to noise ratio, more losses or retransmissions, ...), it can decide to migrate the QUIC connections over the cellular interface. A naive solution would be to simply move the QUIC packets from one interface to another using the same connection identifiers. This is illustrated in :numref:`fig-quic-naive-migration`. The QUIC connection was established from the client IP address, $IP_C$, to the server's IP address, $IP_S$. The first two packets show a simple exchange over this connection. Before sending its second packet, the client decides to use its second interface to send the subsequent packets. This interface is illustrated in red on the figure and its IP address is $IP_X$. The client sends its second packet over this interface.
-
-.. _fig-quic-naive-migration:
-.. tikz:: A naive approach to migrate a QUIC connection from Wi-Fi to cellular
-   :libs: positioning, matrix, arrows, math
-
-
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=5; }
-   \tikzstyle{every node}=[font=\small]
-   \tikzstyle{arrow} = [thick,->,>=stealth]
-   \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
-   
-   \draw[black,thick,->] (\c1-0.5,\max-0.5) -- (\c1-0.5,0.5);
-   \draw[red,dashed,thick,->] (\c1+0.5,\max-0.5) -- (\c1+0.5,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
-	  
-   \tikzmath{\y=\max-1;}
-   \draw[black,thick, ->] (\c1-0.5,\y) -- (\s1,\y-1) node [midway, align=center, fill=white]  {src=$IP_C$,dst=$IP_S$,DCID=$\alpha$\\1-RTT(...)};
-   \draw[black,thick, ->] (\s1,\y-1) -- (\c1-0.5,\y-2) node [midway, align=center, fill=white]  {src=$IP_S$,dst=$IP_C$\\1-RTT(...)};
-   \draw[red,thick, ->] (\c1+0.5,\y-2) -- (\s1,\y-3) node [midway, align=center, fill=white]  {src=$IP_X$,dst=$IP_S$,DCID=$\alpha$\\1-RTT(...)};
-   \draw[red,thick, ->] (\s1,\y-3) -- (\c1+0.5,\y-4) node [midway, align=center, fill=white]  {src=$IP_S$,dst=$IP_X$\\1-RTT(...)};
-
-This naive approach has several problems. Consider the server that receives the first QUIC packet from the smartphone's cellular interface. This packet originates from a different IP address than the previous one, but still belongs to the same connection. If the server accepts this packet and moves the connection to the cellular path, this creates several security risks. First, consider an attacker who has captured a packet over the Wi-Fi network. By sending again this unmodified packet from another IP address, the attacker could disrupt the ongoing connection by forcing the server to send replies to its own IP address. This also opens a risk of denial of service attack as the server could send a large number of packets to the smartphone's new IP address. QUIC copes with these problems by using different connection identifiers and using the path validation mechanism.
-
-To enable a client to migrate a QUIC connection, the server must first advertise at least one different connection identifier. This is done with the ``NEW_CONNECTION_ID`` frame. The client uses this additional connection identifier to try to move the connection to a new path. The client cannot use a new path before have the guarantee that the server can reply over the new path. To verify that the new path is bidirectional, the client sends a ``PATH_CHALLENGE`` frame in a QUIC packet that uses the new connection identifier over the new path. This frame mainly contains a 64 bits random nonce must be echoed by the server. Upon reception of this packet, the server detects an attempt to use a new path with the new connection identifier. It replies with a ``PATH_RESPONSE`` frame that echoes the client nonce. The server may also perform its own path validation by sending a ``PATH_CHALLENGE`` with a different nonce in the same packet as the ``PATH_RESPONSE``. The client considers that the path has been validated upon reception of the valid ``PATH_RESPONSE`` frame. The packets that contain the ``PATH_CHALLENGE`` and ``PATH_RESPONSE`` frames can be padded with ``PADDING`` frames. At this time, it switches to the new connection identifier and the new path for all the frames that it sends. It may still continue to receive packets over the former path for some time. The server will switch to the new path once it has received a response to its ``PATH_CHALLENGE`` if it decided to validate the new path. Otherwise, the reception of a QUICK packet that contains other frames than ``PATH_CHALLENGE``, ``PATH_RESPONSE``, ``NEW_CONNECTION_ID`` or ``PADDING``. The client could send a ``NEW_CONNECTION_ID`` frame together with the ``PATH_CHALLENGE`` frame if the client uses a non-null connection identifier and it has not sent a ``NEW_CONNECTION_ID`` frame before. This is illustrated in :numref:`fig-quic-client-migration`.
-
-.. _fig-quic-client-migration:
-.. tikz:: A QUIC connection migration initiated by the client
-   :libs: positioning, matrix, arrows, math
-
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
-   \tikzstyle{every node}=[font=\small]
-   \tikzstyle{arrow} = [thick,->,>=stealth]
-   \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
-   
-   \draw[black,thick,->] (\c1-0.5,\max-0.5) -- (\c1-0.5,0.5);
-   \draw[red,dashed,thick,->] (\c1+0.5,\max-0.5) -- (\c1+0.5,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
-	  
-   \tikzmath{\y=\max-1;}
-   \draw[black,thick, ->] (\c1-0.5,\y) -- (\s1,\y-1) node [midway, align=center, fill=white]  {src=$IP_C$,dst=$IP_S$,DCID=$\alpha$\\1-RTT(...)};
-   \draw[black,thick, ->] (\s1,\y-1) -- (\c1-0.5,\y-2) node [midway, align=center, fill=white]  {src=$IP_S$,dst=$IP_C$\\1-RTT(...)};
-   \draw[red,thick, ->] (\c1+0.5,\y-2) -- (\s1,\y-3) node [midway, align=center, fill=white]  {src=$IP_X$,dst=$IP_S$,DCID=$\beta$\\1-RTT(PATH\_CHALLENGE($x$))};
-   \draw[red,thick, ->] (\s1,\y-3) -- (\c1+0.5,\y-4) node [midway, align=center, fill=white]  {src=$IP_S$,dst=$IP_X$\\1-RTT(PATH\_RESPONSE($x$),PATH\_CHALLENGE($y$)};   
-   \draw[red,thick, ->] (\c1+0.5,\y-4) -- (\s1,\y-5) node [midway, align=center, fill=white]  {src=$IP_X$,dst=$IP_S$,DCID=$\beta$\\1-RTT(PATH\_RESPONSE($y$),...)};
-   \draw[red,thick, ->] (\s1,\y-5) -- (\c1+0.5,\y-6) node [midway, align=center, fill=white]  {src=$IP_S$,dst=$IP_X$\\1-RTT(...)};
-   
-
-
-	  
-
-   
-The examples above showed a connection that migrates from one network interface to another. This is expected to be a frequent situation for smartphones that moves. However, there are also cases where the client will trigger a connection migration even if they use a single network interface. In this case, connection migration allows the client to hide the fact that it has a long QUIC connection with the same endpoint. The initial use case for QUIC is to support HTTP/3, but QUIC could also be used to provide VPN-like services as proposed in :cite:`de2019pluginizing`. By regularly changing their connection identifiers, such VPN services could prevent some middleboxes from blocking them.
-
-.. note:: Unintended QUIC connection migrations
-
-   We have described how QUIC clients can trigger connection migrations. There are situations when connection migration occurs without being triggered by the clients. A classical example is when there is a NAT on the path between the client and the server. The QUIC connection has been idle for some time and the NAT has removed the mapping from the client's private IP address to a public one. When the client sends the next packet over the connection, the NAT creates a new mapping and thus assigns a different IP address to the client. The server receives a packet that uses the same connection identifier but comes from a different IP address than the initial one. This is illustrated in :numref:`fig-quic-nat-migration`. Upon reception of the QUIC packet coming from the new IP address (shown in red in :numref:`fig-quic-nat-migration`, the server triggers a path validation. Once the path has been validated, the QUIC connection can continue.
-
-
-   
-.. _fig-quic-nat-migration:
-.. tikz:: A QUIC connection migration triggered by a NAT
-   :libs: positioning, matrix, arrows, math
-
-
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=7; }
-   \tikzstyle{every node}=[font=\small]
-   \tikzstyle{arrow} = [thick,->,>=stealth]
-   \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
-   
-   \draw[black,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
-	  
-   \tikzmath{\y=\max-1;}
-   \draw[black,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=center, fill=white]  {src=$IP_C$,dst=$IP_S$,DCID=$\alpha$\\1-RTT(...)};
-   \draw[black,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=center, fill=white]  {src=$IP_S$,dst=$IP_C$\\1-RTT(...)};
-   \draw[red,thick, ->] (\c1,\y-2) -- (\s1,\y-3) node [midway, align=center, fill=white]  {src=$IP_Y$,dst=$IP_S$,DCID=$\alpha$\\1-RTT(...)};
-   \draw[red,thick, ->] (\s1,\y-3) -- (\c1,\y-4) node [midway, align=center, fill=white]  {src=$IP_S$,dst=$IP_Y$\\1-RTT(PATH\_CHALLENGE($z$))};
-   \draw[red,thick, ->] (\c1,\y-4) -- (\s1,\y-5) node [midway, align=center, fill=white]  {src=$IP_S$,dst=$IP_Y$\\1-RTT(PATH\_RESPONSE($z$))};
-	     
-
-
-   
-The previous examples have shown that a client can trigger a connection migration to improve performance or for privacy reasons. Our examples have considered that the clients have multiple IP addresses while the servers have a stable IP address. This corresponds to most deployments, but not all of them. Today, many servers are dual-stack. They support both IPv4 and IPv6. When a client starts a QUIC connection over one address family, it could be useful for the client to lean the other server address to be able to switch to this address if the other fails. Another interesting deployments are the server farms where each server has both an anycast address and a unicast one. All servers use the same anycast address and this address is the one advertised using the DNS. When a client initiates a QUIC connection, it targets the anycast address. The ``Initial`` QUIC packet is load-balanced to one of the servers of the farm and all subsequent packets of this connection are load-balanced to the same server. In this deployment, all packets must be processed by the load-balancer before reaching the server. When the load is high, the load-balancer could become a bottleneck and it would be useful to allow QUIC connections to migrate to the unicast address of their servers since unicast address bypasses the load-balancer. The first version of QUIC provides partial support for this bypass by allowing the server to advertise its preferred unicast addresses (IPv4 and IPv6) using the ``preferred_address`` transport parameter during the handshake. However, the QUIC specification :cite:`rfc9000` does not allow the server to force a migration to its preferred address. This migration can only be triggered by the client. 
-
-
-Observing a QUIC connection
----------------------------
-
-We have now reviewed the main components of the QUIC specification. To illustrate it, let us consider a simple scenario here a client opens a QUIC connection with a server. We leverage Maxime Piraux's QUIC tracker :cite:`piraux2018observing`. In this example, we use the packet trace collected using the ``nghttp2.org`` server on November 22, 2021 at 18:04:52 CET. This trace is available from `https://quic-tracker.info.ucl.ac.be/traces/20211122/148 <https://quic-tracker.info.ucl.ac.be/traces/20211122/148>`_. You can see the contents of the packets, download it as a ``.pcap`` trace or visualize it using QLog/QViz :cite:`marx2020debugging` from this web site.
-
-This trace contains 16 packets. The scenario is a simply handshake with an exchange of data.
+This trace contains 16 packets. The scenario is a simple handshake with an exchange of data.
 
 
 .. figure:: figures/qtracker-nghttp2-1.png
 
-   Sample QUIC tracker trace from nghttp2.org with a successful handshake
+   Sample QUIC tracker trace with ``nghttp2.org`` containing a successful handshake
 
 
 To initiate the connection, the client sends an ``Initial`` QUIC packet.  It is interesting to analyze the content of this packet. It starts with a long QUIC header shown in :numref:`fig-trace-quic-header-p1`.
@@ -999,7 +894,7 @@ To initiate the connection, the client sends an ``Initial`` QUIC packet.  It is 
    }
 
    
-The client proposes a 64 bits connection identifier and uses a random 64 bits identifier for the destination connection identifier. There is no token since this is the first connection from this client to the server. It is useful to note that the packet number of this ``Initial`` packet is set to zero. All QUIC connections start with a packet whose packet number is set to zero in contrast with TCP that uses a random sequence number. The packet contains a ``CRYPTO`` frame shown in :numref:`fig-trace-quic-crypto-p1`.
+The client proposes a 64 bits connection identifier and uses a random 64 bits identifier for the destination connection identifier. There is no token in this packet since this is the first connection from this client to the server. It is useful to note that the packet number of this ``Initial`` packet is set to zero. All QUIC connections start with a packet whose packet number is set to zero in contrast with TCP that uses a random sequence number. The packet contains a ``CRYPTO`` frame shown in :numref:`fig-trace-quic-crypto-p1`.
    
 .. code-block:: console
    :caption: The CRYPTO frame of the first QUIC packet sent by the client
@@ -1065,20 +960,20 @@ This server uses 18 bytes to encode its connection identifier and proposes the f
       First ACK Range = 0
    }
 
-The payload of these ``Initial`` packets is encrypted using the static key that is derived from the connection identifiers included in the long header.
+The payload of these ``Initial`` packets is encrypted using the static key derived from the connection identifiers included in the long header.
 
-The server then sends three ``Handshake`` packets carrying a ``CRYPTO`` that contains the ``TLSEncryptedExtensions``. These extensions are encrypted using the TLS key. They mainly contain the server certificate. It is interesting to note that the ``packet_number`` field of the first ``Handshake`` packet sent by the server is also set to zero. This is the second, but not the last, packet that we observe with this ``packet_number``. QUIC handles packet numbers differently then other protocols. QUIC considers that a QUIC connection is divided in three phases:
+The server then sends three ``Handshake`` packets carrying a ``CRYPTO`` frame that contains the ``TLSEncryptedExtensions``. These extensions are encrypted using the TLS key. They mainly contain the server certificate. It is interesting to note that the ``packet_number`` field of the first ``Handshake`` packet sent by the server is also set to zero. This is the second, but not the last, packet that we observe with this ``packet_number``. QUIC handles packet numbers differently then other protocols. QUIC considers that a QUIC connection is divided in three phases:
 
  1. The exchange of the ``Initial`` packets
  2. The exchange of the ``Handshake`` packets
  3. The exchange of the other packets (``0-RTT``, ``1-RTT``, ... packets)
 
-A QUIC host restarts the ``packet_numer`` at zero in each phase. This explains why it is possible to observe different packets (of different types) with the same ``packet_number`` over a QUIC connection.
+A QUIC host restarts the ``packet_number`` at zero in each phase. This explains why it is possible to observe different packets (of different types) with the same ``packet_number`` over a QUIC connection.
 
 
 The three ``Handshake`` packets sent by the server contain the beginning of the ``TLSEncryptedExtensions`` sent by the server. To prevent denial of service attacks, the server cannot send more than three full-length packets in response to a packet sent by the client. The server thus needs to wait for an acknowledgment from the client before sending additional packets.
 
-The client sends two different packets to carry these acknowledgments. First, it sends an ``Initial`` packet as the sixth packet of the trace. This packet belongs to the packet numbering space of the ``Initial`` packets. Its packet number is 1 since this is the second ``Initial`` packet sent by the client. The next acknowledgment is carried inside an ``Handshake`` packet. It acknowledges the ``Handshake`` packets 0-2 sent by the server. Since this is the first ``Handshake`` packet sent by the client, its packet number is also 0. 
+The client sends two packets to carry these acknowledgments. First, it sends an ``Initial`` packet as the sixth packet of the trace. This packet belongs to the packet numbering space of the ``Initial`` packets. Its packet number is 1 since this is the second ``Initial`` packet sent by the client. The next acknowledgment is carried inside an ``Handshake`` packet. It acknowledges the ``Handshake`` packets 0-2 sent by the server. Since this is the first ``Handshake`` packet sent by the client, its packet number is also 0. 
 
 
 The server then sends the eighth packet that contains the last part of the ``TLSEncryptedExtensions`` in a ``CRYPTO`` frame. By combining the information contained in the ``Handshake`` packets and the ``Initial`` packets, the client can derive the session keys.
@@ -1105,39 +1000,44 @@ This short header contains the connection identifier proposed by the client in t
 
 The first ``1-RTT`` packet sent by the client contains an ``ACK`` frame that acknowledges the ``1-RTT`` packet sent by the server and flow control information. The client sends a ``MAX_DATA`` frame to restrict the amount of data that the server can send and one ``MAX_STREAM`` frame for each of the three streams created by the server.
 
-The twelfth packet of the trace is more interesting. It contains five different frames that are sent by the server. First, the server send two ``NEW_CONNECTION_ID`` frames that advertise two 18 bytes long connection identifiers which can be used by the client to migrate the connection later. The next frame is the ``HANDSHAKE_DONE`` that confirms the TLS handshake. The server also sends a ``NEW_TOKEN`` frame that contains a 57 bytes long token that the client will be able to use in subsequent connections with the server. The last frame is a ``CRYPTO`` frame that contains two ``TLS New Session Tickets``.
+The twelfth packet of the trace is more interesting. It contains five different frames that are sent by the server. First, the server send two ``NEW_CONNECTION_ID`` frames that advertise two 18 bytes long connection identifiers which can be used by the client to migrate the connection later. The next frame is the ``HANDSHAKE_DONE`` frame that confirms the TLS handshake. The server also sends a ``NEW_TOKEN`` frame that contains a 57 bytes long token that the client will be able to use in subsequent connections with the server. The last frame is a ``CRYPTO`` frame that contains two ``TLS New Session Tickets``.
 
 
+A closer look at other QUIC handshakes
+......................................
 
-It is interesting to analyze how different servers perform the handshake with QUIC tracker. Let us first explore the `trace collected with cloudflare-quic.com <https://quic-tracker.info.ucl.ac.be/traces/20211122/140>`_ on the same day. There are several differences with the nghttp2 trace that we analyzed above.
+It is interesting to analyze how different servers perform the handshake using QUIC tracker. Let us first explore the `trace collected with cloudflare-quic.com <https://quic-tracker.info.ucl.ac.be/traces/20211122/140>`_ on the same day shown in :numref:`fig-qtracker-cloudflare`. There are several differences with the nghttp2 trace that we analyzed above. First, the server sends two small packets in response to the client's ``Initial``. The first packet only contains an ``ACK`` frame. It advertises a 20 bytes long connection identifier. The second packet contains a ``CRYPTO`` frame with a ``TLS Hello Retry Request``. This message indicates that the server did not agree with the ``key_share`` parameter of the ``TLS Client Hello`` sent in the first packet. The client acknowledges this packet and sends a new ``TLS Client Hello`` in the fourth packet. The server replies with a ``TLS Server Hello`` and then the ``TLSEncryptedExtensions`` in three QUIC packets. The certificate used by ``cloudflare-quic.com`` is more compact than the one used by ``nghttp2.org``.
 
-.. figure:: figures/qtracker-cloudflare-1.png
+.. _fig-qtracker-cloudflare:
+.. figure:: figures/qtracker-cloudflare-1.png 
 
    Sample quic tracker trace from cloudflare-quic.com with a successful handshake
 
-There are several differences with the first trace that we have analyzed. First, the server sends two small packets in response to the client's ``Initial``. The first packet only contains an ``ACK`` frame. It advertises a 20 bytes long connection identifier. The second contains a ``CRYPTO`` frame with a the ``TLS Hello Retry Request``. This message indicates that the server did not agree with the ``key_share`` parameter of the ``TLS Client Hello`` sent in the first packet. The client acknowledges this packet and sends a new ``TLS Client Hello`` in the fourth packet. The server replies with a ``TLS Server Hello`` and then the ``TLSEncryptedExtensions`` in three QUIC packets. The certificate used by ``cloudflare-quic.com`` is more compact than the one used by ``nghttp2.org``.
    
 
-The ``1-RTT`` packets are also slightly different. The first ``1-RTT`` packet sent by the server contains the ``HANDSHAKE_DONE`` frame, a ``CRYPTO`` frame with two ``TLS New Session Ticket`` messages and a ``STREAM`` frame that creates one stream. The server then sends two more short packet. Each of these packets contains a ``STREAM`` frame that creates a new stream. These two short packets could have been packed in the first ``1-RTT`` packet sent by the server. In contrast with ``nghttp2.org``, ``cloudflare-quic.com`` does advertise new connection identifiers.
+The ``1-RTT`` packets are also slightly different. The first ``1-RTT`` packet sent by the server contains the ``HANDSHAKE_DONE`` frame, a ``CRYPTO`` frame with two ``TLS New Session Ticket`` messages and a ``STREAM`` frame that creates one stream. The server then sends two short packet. Each of these packets contains a ``STREAM`` frame that creates a new stream. These two short packets could have been packed in the first ``1-RTT`` packet sent by the server. In contrast with ``nghttp2.org``, ``cloudflare-quic.com`` does advertise new connection identifiers.
 
 
 Our third example is `picoquic <https://github.com/private-octopus/picoquic>`_. The `QUIC tracker trace with test.privateoctopus.com <https://quic-tracker.info.ucl.ac.be/traces/20211122/159>`_ contains 13 packets. 
 
+.. _fig-qtrack-picoquic-1:
 .. figure:: figures/qtracker-picoquic-1.png
 
    Sample QUIC tracker trace from ``test.privateoctopus.com`` with a successful handshake
 
    
-picoquic uses 64 bits long connection identifiers. It manages to fit its ``TLS Encrypted Extensions`` within two ``Handshake`` packets. The first ``1-RTT`` packet that it sends contains a ``PING`` frame. The second ``1-RTT`` packet contains one ``CRYPTO`` frame that advertises one ``TLS New Session Ticket``, three ``NEW_CONNECTION_ID`` frames and a ``NEW_TOKEN``. This test server does not try to create new streams in contrast with the two others.
+picoquic uses 64 bits long connection identifiers. It manages to fit its ``TLS Encrypted Extensions`` within two ``Handshake`` packets. The first ``1-RTT`` packet that it sends contains a ``PING`` frame. The second ``1-RTT`` packet contains one ``CRYPTO`` frame that advertises one ``TLS New Session Ticket``, three ``NEW_CONNECTION_ID`` frames and a ``NEW_TOKEN`` frame. This test server does not try to create new streams in contrast with the two others.
 
 
 .. note:: Comparing QUIC servers
 
-   It is interesting to use the traces collected by QUIC tracker to observe the how different servers have selected some of the optional features of QUIC. A first difference between the servers is the length of the server-selected connection identifiers.
+   It is interesting to use the traces collected by QUIC tracker to analyze how different servers have selected some of the optional features of QUIC. A first difference between the servers is the length of the server-selected connection identifiers. The graph below shows that in November 2021 many servers advertised 8 bytes CIDs, but some have opted for much longer CIDs. 
 
 
    .. plot::
+      :caption: Length of the connection identifiers advertised by different QUIC servers (Nov 2021)
 
+	     
       import matplotlib.pyplot as plt
       plt.rcParams["figure.autolayout"] = True
       fig = plt.figure()
@@ -1152,25 +1052,35 @@ picoquic uses 64 bits long connection identifiers. It manages to fit its ``TLS E
       plt.title('Length of the CIDs advertised by different QUIC servers')
       plt.show()
 
+Observing 0-RTT data in QUIC
+............................
+      
+
+The ability to send data immediately was one of the requirements for the design of QUIC. It is interesting to observe how QUIC uses the ``0-RTT`` packets for this purpose. We use a `trace collected between QUIC tracker and picoquic as our example <https://quic-tracker.info.ucl.ac.be/traces/20211122/619>`_. This trace covers two QUIC connections shown in :numref:`fig-qtrack-picoquic-0rtt`.
 
 
-The ability to send data immediately was one of the requirements for the design of QUIC. It is interesting to observe how QUIC uses the ``0-RTT`` packets for this purpose. We use a `trace collected between QUIC tracker and picoquic as our example <https://quic-tracker.info.ucl.ac.be/traces/20211122/619>`_. This trace covers two QUIC connections.
-
-.. figure:: figures/qtracker-picoquic-0rtt.png
-
+.. figure:: figures/qtracker-picoquic-0rtt.png 
+   :name: fig-qtrack-picoquic-0rtt
+	  
    Sample QUIC trace with ``test.privateoctopus.com`` with 0-RTT packets
 
 During the first QUIC connection, QUIC tracker receives one TLS session ticket in the ``CRYPTO`` frame contained in the 1-RTT packet that the server sent with packet number set to 0. This ticket contains all the information required by the server to retrieve the key in a subsequent connection. QUIC tracker starts the second connection by sending an ``Initial`` packet. This packet contains a ``CRYPTO`` frame that contains the ``TLS Client Hello`` message. A comparison between this ``TLS Client Hello`` and the one sent to create the first connection shows that the latter contains the ``psk_key_exchange_modes`` TLS extension. This extension contains the information that enables the server to recover the key required to decrypt the ``0-RTT`` packet. In this example, the client sends a ``0-RTT`` that contains the beginning of a simple ``HTTP GET``.
       
 
-As QUIC support multiple streams, it is interesting to analyze how the streams are managed over a real QUIC connection. For this example, we use a `trace between QUIC tracker and quic.tech <https://quic-tracker.info.ucl.ac.be/traces/20211122/375>`_. In the example, the QUIC tracker creates four streams and sends one ``HTTP GET`` request over each of them.
+QUIC streams
+............
+
+
+As QUIC support multiple streams, it is interesting to analyze how the streams are managed over a real QUIC connection. For this example, we use a `trace between QUIC tracker and quic.tech <https://quic-tracker.info.ucl.ac.be/traces/20211122/375>`_ summarized in :numref:`fig-qtrack-quictech`. In the example, the QUIC tracker creates four streams and sends one ``HTTP GET`` request over each of them.
+
 
 .. figure:: figures/qtracker-quictech-1.png
-
+   :name: fig-qtrack-quictech
+	  
    Sample QUIC trace with quic.tech using multiple streams
 
    
-In this trace, the client creates four streams in its first ``STREAM`` frame sent in its first ``1-RTT`` packet. :numref:`fig-quic-trace-stream-frame` shows the first of these ``STREAM`` frames. The ``Type`` of the ``STREAM`` is one octet structured as ``0b00001OLF`` where ``O`` is set to ``1`` if the ``STREAM`` frame contains an ``Offset`` field. Bit ``L`` is set to ``1`` if the frame contains a ``Length`` field. Finally, the ``F`` is set to ``1`` to mark the end of the ``STREAM``. In this test, QUIC Tracker sends 17 bytes over each stream and closes it. 
+In this trace, the client creates four streams in its first ``STREAM`` frame sent in the first ``1-RTT`` packet. :numref:`fig-quic-trace-stream-frame` shows the first of these ``STREAM`` frames. The ``Type`` of the ``STREAM`` is one octet structured as ``0b00001OLF`` where ``O`` is set to ``1`` if the ``STREAM`` frame contains an ``Offset`` field. Bit ``L`` is set to ``1`` if the frame contains a ``Length`` field. Finally, the ``F`` is set to ``1`` to mark the end of the ``STREAM``. In this test, QUIC Tracker sends 17 bytes over each stream and closes it. 
 
 
 .. code-block:: console
