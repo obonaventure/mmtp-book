@@ -217,7 +217,7 @@ latex_elements = {
 'preamble': '''
 \\usepackage{tikz}
 \\usepackage{xcolor}
-\\usepackage{bytefield}
+\\usepackage{bytefield27}
 \\usepackage{pgfplots}
 \pgfplotsset{compat=1.16}
 \\usetikzlibrary{arrows,arrows.meta,positioning, matrix,backgrounds,shapes,shadows,calc,automata,math}
@@ -244,7 +244,7 @@ tikz_latex_preamble='''
 \\usepackage{pgfplots}
 \\usepackage{pgfkeys}
 \\usepackage[normalem]{ulem}
-\\usepackage{bytefield}
+\\usepackage{bytefield27}
 %\pgfplotsset{compat=1.16}
 \\tikzset{router/.style = {rectangle, draw, text centered, minimum height=2em
 }, }
