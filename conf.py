@@ -217,7 +217,7 @@ latex_elements = {
 'preamble': '''
 \\usepackage{tikz}
 \\usepackage{xcolor}
-\\usepackage{bytefield27}
+\\usepackage{bytefield}
 \\usepackage{pgfplots}
 \pgfplotsset{compat=1.16}
 \\usetikzlibrary{arrows,arrows.meta,positioning, matrix,backgrounds,shapes,shadows,calc,automata,math}
@@ -229,7 +229,7 @@ latex_elements = {
 
 # latex_additional_files
 
-latex_additional_files= [ '_templates/bytefield27.sty' ]
+latex_additional_files= [ '_templates/bytefield.sty' ]
 
 # If false, no module index is generated.
 #latex_use_modindex = True
@@ -244,7 +244,7 @@ tikz_latex_preamble='''
 \\usepackage{pgfplots}
 \\usepackage{pgfkeys}
 \\usepackage[normalem]{ulem}
-\\usepackage{bytefield27}
+\\usepackage{bytefield}
 %\pgfplotsset{compat=1.16}
 \\tikzset{router/.style = {rectangle, draw, text centered, minimum height=2em
 }, }

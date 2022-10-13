@@ -21,25 +21,26 @@ The main design objective for Multipath TCP :cite:`rfc6824` was to enable hosts 
 
    \tikzset{router/.style = {rectangle, draw, text centered, minimum height=2em}, }
    \tikzset{host/.style = {circle, draw, text centered, minimum height=2em}, }
-   \node[host] (A) {C};
+   \node[host] (C) {C};
    \node[router, right of=A] (R1) {R1};
    \node[router, right=of R1] (R3) {R3};
    \node[router, right=of R3] (R5) {R5};
    \node[router, below=of R1] (R2) {R2};
    \node[router, below=of R3] (R4) {R4};
-   \node[host, right of=R4] (C) {S};
+   \node[host, right of=R4] (S) {S};
 
    \path[draw,thick]
-   (A) edge (R1)
+   (C) edge (R1)
    (R1) edge (R2)
    (R3) edge (R1)
    (R2) edge (R4)
    (R4) edge (R3)
    (R4) edge (R5)
    (R3) edge (R5)
-   (R4) edge (C);
+   (R4) edge (S);
 
 
+   
 During the first discussions on Multipath TCP within the IETF, there was a debate on the types of paths that Multipath TCP could use in IP networks. Although networks provide a wide range of paths between a source and a destination, it is not necessarily simple to use all these paths in a pure IP network. Looking a :numref:`fig-simple-network` and assuming that all links have the same IGP weight, packets sent by `C` will follow one of the two shortest paths, i.e. :math:`C \rightarrow R1 \rightarrow R2 \rightarrow R4 \rightarrow S` or :math:`C \rightarrow R1 \rightarrow R3 \rightarrow R4 \rightarrow S`. Since routers usually use hash-based load-balancing :cite:`rfc2992` to distribute packets over equal cost paths, all the packets from a given connection will follow either the first or the second shortest path. In most networks, the path followed by a TCP connection will only change if there are link or router failures on this particular path.
 
 When Multipath TCP was designed, the IETF did not want to design techniques to enable the transport layer to specify the paths that packets should follow. They opted for a very conservative definition of the paths that Multipath TCP can use :cite:`rfc6182`. Multipath TCP assumes that the endpoints of a TCP connection are identified by their IP addresses. If two hosts want to exchange packets over different paths, then at least one of them must have two or more IP addresses. This covers two very important use cases:

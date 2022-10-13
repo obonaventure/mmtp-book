@@ -44,9 +44,38 @@ It is useful to note that by using UDP, QUIC slightly increases its overhead. Ea
 Frames and packets
 ==================
 
-.. todo:: check RFC 9000 and be more precise
+There is an important difference between QUIC and classical protocols like TCP or UDP. TCP and UDP send segments that are composed of a header followed by a sequence of bytes that constitutes the payload. In contrast and like SCTP, a QUIC packet contains a header followed by one or more frames. The QUIC header is much simpler and shorter than the TCP header. It only carries the information which is required in all QUIC packets. We will describe later the short and long QUIC headers. Each QUIC header starts with one byte that contains some flags and a 32 bits version field. QUIC defines different types of frames that we will discuss in this chapter. Some types of QUIC frames carry user data. Other types of QUIC frames carry control information. Some of these frames are used during the handshake only while others such as acknowledgments can be sent at any time. Each QUIC frame is a sequence of byte that starts with a one byte Type field. :numref:`fig-quic-packet` shows a QUIC packet containing two frames which is placed inside a UDP datagram. Neither the QUIC header nor the QUIC frames need to be aligned on 32 bits boundaries even if this alignment is convenient for :numref:`fig-quic-packet. An important point to note is that a QUIC packet can mix both data and control frames in any order. 
 
-There is an important difference between QUIC and classical protocols like TCP or UDP. TCP and UDP send segments that are composed of a header followed by a sequence of bytes that constitute the payload. In contrast and like SCTP, a QUIC packet contains a header followed by one or more frames. The QUIC header is much simpler and shorter than the TCP header. It only carries the information which is required in all QUIC packets. QUIC defines different types of frames that we will discuss in this chapter. Some types of QUIC frames carry user data. Other types of QUIC frames carry control information. Some of these frames are used during the handshake only while others such as acknowledgments can be sent at any time. An important point to note is that a QUIC packet can mix both data and control frames in any order. 
+
+.. _fig-quic-packet: 
+.. tikz:: A QUIC packet is sent inside a UDP datagram and contains one or more QUIC frames
+
+   \node (A) at (0,0)  {
+   \definecolor{lightred}{rgb}{1,0.7,0.71}
+   \begin{bytefield}{32}
+   \bitheader{0-31} \\
+   \begin{rightwordgroup}{UDP \\ Header}
+   \bitbox{16}{Source Port} &  \bitbox{16}{Destination Port} \\
+   \bitbox{16}{Length} & \bitbox{16}{Checksum} 
+   \end{rightwordgroup} \\
+   \begin{leftwordgroup}{QUIC\\Packet}
+   \begin{rightwordgroup}{QUIC\\Header}
+   \bitbox{8}{Flags} & \bitbox{24}{Version} \\
+   \bitbox{8}{$...$} & \bitbox[tlr]{24}{$...$} \\
+   \bitbox[lrb]{32}{$...$} 
+   \end{rightwordgroup} \\
+   \begin{rightwordgroup}{QUIC\\Frame 1}
+   \bitbox{8}{Type} & \bitbox[tlr]{24}{$...$} \\
+   \bitbox[lrb]{32}{$...$} 
+   \end{rightwordgroup} \\
+   \begin{rightwordgroup}{QUIC\\Frame 2}
+   \bitbox{8}{Type} & \bitbox[tlr]{24}{$...$} \\
+   \bitbox[lrb]{32}{$...$} 
+   \end{rightwordgroup} \\
+   \end{leftwordgroup} \\
+   \end{bytefield}
+   };
+
 
 Connection establishment
 ========================
