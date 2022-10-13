@@ -12,16 +12,16 @@ Welcome to Modern Multipath Transport Protocols
    :caption: Contents:
 
    intro
-   usecases
+   ..   usecases
    singlepath
    quic
-   principles
+   ..   principles
    mptcp
    mpquic
-   sctp
-   implementations
+   ..   sctp
+      ..   implementations
    mptcp-linux
-   comparison
+   ..   comparison
    biblio
 
 Indices and tables
