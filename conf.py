@@ -229,7 +229,7 @@ latex_elements = {
 
 # latex_additional_files
 
-latex_additional_files= [ '_templates/bytefield.sty' ]
+latex_additional_files= [ '_static/bytefield.sty' ]
 
 # If false, no module index is generated.
 #latex_use_modindex = True
