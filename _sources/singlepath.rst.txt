@@ -1,7 +1,7 @@
+.. _chapter-tcp:
+
 Single path transport protocols
 *******************************
-
-
 
 TCP is a connection-oriented transport protocol. This means that a TCP connection must be established before communicating hosts can exchange data. A connection is a logical relation between the two communication hosts. Each hosts maintains some state about the connection and uses it to manage the connection.
 
