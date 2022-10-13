@@ -748,7 +748,7 @@ The QUIC specification recommends to send one ``ACK`` frame after having receive
 
 	  
    .. plot::
-      :caption: Acknwoledgement frequencies for different QUIC servers
+      :caption: Acknowledgment frequencies for different QUIC servers
 
       import matplotlib.pyplot as plt
       import numpy as np
