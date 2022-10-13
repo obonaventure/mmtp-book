@@ -1,3 +1,4 @@
+.. _chapter-quic:
 
 QUIC
 ****
