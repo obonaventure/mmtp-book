@@ -13,9 +13,9 @@ Welcome to Modern Multipath Transport Protocols
 
    intro
    ..   usecases
+   principles
    singlepath
    quic
-   ..   principles
    mptcp
    mpquic
    ..   sctp

@@ -1,7 +1,85 @@
 Principles of multipath transport
 *********************************
 
+Before looking at the details of multipath transport protocols, it is useful to take a step back and recall the key characteristics of a transport protocol before analyzing the differences between traditional single-path transport protocols and the emerging multipath transport protocols. The single-path transport protocols can be divided in a few categories:
 
+ - the reliable single-path transport protocols such as TCP :cite:`rfc793`
+ - the reliable single-path transport protocols such as UDP :cite:`rfc768`
+ - the request-response transport protocols such as ONC RPN :cite:`rfc5531`
+ - the real-time transport protocols such as RTP :cite:`rfc3550`
+
+
+In this document, we focus on the reliable transport protocols. Subsequent versions of this document might discuss other types of transport protocols.
+
+
+Transport protocols
+===================
+
+A single-path transport protocol is an end-to-end protocol that uses the underlying network to create a shared state between a client and a server. This shared state is used for several purposes. First, it enables an application running on the client host to exchange information with another application running on the server host. The information exchanged is grouped in an association that it usually called a transport connection. A client may concurrently use several transport connections with the same server. Second, thanks to the shared sate, the client and the server can associate each incoming packet to a transport connection. This implies that each packet carries some information that identifies the connection to which it belongs.
+
+The shared state between a client and a server is created during a handshake. The handshake starts with a packet sent by the client to initiate a connection with the server. The handshake has several purposes. First, the client and the server need to agree to create a connection. If the server does not refuse the connection attempt, the client and the server must agree on a shared state that represents the connection. This shared state includes the information (e.g. addresses, ports, ...) required to identify to which connection an incoming packet belongs, but also additional information such as flow control information ( e.g. window size, left and right edges of window, ...), congestion control information or security information (e.g. encryption and authentication keys, ...). This shared state is updated by the client and the server during the data transfer phase. At the end of the connection, the clients and the server remove their shared state. They usually only release the shared state once they have received the confirmation that the remote peer agrees to terminate the connection. However, there are some situations, e.g. loss of connectivity, where the peers need to release their shared state without interacting with the remote peer. 
+
+
+Network paths
+=============
+
+Before exploring multipath transport protocols, it is interesting to take a closer look at the network paths.
+
+The classical use case for a multipath transport protocol is a mobile device such as a smartphone equipped with a Wi-Fi and a cellular interface that interacts with a server. Such a smartphone is usually connected to different Internet Service Providers and has two different paths to reach the server :numref:`fig-principles-smartphone`. The same applies if the server has several network interfaces and the client a single one, but this is less frequent. 
+
+.. _fig-principles-smartphone:
+.. tikz:: The network paths between a smartphone and a server
+   :libs: positioning, matrix, arrows, math, shapes.symbols
+
+   \tikzset{router/.style = {rectangle, draw, text centered, minimum height=2em} , }
+   \tikzset{host/.style = {circle, draw, text centered, minimum height=2em}, }
+   \node[host] (C) {Smartphone};
+   \node[cloud, draw, above right=of C] (I1) {Wi-Fi ISP};
+   \node[cloud, draw, below right=of C] (I2) {Cellular ISP};
+   \node[cloud, draw, below right=of I1] (I) {Internet};
+   \node[host, right=of I] (S) {Server};
+
+   \path[draw,thick]
+   (C) edge (I1)
+   (C) edge (I2)
+   (I1) edge (I)
+   (I2) edge (I)
+   (I) edge (S);
+
+In addition to the scenarios when either the client or the server have several network interfaces, it is important to note that when the client and the server both support IPv4 and IPv6, the router-level paths for different IP addressing families often differ.
+
+.. spelling:word-list::
+
+   Openflow
+
+Finally, there is a third possibility of having different paths between a client and a server equipped with a single network interface. Even if the two hosts use a single IP address, the network can provide provide different paths. For example, in :numref:`fig-principles-network`, if all the links have the same IGP weight, then the packets sent by :math:`C` could either use the :math:`R1 \rightarrow R3 \rigtharrow R4` or the :math:`R1 \rightarrow R2 \rigtharrow R4` path. In addition, technologies such as Openflow, MPLS or IPv6 Segment Routing could also expose the :math:`R1 \rightarrow R3 \rigtharrow R5 \rigtharrow R4` path.   
+       
+.. _fig-principles-network:
+.. tikz:: A simple network providing multiple paths between :math:`C` and :math: `S`
+   :libs: positioning, matrix, arrows, math, shapes.symbols
+
+   \tikzset{router/.style = {rectangle, draw, text centered, minimum height=2em} , }
+   \tikzset{host/.style = {circle, draw, text centered, minimum height=2em}, }
+   \node[host] (C) {C};
+   \node[router, right=of C] (R1) {R1};
+   \node[router, right=of R1] (R3) {R3};
+   \node[router, right=of R3] (R5) {R5};
+   \node[router, below=of R1] (R2) {R2};
+   \node[router, below=of R3] (R4) {R4};
+   \node[host, right=of R4] (S) {S};
+
+   \path[draw,thick]
+   (C) edge (R1)
+   (R1) edge (R2)
+   (R3) edge (R1)
+   (R2) edge (R4)
+   (R4) edge (R3)
+   (R4) edge (R5)
+   (R3) edge (R5)
+   (R4) edge (S);
+
+
+       
 
    
 
