@@ -73,6 +73,7 @@ ToR
 Raiciu
 crypto
 cryptographic
+datalink
 datacenter
 datacenters
 et
@@ -93,3 +94,5 @@ loopback
 DoS
 DDoS
 Codepoint
+multihoming
+multihomed
