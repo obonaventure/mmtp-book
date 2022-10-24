@@ -840,9 +840,15 @@ QUIC also allows a receiver to send information about the ECN flags in the recei
       \draw[blue,thick, ->] (\c1,\y-2) -- (\s1,\y-3) node [midway, fill=white]  {Initial(ACK),$pn=1$};
    
 
+.. note:: Not all QUIC servers use 0 as the packet number of their first Initial packet
+
+
+   The example shows a QUIC connection where the client sent its Initial packet with packet number 0 and the server also replied with a packet number set to 0. This is what most QUIC implementations do. However, the QUIC specification does not strictly requires this. In fact, ``facebook`` servers in October 2022 appear to use random packet numbers for the Initial packet that they sent in response to a client. This is probably use to detect or mitigate some forms of attacks since the client must receive the server's Initial packet to be able to produce a valid acknowledgment.
+
+.. todo: refer to paper about this handshake   
     
       
-To illustrate how QUIC uses acknowledgments, let us consider a simple QUIC connections. The client starts a QUIC connection with a new server, sends a request, receives a response and then closes the connection. There are no losses in this connection. :numref:`fig-quic-ack-short` illustrates this connection.
+To illustrate how QUIC uses acknowledgments, let us consider a simple QUIC connection. The client starts a QUIC connection with a new server, sends a request, receives a response and then closes the connection. There are no losses in this connection. :numref:`fig-quic-ack-short` illustrates this connection.
 
 
 .. _fig-quic-ack-short:
