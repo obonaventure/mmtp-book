@@ -52,7 +52,7 @@ In addition to the scenarios when either the client or the server have several n
 
    Openflow
 
-Finally, there is a third possibility of having different paths between a client and a server equipped with a single network interface. Even if the two hosts use a single IP address, the network can provide provide different paths. For example, in :numref:`fig-principles-network`, if all the links have the same IGP weight, then the packets sent by :math:`C` could either use the :math:`R1 \rightarrow R3 \rigtharrow R4` or the :math:`R1 \rightarrow R2 \rigtharrow R4` path. In addition, technologies such as Openflow, MPLS or IPv6 Segment Routing could also expose the :math:`R1 \rightarrow R3 \rigtharrow R5 \rigtharrow R4` path.   
+Finally, there is a third possibility of having different paths between a client and a server equipped with a single network interface. Even if the two hosts use a single IP address, the network can provide provide different paths. For example, in :numref:`fig-principles-network`, if all the links have the same IGP weight, then the packets sent by :math:`C` could either use the :math:`R1 \rightarrow R3 \rightarrow R4` or the :math:`R1 \rightarrow R2 \rightarrow R4` path. In addition, technologies such as Openflow, MPLS or IPv6 Segment Routing could also expose the :math:`R1 \rightarrow R3 \rightarrow R5 \rightarrow R4` path.   
        
 .. _fig-principles-network:
 .. tikz:: A simple network providing multiple paths between :math:`C` and :math: `S`
