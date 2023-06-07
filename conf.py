@@ -24,7 +24,7 @@ copyright = '2022, Olivier Bonaventure'
 author = 'Olivier Bonaventure'
 
 # The short X.Y version
-version = 'alpha'
+version = '0.0'
 # The full version, including alpha/beta/rc tags
 release = '2022'
 
