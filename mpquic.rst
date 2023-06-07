@@ -344,7 +344,7 @@ A Multipath QUIC data exchange is illustrated in :numref:`fig-mpquic-data`. We c
    
 .. _fig-mpquic-data:
 .. tikz:: Multipath QUIC uses the ``ACK_MP`` frame to acknowledge packets on each path. The ``ACK_MP`` frame can be sent on any path since it carries a path identifier.
-   :libs: positioning, matrix, arrows, math
+   :libs: positioning, matrix, arrows,arrows.meta,math
 
 
    \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=10; }
@@ -364,9 +364,9 @@ A Multipath QUIC data exchange is illustrated in :numref:`fig-mpquic-data`. We c
 
 
    \tikzmath{\y=\max-1;}
-   \node [black, fill=white, align=left] at (\c1-2, \y-0.5) {Wi-Fi path: $0:\alpha \rightarrow 0:\beta$\\Cell path: $1:\delta \rightarrow 2:\pi$};
+   \node [black, fill=white, align=left] at (\c1, \y+2) {Wi-Fi path: $0:\alpha \rightarrow 0:\beta$\\Cell path: $1:\delta \rightarrow 2:\pi$};
    
-   \node [black, fill=white, align=left] at (\s1+2, \y-0.5) {Wi-Fi path: $0:\beta \rightarrow 0:\alpha$\\Cell path: $2:\pi \rightarrow 2:\delta$};
+   \node [black, fill=white, align=left] at (\s1, \y+2) {Wi-Fi path: $0:\beta \rightarrow 0:\alpha$\\Cell path: $2:\pi \rightarrow 2:\delta$};
    
    \draw[red,thick, ->] (\c1+0.5,\y-1) -- (\s1,\y-2) node [midway, align=center, fill=white]  {src=$IP_C$,dst=$IP_S$,DCID=$\pi$\\PACKET($x$)};
    \draw[red,thick, -Rays] (\c1+0.5,\y-2) -- (\s1-1,\y-3) node [midway, align=center, fill=white]  {src=$IP_C$,dst=$IP_S$,DCID=$\pi$\\PACKET($x+1$)};

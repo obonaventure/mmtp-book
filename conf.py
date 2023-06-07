@@ -234,9 +234,9 @@ latex_additional_files= [ 'bytefield.sty' ]
 # If false, no module index is generated.
 #latex_use_modindex = True
 
-tikz_libraries="positioning,matrix,arrows,shapes,automata,math,shapes,backgrounds"
+tikz_libraries="arrows,arrows.meta,positioning, matrix,backgrounds,shapes,shapes.symbols,shadows,calc,automata,math,automata,background,shapes" #positioning,matrix,arrows,arrows.meta,shapes,automata,math,shapes,backgrounds"
 
-tikz_proc_suite='ImageMagick'
+tikz_proc_suite='pdf2svg' #'ImageMagick'
 
 tikz_latex_preamble='''
 %preamble

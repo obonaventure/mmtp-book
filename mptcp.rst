@@ -22,7 +22,7 @@ The main design objective for Multipath TCP :cite:`rfc6824` was to enable hosts 
    \tikzset{router/.style = {rectangle, draw, text centered, minimum height=2em}, }
    \tikzset{host/.style = {circle, draw, text centered, minimum height=2em}, }
    \node[host] (C) {C};
-   \node[router, right of=A] (R1) {R1};
+   \node[router, right of=C] (R1) {R1};
    \node[router, right=of R1] (R3) {R3};
    \node[router, right=of R3] (R5) {R5};
    \node[router, below=of R1] (R2) {R2};
