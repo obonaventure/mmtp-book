@@ -62,18 +62,18 @@ A second important design question for the Multipath TCP designers was how use t
 .. tikz:: A naive approach to create a Multipath TCP connection 
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \max=7; }
+   \tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \maxfig=7; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Smartphone};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Smartphone};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[blue,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[red,thick,->] (\c2,\max-0.5) -- (\c2,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[blue,thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[red,thick,->] (\c2,\maxfig-0.5) -- (\c2,0.5);
+   \draw[black,thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {SYN\small{[seq=x]}};
    \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=left, fill=white] {SYN+ACK\small{[seq=y,ack=x+1]}};
@@ -95,20 +95,20 @@ A Multipath TCP connection starts with a three-way handshake like a regular TCP 
 .. tikz:: A Multipath TCP connection with two subflows
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \max=10; }
+   \tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \maxfig=10; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Smartphone};
-   \node [black, fill=white] at (\s1,\max) {Server};
-   \node [blue, fill=white] at (\c1, \max-0.5) {$IP_{\alpha}$};
-   \node [red, fill=white] at (\c2, \max-0.5) {$IP_{\beta}$};
-   \node [black, fill=white] at (\s1, \max-0.5) {$IP_{S}$};
-   \draw[blue,thick,->] (\c1,\max-0.75) -- (\c1,0.75);
-   \draw[red,thick,->] (\c2,\max-0.75) -- (\c2,0.75);
-   \draw[black,thick,->] (\s1,\max-0.75) -- (\s1,0.75);
+   \node [black, fill=white] at (\c1,\maxfig) {Smartphone};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
+   \node [blue, fill=white] at (\c1, \maxfig-0.5) {$IP_{\alpha}$};
+   \node [red, fill=white] at (\c2, \maxfig-0.5) {$IP_{\beta}$};
+   \node [black, fill=white] at (\s1, \maxfig-0.5) {$IP_{S}$};
+   \draw[blue,thick,->] (\c1,\maxfig-0.75) -- (\c1,0.75);
+   \draw[red,thick,->] (\c2,\maxfig-0.75) -- (\c2,0.75);
+   \draw[black,thick,->] (\s1,\maxfig-0.75) -- (\s1,0.75);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=center, fill=white] {SYN\small{[seq=x]}\\\small{MPC}};
    \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=center, fill=white] {SYN+ACK\small{[seq=y,ack=x+1]}\\\small{MPC}};
@@ -139,20 +139,20 @@ A first possible identifier is the four tuple that identifies the initial subflo
    :libs: positioning, matrix, arrows, math
 
    \tikzstyle{arrow} = [thick,->,>=stealth]
-   \tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \max=5; \nat=4.5;}
+   \tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \maxfig=5; \nat=4.5;}
    
    
-   \node [red, fill=white,align=center] at (\nat,\max) {NAT \\$IP_{N}$};
-   \node [black, fill=white,align=center] at (\c1,\max) {Smartphone \\ $IP_{p}$};
-   \node [black, fill=white,align=center] at (\s1,\max) {Server \\$IP_{S}$};
+   \node [red, fill=white,align=center] at (\nat,\maxfig) {NAT \\$IP_{N}$};
+   \node [black, fill=white,align=center] at (\c1,\maxfig) {Smartphone \\ $IP_{p}$};
+   \node [black, fill=white,align=center] at (\s1,\maxfig) {Server \\$IP_{S}$};
 
    
-   \draw[black,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
-   \draw[red,dashed,very thick,-] (\nat,\max-0.5) -- (\nat,0.5);
+   \draw[black,thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
+   \draw[red,dashed,very thick,-] (\nat,\maxfig-0.5) -- (\nat,0.5);
    
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\nat,\y-0.5) node [midway, align=center, fill=white] {$IP_{P}\rightarrow IP_{S}$\\SYN};
    \draw[blue,thick, ->] (\nat,\y-0.5) -- (\s1,\y-1) node [midway, align=center, fill=white] {$IP_{N}\rightarrow IP_{S}$\\SYN};   
@@ -170,18 +170,18 @@ To cope with this problem, Multipath TCP uses a local identifier, called `token`
 .. tikz:: The tokens exchanged during the handshake allow to associate subsequent subflows to existing Multipath TCP connections
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \max=10; }
+   \tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \maxfig=10; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Smartphone};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Smartphone};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[blue,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[red,thick,->] (\c2,\max-0.5) -- (\c2,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[blue,thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[red,thick,->] (\c2,\maxfig-0.5) -- (\c2,0.5);
+   \draw[black,thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=center, fill=white] {SYN\small{[seq=x]}\\\small{MPC[token=123]}};
    \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=center, fill=white] {SYN+ACK\small{[seq=y,ack=x+1]}\\\small{MPC[token=456]}};
@@ -265,18 +265,18 @@ Once a Multipath TCP connection and the additional subflows have been establishe
 .. tikz:: A naive approach to send data over a Multipath TCP connection 
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \max=10; }
+   \tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \maxfig=10; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Smartphone};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Smartphone};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[blue,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[red,thick,->] (\c2,\max-0.5) -- (\c2,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[blue,thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[red,thick,->] (\c2,\maxfig-0.5) -- (\c2,0.5);
+   \draw[black,thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=center, fill=white] {DATA\small{[seq=x,A]}};
    \draw[black,thick, ->] (\s1,\y-1) -- (\s1+4,\y-1) node [midway, align=center, fill=white] {DATA.ind(A)};
@@ -298,18 +298,18 @@ In this example, the Smartphone slowly sends data in sequence. The server receiv
 .. tikz:: A naive approach to send data over a Multipath TCP connection 
    :libs: positioning, matrix, arrows.meta, math
 
-   \tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \max=10; }
+   \tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \maxfig=10; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Smartphone};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Smartphone};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[blue,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[red,thick,->] (\c2,\max-0.5) -- (\c2,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[blue,thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[red,thick,->] (\c2,\maxfig-0.5) -- (\c2,0.5);
+   \draw[black,thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=center, fill=white] {DATA\small{[seq=x,A]}};
    \draw[black,thick, ->] (\s1,\y-1) -- (\s1+4,\y-1) node [midway, align=center, fill=white] {DATA.ind(A)};
@@ -330,18 +330,18 @@ In :numref:`fig-mptcp-data-naive-2`, it is clear that the server cannot simply d
 .. tikz:: A naive approach to send data over a Multipath TCP connection 
    :libs: positioning, matrix, arrows.meta, math
 
-   \tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \max=10; }
+   \tikzmath{\c1=1; \c2=1.5; \s1=8; \s2=8.5; \maxfig=10; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Smartphone};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Smartphone};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[blue,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[red,thick,->] (\c2,\max-0.5) -- (\c2,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[blue,thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[red,thick,->] (\c2,\maxfig-0.5) -- (\c2,0.5);
+   \draw[black,thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=center, fill=white] {DATA\small{[seq=x,bseq=0,A]}};
    \draw[black,thick, ->] (\s1,\y-1) -- (\s1+4,\y-1) node [midway, align=center, fill=white] {DATA.ind(A)};
@@ -383,18 +383,18 @@ To meet the second objective, the simplest solution is reserve some space, e.g. 
 .. tikz:: Opening a Multipath TCP connection with a MPO option
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=11; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=11; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Client};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[blue,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
-   \draw[red,thick,->] (\c2,\max-0.5) -- (\c2,0.5);
+   \draw[blue,very thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[blue,very thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
+   \draw[red,thick,->] (\c2,\maxfig-0.5) -- (\c2,0.5);
 	  
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {SYN\small{[seq=x]}\\\small{MPO[$Client_{token}$,$Client_{bseq}$]}};
    \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=left, fill=white] {SYN+ACK\small{[seq=y,ack=x+1]}\\\small{MPO[$Server_{token}$,$Server_{bseq}$]}};
@@ -411,18 +411,18 @@ The Multipath TCP working group was worried about the risk of attacks with this 
 .. tikz:: Creating a Multipath TCP connection with a MPO option
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=9; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=9; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Client};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[blue,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
-   \draw[red,thick,->] (\c2,\max-0.5) -- (\c2,0.5);
+   \draw[blue,very thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[blue,very thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
+   \draw[red,thick,->] (\c2,\maxfig-0.5) -- (\c2,0.5);
 	  
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {SYN\small{[seq=x]}\\\small{MPO[$Client_{token}$,$Client_{bseq}$,$Client_{secret}$]}};
    \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=left, fill=white] {SYN+ACK\small{[seq=y,ack=x+1]}\\\small{MPO[$Server_{token}$,$Server_{bseq}$,$Server_{secret}$]}};
@@ -458,17 +458,17 @@ A Multipath TCP connection starts with a three-way handshake like a regular TCP 
 .. tikz:: Negotiating the utilization of Multipath TCP during the three-way handshake
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=6; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Client};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[black,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[black,very thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,very thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {SYN\small{[seq=x]}\\\small{MPC[flags]}};
    \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=left, fill=white] {SYN+ACK\small{[seq=y,ack=x+1]}\\\small{MPC[flags,$Server_{key}$]}};
@@ -485,17 +485,17 @@ A Multipath TCP connection starts with a three-way handshake like a regular TCP 
    .. tikz:: Negotiating the utilization of Multipath TCP version 0
       :libs: positioning, matrix, arrows, math
 
-      \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
+      \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=6; }
    
       \tikzstyle{arrow} = [thick,->,>=stealth]
       \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-      \node [black, fill=white] at (\c1,\max) {Client};
-      \node [black, fill=white] at (\s1,\max) {Server};
+      \node [black, fill=white] at (\c1,\maxfig) {Client};
+      \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-      \draw[black,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-      \draw[black,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+      \draw[black,very thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+      \draw[black,very thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
    
-      \tikzmath{\y=\max-1;}
+      \tikzmath{\y=\maxfig-1;}
    
       \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {SYN\small{[seq=x]}\\\small{MPC[flags,$Client_{key}$]}};
       \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=left, fill=white] {SYN+ACK\small{[seq=y,ack=x+1]}\\\small{MPC[flags,$Server_{key}$]}};
@@ -526,26 +526,26 @@ The server uses the random nonce sent by the client and its own random nonce to 
 .. tikz:: A client creates a second subflow by creating a TCP connection with the ``MP_JOIN`` option
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=9; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=9; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Client};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
-   \draw[red,very thick,->] (\c2,\max-0.5) -- (\c2,0.5);
+   \draw[blue,very thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,very thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
+   \draw[red,very thick,->] (\c2,\maxfig-0.5) -- (\c2,0.5);
    
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {SYN\small{[seq=x]}\\\small{MPC[flags]}};
    \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=left, fill=white] {SYN+ACK\small{[seq=y,ack=x+1]}\\\small{MPC[flags,$S_{key}$]}};
    \draw[blue,thick, ->] (\c1,\y-2.1) -- (\s1,\y-3) node [midway, align=left, fill=white] {ACK\small{[seq=x+1,ack=y+1]}\\\small{MPC[flags,$C_{key}$,$S_{key}$]}};
 
    
-   \tikzmath{\y=\max-4.5;}
+   \tikzmath{\y=\maxfig-4.5;}
    
    \draw[red,thick, ->] (\c2,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {SYN\small{[seq=x]}\\\small{MP\_JOIN[$S_{token}$,$nonce_{C}$]}};
    \draw[red,thick, ->] (\s1,\y-1) -- (\c2,\y-2) node [midway, align=left, fill=white] {SYN+ACK\small{[seq=y,ack=x+1]}\\\small{MP\_JOIN[$HMAC_{S}$,$nonce_{S}$]}};
@@ -585,19 +585,19 @@ In addition to these four fields, the ``ADD_ADDR`` option contains an ``Echo`` b
 .. tikz:: Thanks to the Echo bit, a Multipath TCP host can retransmit lost ADD_ADDR options. 
    :libs: positioning, matrix, arrows.meta, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=6; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Client};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
-   \draw[red,very thick,->] (\c2,\max-0.5) -- (\c2,0.5);
+   \draw[blue,very thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,very thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
+   \draw[red,very thick,->] (\c2,\maxfig-0.5) -- (\c2,0.5);
    
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, -Circle] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {ACK\small{[ADD\_ADDR(E=0,Id=1,1.2.3.4:10)]}};
   
@@ -615,27 +615,27 @@ Multipath TCP hosts use the ``ADD_ADDR`` and ``REMOVE_ADDR`` options to maintain
 .. tikz:: A Multipath TCP hosts remembers the addresses used by its peer
    :libs: positioning, matrix, arrows.meta, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=12; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=12; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max+0.5) {Client};
-   \node [black, fill=white] at (\s1,\max+0.5) {Server};
+   \node [black, fill=white] at (\c1,\maxfig+0.5) {Client};
+   \node [black, fill=white] at (\s1,\maxfig+0.5) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
-   \draw[red,very thick,->] (\c2,\max-0.5) -- (\c2,0.5);
-   \node [blue, fill=white] at (\c1-0.5,\max) {$IP_{A}$};
-   \node [red, fill=white] at (\c2,\max) {$IP_{B}$};
+   \draw[blue,very thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,very thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
+   \draw[red,very thick,->] (\c2,\maxfig-0.5) -- (\c2,0.5);
+   \node [blue, fill=white] at (\c1-0.5,\maxfig) {$IP_{A}$};
+   \node [red, fill=white] at (\c2,\maxfig) {$IP_{B}$};
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {SYN \small{MPC}};
    \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=left, fill=white] {SYN+ACK \small{MPC}};
    \draw[blue,thick, ->] (\c1,\y-2.1) -- (\s1,\y-3) node [midway, align=left, fill=white] {ACK \small{MPC}};
    \node [black,fill=white,align=left] at (\s1+1,\y-3.7) {Client addrs: $0:IP_{A}$};
    
-   \tikzmath{\y=\max-4.5;}
+   \tikzmath{\y=\maxfig-4.5;}
    
    \draw[red,thick, ->] (\c2,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {SYN \small{MP\_JOIN[id=2]}};
    \draw[red,thick, ->] (\s1,\y-1) -- (\c2,\y-2) node [midway, align=left, fill=white] {SYN+ACK \small{MP\_JOIN}};
@@ -667,25 +667,25 @@ A simple approach to perform this reordering would be to rely on the TCP sequenc
 .. tikz:: A naive approach to exchange data over different subflows
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=12; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=12; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max+0.5) {Client};
-   \node [black, fill=white] at (\s1,\max+0.5) {Server};
+   \node [black, fill=white] at (\c1,\maxfig+0.5) {Client};
+   \node [black, fill=white] at (\s1,\maxfig+0.5) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
-   \draw[red,very thick,->] (\c2,\max-0.5) -- (\c2,0.5);
+   \draw[blue,very thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,very thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
+   \draw[red,very thick,->] (\c2,\maxfig-0.5) -- (\c2,0.5);
 
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {SYN[seq=x] \small{MPC}};
    \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=left, fill=white] {SYN+ACK[seq=y,ack=x+1] \small{MPC}};
    \draw[blue,thick, ->] (\c1,\y-2.1) -- (\s1,\y-3) node [midway, align=left, fill=white] {ACK[ack=y+1] \small{MPC}};
    
-   \tikzmath{\y=\max-4.5;}
+   \tikzmath{\y=\maxfig-4.5;}
    
    \draw[red,thick, ->] (\c2,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {SYN[seq=x] \small{MP\_JOIN[id=2]}};
    \draw[red,thick, ->] (\s1,\y-1) -- (\c2,\y-2) node [midway, align=left, fill=white] {SYN+ACK[seq=y,ack=x+1] \small{MP\_JOIN}};
@@ -709,25 +709,25 @@ The client sends the first byte of the bytestream over the initial subflow. This
 .. tikz:: Multipath TCP relies on data sequence numbers and acknowledgments
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=17; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=17; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max+0.5) {Client};
-   \node [black, fill=white] at (\s1,\max+0.5) {Server};
+   \node [black, fill=white] at (\c1,\maxfig+0.5) {Client};
+   \node [black, fill=white] at (\s1,\maxfig+0.5) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
-   \draw[red,very thick,->] (\c2,\max-0.5) -- (\c2,0.5);
+   \draw[blue,very thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,very thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
+   \draw[red,very thick,->] (\c2,\maxfig-0.5) -- (\c2,0.5);
 
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {SYN[seq=x] \small{MPC}};
    \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=left, fill=white] {SYN+ACK[seq=y,ack=x+1] \small{MPC}};
    \draw[blue,thick, ->] (\c1,\y-2.1) -- (\s1,\y-3) node [midway, align=left, fill=white] {ACK[ack=y+1] \small{MPC}};
    
-   \tikzmath{\y=\max-4.5;}
+   \tikzmath{\y=\maxfig-4.5;}
    
    \draw[red,thick, ->] (\c2,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {SYN[seq=w] \small{MP\_JOIN[id=2]}};
    \draw[red,thick, ->] (\s1,\y-1) -- (\c2,\y-2) node [midway, align=left, fill=white] {SYN+ACK[seq=z,ack=w+1] \small{MP\_JOIN}};
@@ -748,19 +748,19 @@ The client sends the first byte of the bytestream over the initial subflow. This
 .. tikz:: Multipath TCP copes with packet losses 
    :libs: positioning, matrix, arrows, arrows.meta, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=9; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=9; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max+0.5) {Client};
-   \node [black, fill=white] at (\s1,\max+0.5) {Server};
+   \node [black, fill=white] at (\c1,\maxfig+0.5) {Client};
+   \node [black, fill=white] at (\s1,\maxfig+0.5) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
-   \draw[red,very thick,->] (\c2,\max-0.5) -- (\c2,0.5);
+   \draw[blue,very thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,very thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
+   \draw[red,very thick,->] (\c2,\maxfig-0.5) -- (\c2,0.5);
 
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
 
    \draw[blue,thick, -Circle] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {[seq=x+1]\small{DS[s=0]} "A"};
@@ -778,19 +778,19 @@ The example of :numref:`fig-mptcp-dss-concept2` showed how Multipath TCP copes w
 .. tikz:: Multipath TCP copes with subflow failures 
    :libs: positioning, matrix, arrows.meta, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=11; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=11; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max+0.5) {Client};
-   \node [black, fill=white] at (\s1,\max+0.5) {Server};
+   \node [black, fill=white] at (\c1,\maxfig+0.5) {Client};
+   \node [black, fill=white] at (\s1,\maxfig+0.5) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
-   \draw[red,very thick,->] (\c2,\max-0.5) -- (\c2,0.5);
+   \draw[blue,very thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,very thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
+   \draw[red,very thick,->] (\c2,\maxfig-0.5) -- (\c2,0.5);
 
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
 
    \draw[blue,thick, -Circle] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {[seq=x+1]\small{DS[s=0]} "A"};
@@ -864,19 +864,19 @@ A TCP connection starts with a three-way handshake and ends with either the exch
 .. tikz:: Graceful termination of a Multipath TCP connection 
    :libs: positioning, matrix, arrows, arrows.meta, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=8; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max+0.5) {Client};
-   \node [black, fill=white] at (\s1,\max+0.5) {Server};
+   \node [black, fill=white] at (\c1,\maxfig+0.5) {Client};
+   \node [black, fill=white] at (\s1,\maxfig+0.5) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
-   \draw[red,very thick,->] (\c2,\max-0.5) -- (\c2,0.5);
+   \draw[blue,very thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,very thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
+   \draw[red,very thick,->] (\c2,\maxfig-0.5) -- (\c2,0.5);
 
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
 
    \draw[blue,dashed,<->] (\c1,\y) -- (\s1,\y) node [midway, fill=white] {Initial subflow};    
    \draw[red,dashed,<->] (\c2,\y-0.5) -- (\s1,\y-0.5) node [midway, fill=white] {Second subflow};
@@ -898,19 +898,19 @@ The first solution is to send the ``FAST_CLOSE`` option inside an ``ACK``. Upon 
 .. tikz:: Abrupt release of a Multipath TCP connection by sending FAST_CLOSE inside an ACK
    :libs: positioning, matrix, arrows, arrows.meta, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=6; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max+0.5) {Client};
-   \node [black, fill=white] at (\s1,\max+0.5) {Server};
+   \node [black, fill=white] at (\c1,\maxfig+0.5) {Client};
+   \node [black, fill=white] at (\s1,\maxfig+0.5) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
-   \draw[red,very thick,->] (\c2,\max-0.5) -- (\c2,0.5);
+   \draw[blue,very thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,very thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
+   \draw[red,very thick,->] (\c2,\maxfig-0.5) -- (\c2,0.5);
 
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
 
    \draw[blue,dashed,<->] (\c1,\y) -- (\s1,\y) node [midway, fill=white] {Initial subflow};    
    \draw[red,dashed,<->] (\c2,\y-0.5) -- (\s1,\y-0.5) node [midway, fill=white] {Second subflow};
@@ -924,19 +924,19 @@ The first solution is to send the ``FAST_CLOSE`` option inside an ``ACK``. Upon 
 .. tikz:: Abrupt release of a Multipath TCP connection by sending a RST with FAST_CLOSE on all subflows
    :libs: positioning, matrix, arrows, arrows.meta, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=6; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max+0.5) {Client};
-   \node [black, fill=white] at (\s1,\max+0.5) {Server};
+   \node [black, fill=white] at (\c1,\maxfig+0.5) {Client};
+   \node [black, fill=white] at (\s1,\maxfig+0.5) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
-   \draw[red,very thick,->] (\c2,\max-0.5) -- (\c2,0.5);
+   \draw[blue,very thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,very thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
+   \draw[red,very thick,->] (\c2,\maxfig-0.5) -- (\c2,0.5);
 
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
 
    \draw[blue,dashed,<->] (\c1,\y) -- (\s1,\y) node [midway, fill=white] {Initial subflow};    
    \draw[red,dashed,<->] (\c2,\y-0.5) -- (\s1,\y-0.5) node [midway, fill=white] {Second subflow};

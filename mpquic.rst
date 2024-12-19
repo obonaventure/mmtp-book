@@ -32,21 +32,21 @@ QUIC connection migrations occur in two steps. As an example, we consider client
    :libs: positioning, matrix, arrows, math
 
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=6; }
    \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Client};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[black,thick,->] (\c1-0.5,\max-0.5) -- (\c1-0.5,0.5);
-   \draw[red,dashed,thick,->] (\c1+0.5,\max-0.5) -- (\c1+0.5,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
-   \node [black, fill=white] at (\c1-0.5,\max-0.5) {$IP_{\alpha}$};
-   \node [red, fill=white] at (\c1+0.5,\max-0.5) {$IP_{\beta}$};
-   \node [black, fill=white] at (\s1,\max-0.5) {$IP_{S}$};
+   \draw[black,thick,->] (\c1-0.5,\maxfig-0.5) -- (\c1-0.5,0.5);
+   \draw[red,dashed,thick,->] (\c1+0.5,\maxfig-0.5) -- (\c1+0.5,0.5);
+   \draw[black,thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
+   \node [black, fill=white] at (\c1-0.5,\maxfig-0.5) {$IP_{\alpha}$};
+   \node [red, fill=white] at (\c1+0.5,\maxfig-0.5) {$IP_{\beta}$};
+   \node [black, fill=white] at (\s1,\maxfig-0.5) {$IP_{S}$};
 	  
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    \draw[black,thick, ->] (\c1-0.5,\y) -- (\s1,\y-1) node [midway, align=center, fill=white]  {src=$IP_{\alpha}$,dst=$IP_S$,DCID=$\mu$\\1-RTT(...)};
    \draw[black,thick, ->] (\s1,\y-1) -- (\c1-0.5,\y-2) node [midway, align=center, fill=white]  {src=$IP_S$,dst=$IP_{\alpha}$\\1-RTT(...)};
    \draw[red,thick, ->] (\c1+0.5,\y-2) -- (\s1,\y-3) node [midway, align=center, fill=white]  {src=$IP_{\beta}$,dst=$IP_S$,DCID=$\mu$\\1-RTT(...)};
@@ -66,18 +66,18 @@ To enable a client to migrate a QUIC connection, the server must first advertise
 .. tikz:: A QUIC connection migration initiated by the client
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=8; }
    \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Client};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[black,thick,->] (\c1-0.5,\max-0.5) -- (\c1-0.5,0.5);
-   \draw[red,dashed,thick,->] (\c1+0.5,\max-0.5) -- (\c1+0.5,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[black,thick,->] (\c1-0.5,\maxfig-0.5) -- (\c1-0.5,0.5);
+   \draw[red,dashed,thick,->] (\c1+0.5,\maxfig-0.5) -- (\c1+0.5,0.5);
+   \draw[black,thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
 	  
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    \draw[black,thick, ->] (\c1-0.5,\y) -- (\s1,\y-1) node [midway, align=center, fill=white]  {src=$IP_C$,dst=$IP_S$,DCID=$\alpha$\\1-RTT(...)};
    \draw[black,thick, ->] (\s1,\y-1) -- (\c1-0.5,\y-2) node [midway, align=center, fill=white]  {src=$IP_S$,dst=$IP_C$\\1-RTT(...)};
    \draw[red,thick, ->] (\c1+0.5,\y-2) -- (\s1,\y-3) node [midway, align=center, fill=white]  {src=$IP_X$,dst=$IP_S$,DCID=$\beta$\\1-RTT(PATH\_CHALLENGE($x$))};
@@ -100,17 +100,17 @@ The examples above showed a connection that migrates from one network interface 
    :libs: positioning, matrix, arrows, math
 
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=7; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=7; }
    \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Client};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[black,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[black,thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
 	  
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    \draw[black,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=center, fill=white]  {src=$IP_C$,dst=$IP_S$,DCID=$\alpha$\\1-RTT(...)};
    \draw[black,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=center, fill=white]  {src=$IP_S$,dst=$IP_C$\\1-RTT(...)};
    \draw[red,thick, ->] (\c1,\y-2) -- (\s1,\y-3) node [midway, align=center, fill=white]  {src=$IP_Y$,dst=$IP_S$,DCID=$\alpha$\\1-RTT(...)};
@@ -139,17 +139,17 @@ The Multipath extensions to QUIC :cite:`draft-ietf-quic-multipath` provide all t
 .. tikz:: During the multipath QUIC handshake, client and server exchange the ``enable_multipath`` and ``active_connection_id_limit`` transport parameters
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=5; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=5; }
    \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Client};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[black,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[black,thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
 	  
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    \draw[red,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=center, fill=white] {Initial(CRYPTO[\ldots enable\_multipath=0x1,\\active\_connection\_id\_limit=x])};
    \draw[red,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, fill=white]  {Initial(CRYPTO,ACK)};
 
@@ -214,35 +214,35 @@ During the handshake, the client and the server agree on the connection identifi
 .. tikz:: Thanks to the ``NEW_CONNECTION_ID`` and ``RETIRE_CONNECTION_ID`` frames, the client and the server can manage a list of available connection identifiers. 
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=9; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=9; }
    \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Client};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[black,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[black,thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
 	  
 
-   \node [black, fill=white, align=left] at (\c1-2, \max-1) {Local $List_{CID}$: $0:\alpha$\\Remote $List_{CID}$: $0:\beta$};
-   \node [black, fill=white, align=left] at (\s1+2, \max-1) {Local $List_{CID}$: $0:\beta$\\Remote $List_{CID}$: $0:\alpha$};
+   \node [black, fill=white, align=left] at (\c1-2, \maxfig-1) {Local $List_{CID}$: $0:\alpha$\\Remote $List_{CID}$: $0:\beta$};
+   \node [black, fill=white, align=left] at (\s1+2, \maxfig-1) {Local $List_{CID}$: $0:\beta$\\Remote $List_{CID}$: $0:\alpha$};
 
 
-   \tikzmath{\y=\max-2;}
+   \tikzmath{\y=\maxfig-2;}
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=center, fill=white] {NEW\_CONNECTION\_ID[seq=1,rp=0,$\delta$]};
    \node [black, fill=white, align=left] at (\c1-2, \y) {Local $List_{CID}$: $0:\alpha,1:\delta$\\Remote $List_{CID}$: $0:\beta$};
    \node [black, fill=white, align=left] at (\s1+2, \y-1) {Local $List_{CID}$: $0:\beta$\\Remote $List_{CID}$: $0:\alpha,1:\delta$};
 
    
-   \tikzmath{\y=\max-5;}
+   \tikzmath{\y=\maxfig-5;}
    \node [black, fill=white, align=left] at (\s1+2, \y) {Local $List_{CID}$: $0:\beta,1:\gamma$\\Remote $List_{CID}$: $0:\alpha,1:\delta$};
    \draw[blue,thick, -
    >] (\s1,\y) -- (\c1,\y-1) node [midway, fill=white] {NEW\_CONNECTION\_ID[seq=1,rp=0,$\gamma$]};
    \node [black, fill=white, align=left] at (\c1-2, \y-1) {Local $List_{CID}$: $0:\alpha,1:\delta$\\Remote $List_{CID}$: $0:\beta,1:\gamma$};
 
    
-   \tikzmath{\y=\max-7;}
+   \tikzmath{\y=\maxfig-7;}
    \node [black, fill=white, align=left] at (\c1-2, \y) {Local $List_{CID}$: $0:\alpha$\\Remote $List_{CID}$: $0:\beta,1:\gamma$};
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=center, fill=white] {RETIRE\_CONNECTION\_ID[seq=1]};
    \node [black, fill=white, align=left] at (\s1+2, \y-1) {Local $List_{CID}$: $0:\beta,1:\gamma$\\Remote $List_{CID}$: $0:\alpha$};
@@ -266,23 +266,23 @@ To illustrate the creation of a new path on a Multipath QUIC connection, let us 
    :libs: positioning, matrix, arrows, math
 
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=8; }
    \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
 	  
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Client};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[black,thick,->] (\c1-0.5,\max-0.5) -- (\c1-0.5,0.5);
-   \draw[red,dashed,thick,->] (\c1+0.5,\max-0.5) -- (\c1+0.5,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
-   \node [black, fill=white] at (\c1-0.5,\max-0.5) {$IP_{W}$};
-   \node [red, fill=white] at (\c1+0.5,\max-0.5) {$IP_{C}$};
-   \node [black, fill=white] at (\s1,\max-0.5) {$IP_{S}$};
+   \draw[black,thick,->] (\c1-0.5,\maxfig-0.5) -- (\c1-0.5,0.5);
+   \draw[red,dashed,thick,->] (\c1+0.5,\maxfig-0.5) -- (\c1+0.5,0.5);
+   \draw[black,thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
+   \node [black, fill=white] at (\c1-0.5,\maxfig-0.5) {$IP_{W}$};
+   \node [red, fill=white] at (\c1+0.5,\maxfig-0.5) {$IP_{C}$};
+   \node [black, fill=white] at (\s1,\maxfig-0.5) {$IP_{S}$};
 
 
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    \node [black, fill=white, align=left] at (\s1+2, \y-0.5) {Local $List_{CID}$: $0:\beta,1:\gamma$\\Remote $List_{CID}$: $0:\alpha,1:\delta,2:\pi$};
    \node [black, fill=white, align=left] at (\c1-2, \y-0.5) {Local $List_{CID}$: $0:\alpha,1:\delta$\\Remote $List_{CID}$: $0:\beta,1:\gamma$};
    
@@ -347,23 +347,23 @@ A Multipath QUIC data exchange is illustrated in :numref:`fig-mpquic-data`. We c
    :libs: positioning, matrix, arrows,arrows.meta,math
 
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=10; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=10; }
    \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
 	  
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Client};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[black,thick,->] (\c1-0.5,\max-0.5) -- (\c1-0.5,0.5);
-   \draw[red,dashed,thick,->] (\c1+0.5,\max-0.5) -- (\c1+0.5,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
-   \node [black, fill=white] at (\c1-0.5,\max-0.5) {$IP_{W}$};
-   \node [red, fill=white] at (\c1+0.5,\max-0.5) {$IP_{C}$};
-   \node [black, fill=white] at (\s1,\max-0.5) {$IP_{S}$};
+   \draw[black,thick,->] (\c1-0.5,\maxfig-0.5) -- (\c1-0.5,0.5);
+   \draw[red,dashed,thick,->] (\c1+0.5,\maxfig-0.5) -- (\c1+0.5,0.5);
+   \draw[black,thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
+   \node [black, fill=white] at (\c1-0.5,\maxfig-0.5) {$IP_{W}$};
+   \node [red, fill=white] at (\c1+0.5,\maxfig-0.5) {$IP_{C}$};
+   \node [black, fill=white] at (\s1,\maxfig-0.5) {$IP_{S}$};
 
 
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    \node [black, fill=white, align=left] at (\c1, \y+2) {Wi-Fi path: $0:\alpha \rightarrow 0:\beta$\\Cell path: $1:\delta \rightarrow 2:\pi$};
    
    \node [black, fill=white, align=left] at (\s1, \y+2) {Wi-Fi path: $0:\beta \rightarrow 0:\alpha$\\Cell path: $2:\pi \rightarrow 2:\delta$};

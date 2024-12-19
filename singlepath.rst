@@ -12,17 +12,23 @@ TCP uses the three-way handshake as shown in :numref:`fig-tcp-handshake`. To ini
 .. tikz:: Establishing a TCP connection using the three-way handshake
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=5; }
+   \tikzmath{real \c1, \c2, \s1, \s2, \tp, \y;}
+   \tikzmath{\c1=1;}
+   \tikzmath{\c2=1.5;}
+   \tikzmath{\s1=8;}
+   \tikzmath{\tp=5;}
+   \tikzmath{\s2=8.5;}
+
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\tp) {Client};
+   \node [black, fill=white] at (\s1,\tp) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[blue,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[blue,very thick,->] (\c1,\tp-0.5) -- (\c1,0.5);
+   \draw[blue,very thick,->] (\s1,\tp-0.5) -- (\s1,0.5);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\tp-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, fill=white] {SYN\small{[seq=x]}};
    \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, fill=white] {SYN+ACK\small{[seq=y,ack=x+1]}};
@@ -35,17 +41,17 @@ TCP was designed to be extensible. The TCP header contains a TCP Header Length (
 .. tikz:: Negotiating the utilization of Selective Acknowledgments during the three-way handshake
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=4.5; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \tp=4.5; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\tp) {Client};
+   \node [black, fill=white] at (\s1,\tp) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[blue,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[blue,very thick,->] (\c1,\tp-0.5) -- (\c1,0.5);
+   \draw[blue,very thick,->] (\s1,\tp-0.5) -- (\s1,0.5);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\tp-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {SYN\small{[seq=x]}\\\small{SACK-Permitted}};
    \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=left, fill=white] {SYN+ACK\small{[seq=y,ack=x+1]}\\\small{SACK-Permitted}};
@@ -76,17 +82,17 @@ TCP implementations include lots of optimizations that are outside the scope of 
 .. tikz:: TCP Reliable data transfer
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=4; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \tp=4; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   %\node [black, fill=white] at (\c1,\max) {Client};
-   %\node [black, fill=white] at (\s1,\max) {Server};
+   %\node [black, fill=white] at (\c1,\tp) {Client};
+   %\node [black, fill=white] at (\s1,\tp) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[blue,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[blue,very thick,->] (\c1,\tp-0.5) -- (\c1,0.5);
+   \draw[blue,very thick,->] (\s1,\tp-0.5) -- (\s1,0.5);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\tp-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {\small{[seq=1234,data="abcd"]}};
    \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=left, fill=white] {ACK\small{[ack=1237]}};
@@ -101,17 +107,17 @@ In practice, TCP implementations use the Nagle algorithm :cite:p:`rfc896` and th
 .. tikz:: TCP Reliable data transfer with delayed acknowledgments.
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=5.0; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \tp=5.0; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   %\node [black, fill=white] at (\c1,\max) {Client};
-   %\node [black, fill=white] at (\s1,\max) {Server};
+   %\node [black, fill=white] at (\c1,\tp) {Client};
+   %\node [black, fill=white] at (\s1,\tp) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[blue,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[blue,very thick,->] (\c1,\tp-0.5) -- (\c1,0.5);
+   \draw[blue,very thick,->] (\s1,\tp-0.5) -- (\s1,0.5);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\tp-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=left, fill=white] {\small{[seq=1000,len=1460,data="x...x"]}};
    \draw[blue,thick, ->] (\c1,\y-0.5) -- (\s1,\y-1.5) node [midway, align=left, fill=white] {\small{[seq=2460,len=1460,data="x...x"]}};
@@ -125,16 +131,16 @@ TCP uses a single segment type and each segment contains both a sequence number 
 .. tikz:: TCP piggybacking.
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=5.0; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \tp=5.0; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
 
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[blue,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[blue,very thick,->] (\c1,\tp-0.5) -- (\c1,0.5);
+   \draw[blue,very thick,->] (\s1,\tp-0.5) -- (\s1,0.5);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\tp-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, fill=white] {ACK\small{[seq=1234,ack=5678,len=4,data="abcd"]}};
    \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, fill=white] {ACK\small{[seq=5678,ack=1238,len=2,data="ef"]}};
@@ -147,17 +153,17 @@ TCP uses different techniques to retransmit corrupted or lost data. The TCP head
 .. tikz:: TCP protects data by a retransmission timer
    :libs: positioning, matrix, arrows, math, arrows.meta
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=7; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \tp=7; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   %\node [black, fill=white] at (\c1,\max) {Client};
-   %\node [black, fill=white] at (\s1,\max) {Server};
+   %\node [black, fill=white] at (\c1,\tp) {Client};
+   %\node [black, fill=white] at (\s1,\tp) {Server};
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[blue,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[blue,very thick,->] (\c1,\tp-0.5) -- (\c1,0.5);
+   \draw[blue,very thick,->] (\s1,\tp-0.5) -- (\s1,0.5);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\tp-1;}
    
    \draw[blue,thick,-{Rays[color=red]}] (\c1,\y) -- (\s1,\y-1) node [midway, fill=white] {ACK\small{[seq=1234,ack=5678,len=4,data="abcd"]}};
    \draw[black,thick,<->]  (\c1-0.5,\y) -- (\c1-0.5,\y-3) node [midway, fill=white] {retransmission timer};
@@ -170,16 +176,16 @@ For performance reasons, TCP implementations try to avoid relying on the retrans
 .. tikz:: TCP leverages selective acknowledgments to retransmit lost data
    :libs: positioning, matrix, arrows, math, arrows.meta
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \tp=8; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
 
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[blue,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[blue,very thick,->] (\c1,\tp-0.5) -- (\c1,0.5);
+   \draw[blue,very thick,->] (\s1,\tp-0.5) -- (\s1,0.5);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\tp-1;}
    
    \draw[blue,thick,-{Rays[color=red]}] (\c1,\y) -- (\s1,\y-1) node [midway, fill=white] {\small{[seq=1234,ack=5678,data="abcd"]}};
    \draw[blue,thick, ->] (\c1,\y-1) -- (\s1,\y-2) node [midway, fill=white]  {\small{[seq=1234,data="efgh"]}};
@@ -195,16 +201,16 @@ When the client and the sender have exchanged all the required data, they can te
 .. tikz:: Closing a TCP connection using the ``FIN`` flag
    :libs: positioning, matrix, arrows, math, arrows.meta
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \tp=6; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
 
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[blue,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[blue,very thick,->] (\c1,\tp-0.5) -- (\c1,0.5);
+   \draw[blue,very thick,->] (\s1,\tp-0.5) -- (\s1,0.5);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\tp-1;}
    
    \draw[blue,thick,->] (\c1,\y) -- (\s1,\y-1) node [midway, fill=white] {FIN\small{[seq=1234,data="abcd"]}};
    \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, fill=white]  {ACK \small{[ack=1239]}};
@@ -218,16 +224,16 @@ When the client and the sender have exchanged all the required data, they can te
 .. tikz:: Closing a TCP connection using a ``RST`` segment
    :libs: positioning, matrix, arrows, math, arrows.meta
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=4; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \tp=4; }
    
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
 
    
-   \draw[blue,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[blue,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[blue,very thick,->] (\c1,\tp-0.5) -- (\c1,0.5);
+   \draw[blue,very thick,->] (\s1,\tp-0.5) -- (\s1,0.5);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\tp-1;}
    
    \draw[blue,thick,->] (\c1,\y) -- (\s1,\y-1) node [midway, fill=white] {\small{[seq=1234,data="abcd"]}};
    \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, fill=white]  {RST\small{[ack=1239]}};

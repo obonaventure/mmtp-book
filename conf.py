@@ -219,7 +219,7 @@ latex_elements = {
 \\usepackage{xcolor}
 \\usepackage{bytefield}
 \\usepackage{pgfplots}
-\pgfplotsset{compat=1.16}
+\pgfplotsset{compat=1.18}
 \\usetikzlibrary{arrows,arrows.meta,positioning, matrix,backgrounds,shapes,shapes.symbols,shadows,calc,automata,math}
 '''
 }

@@ -91,17 +91,17 @@ QUIC uses a four-way handshake to create a QUIC connection. :numref:`fig-quic-ha
 
 
    \begin{tikzpicture}	  
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=6; }
    \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Client};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[black,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[black,thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-0.9) node [midway, fill=white]  {Initial (CRYPTO)};
    \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=center, fill=white] {Initial (CRYPTO)\\Handshake (CRYPTO)};
@@ -131,17 +131,17 @@ The second mitigation against denial-of-service attacks using spoofed packets op
 .. tikz:: Simplified QUIC Handshake with address validation
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=8; }
    \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Client};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[black,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[black,thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, fill=white]  {Initial (CRYPTO)};
    \draw[red,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, fill=white] {Retry+Token};
@@ -163,17 +163,17 @@ A TCP connection is identified by a four tuple :math:`IP_{Client},IP_{Server},Po
 .. tikz:: Connection identifiers during a simplified QUIC Handshake
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=4.5; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=4.5; }
    \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Client};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[black,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[black,very thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,very thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, fill=white,align=center]  {\small [SCID=$x$, DCID=$y$] \\Initial};
    \draw[blue,thick, ->] (\s1,\y-1.2) -- (\c1,\y-2.2) node [midway, fill=white,align=center] {\small [SCID=$z$, DCID=$x$] \\ Initial \\Handshake};
@@ -204,17 +204,17 @@ We can now discuss how QUIC leverages TLS 1.3 to negotiate the security keys tha
 .. tikz:: Simplified TLS Handshake within a QUIC connection 
    :libs: positioning, matrix, arrows, math
 
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=6; }
    \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Client};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[black,very thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,very thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[black,very thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,very thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, fill=white]  {TLS Client Hello};
    \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, fill=white, align=center] {TLS Server Hello\\$EncryptedExtensions$\\$Finished$};
@@ -419,17 +419,17 @@ The main benefit of these ``0-RTT`` packets is that the client can immediately s
 
 
    \begin{tikzpicture}	  
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=8; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=8; }
    \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Client};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[black,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[black,thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-0.9) node [midway, fill=white]  {Initial (CRYPTO)};
    \draw[blue,thick, ->] (\c1,\y-0.5) -- (\s1,\y-1.4) node [midway, fill=white]  {$0-RTT (Data)$};
@@ -481,17 +481,17 @@ A host also sends a ``CONNECTION_CLOSE`` frame to abruptly terminate a connectio
 
 
    \begin{tikzpicture}	  
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=4; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=4; }
    \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Client};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[black,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[black,thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
    
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-0.9) node [midway, fill=white]  {Initial (CRYPTO)};
    \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=center, fill=white] {Initial(CONNECTION\_CLOSE)};
@@ -611,17 +611,17 @@ A host should send a ``DATA_BLOCKED`` frame when it reaches the limit on the max
    :libs: positioning, matrix, arrows, math
 
    \begin{tikzpicture}	  	  
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=10; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=10; }
    \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Client};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[black,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[black,thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
 	  
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    
    \draw[blue,thick, ->] (\s1,\y) -- (\c1,\y-1) node [midway, fill=white]  {1-RTT(STREAM,100 bytes)};
    \draw[blue,thick, ->] (\c1,\y-1) -- (\s1,\y-2) node [midway, align=center, fill=white] {1-RTT(ACK)};
@@ -691,17 +691,17 @@ With this in mind, it is interesting to look at the format of the QUIC acknowled
    :libs: positioning, matrix, arrows, math
 
 	  
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=6; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=6; }
    \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Client};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[black,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[black,thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
 	  
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    \draw[black,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=center, fill=white] {Packet(pn=$x$,\ldots)};
    \draw[black,thick, ->] (\s1,\y-3) -- (\c1,\y-4) node [midway, fill=white]  {Packet(pn=$y$,ACK[delay=$\delta$,largest=$x$]};
 
@@ -822,18 +822,18 @@ QUIC also allows a receiver to send information about the ECN flags in the recei
       \c2 = 1.5;
       \s1 = 8;
       \s2 = 8.5;
-      \max = 6;
-      \y = \max-1;
+      \maxfig = 6;
+      \y = \maxfig-1;
       }
       \tikzstyle{every node}=[font=\small]     
       \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
 
 
-      \node [black, fill=white] at (\c1,\max) {Client};
-      \node [black, fill=white] at (\s1,\max) {Server};
+      \node [black, fill=white] at (\c1,\maxfig) {Client};
+      \node [black, fill=white] at (\s1,\maxfig) {Server};
       
-      \draw[black,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-      \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+      \draw[black,thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+      \draw[black,thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
 	 
       \draw[blue,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, fill=white]  {Initial(CRYPTO),$pn=0$};
       \draw[blue,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, align=center, fill=white] {Initial(CRYPTO,ACK),$pn=0$};
@@ -855,17 +855,17 @@ To illustrate how QUIC uses acknowledgments, let us consider a simple QUIC conne
 .. tikz:: Acknowledgments in a short QUIC connection
    :libs: positioning, matrix, arrows, math
 	  
-   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \max=12; }
+   \tikzmath{\c1=1;\c2=1.5; \s1=8; \s2=8.5; \maxfig=12; }
    \tikzstyle{every node}=[font=\small]
    \tikzstyle{arrow} = [thick,->,>=stealth]
    \tikzset{state/.style={rectangle, dashed, draw, fill=white} }
-   \node [black, fill=white] at (\c1,\max) {Client};
-   \node [black, fill=white] at (\s1,\max) {Server};
+   \node [black, fill=white] at (\c1,\maxfig) {Client};
+   \node [black, fill=white] at (\s1,\maxfig) {Server};
    
-   \draw[black,thick,->] (\c1,\max-0.5) -- (\c1,0.5);
-   \draw[black,thick,->] (\s1,\max-0.5) -- (\s1,0.5);
+   \draw[black,thick,->] (\c1,\maxfig-0.5) -- (\c1,0.5);
+   \draw[black,thick,->] (\s1,\maxfig-0.5) -- (\s1,0.5);
 	  
-   \tikzmath{\y=\max-1;}
+   \tikzmath{\y=\maxfig-1;}
    \draw[red,thick, ->] (\c1,\y) -- (\s1,\y-1) node [midway, align=center, fill=white] {Initial(CRYPTO),pn=0};
    \draw[red,thick, ->] (\s1,\y-1) -- (\c1,\y-2) node [midway, fill=white]  {Initial(CRYPTO,ACK[0]),pn=0};
 
